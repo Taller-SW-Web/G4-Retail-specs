@@ -14,12 +14,12 @@ Al concluir una compra en tienda, es una obligación tributaria ineludible entre
 Permitir la selección del tipo de comprobante (Boleta de Venta o Factura Electrónica), validar el cumplimiento de las normativas tributarias (DNI obligatorio si el total >= S/ 700.00; RUC de 11 dígitos y razón social para facturas), emitir el comprobante con su serie y numeración correlativa fiscal, y desplegar en pantalla una vista de ticket térmico lista para impresión directa o envío digital.
 
 ## ¿Hasta dónde? (alcance)
-* **Incluido:** Selector de comprobante (Boleta / Factura), reglas tributarias SUNAT de obligatoriedad de documento, asignación de serie y número correlativo oficial, renderizado de ticket de venta con formato térmico (80 mm), botón de impresión directa (`window.print()`), y botón *"Nueva Venta"* para reiniciar el mostrador.
+* **Incluido:** Selector de comprobante (Boleta / Factura), opción de emisión simultánea de **Ticket de Cambio / Regalo (Gift Receipt)** sin precios visibles pero con código de barras de canje, reglas tributarias SUNAT de obligatoriedad de documento, asignación de serie y número correlativo oficial, renderizado de ticket de venta con formato térmico (80 mm), botón de impresión directa (`window.print()`), y botón *"Nueva Venta"* para reiniciar el mostrador.
 * **Excluido:** Cobro presencial (cubierto en RF-13), orquestación transaccional de stock y orden (cubierto en RF-14), y comunicación directa con los webservices SOAP de SUNAT (orquestada por el microservicio central de Facturación y Ventas).
 
 ## Referencias
 * **Contrato:** [api-contracts.md](./api-contracts.md) — `POST /api/v1/ordenes/presenciales` (Sección 3)
-* **Modelo:** `ComprobantePago` (`tipo`: `"BOLETA" | "FACTURA"`, `serie`: `string`, `correlativo`: `string`, `fechaEmision`: `string`, `datosEmisor`: `{ruc, razonSocial, direccion}`, `datosReceptor`: `{documento, nombre}`, `totales`: `{subtotal, igv, total}`, `qrPayload`: `string`)
+* **Modelo:** `ComprobantePago` (`tipo`: `"BOLETA" | "FACTURA"`, `serie`: `string`, `correlativo`: `string`, `fechaEmision`: `string`, `datosEmisor`: `{ruc, razonSocial, direccion}`, `datosReceptor`: `{documento, nombre}`, `totales`: `{subtotal, igv, total}`, `qrPayload`: `string`, `ticketRegalo`: `{emitir: boolean, codigoCanje: string, vigenciaDias: int}`)
 
 ## ¿Qué debe hacer? (comportamiento)
 
@@ -28,14 +28,17 @@ Permitir la selección del tipo de comprobante (Boleta de Venta o Factura Electr
    * Valida la regla fiscal peruana RN-01:
      * Si `tipo == "FACTURA"`: Requiere obligatoriamente `tipoDocumento == "RUC"`, `numeroDocumento` de 11 dígitos y `razonSocial`.
      * Si `tipo == "BOLETA"` y `total >= 700.00`: Requiere obligatoriamente `tipoDocumento == "DNI"` y nombre del cliente (no permite cliente anónimo).
-2. Coordina con *Ventas y Facturación* la obtención de la numeración fiscal:
+2. Si el parámetro `emitirTicketRegalo == true`:
+   * Genera una estructura secundaria de comprobante de cortesía sin importes monetarios ni desglose de IGV, con la descripción de las prendas, la fecha límite de cambio (30 días naturales) y un código de barras de canje único.
+3. Coordina con *Ventas y Facturación* la obtención de la numeración fiscal:
    * Boleta: Serie `B001` - Correlativo incremental (ej. `00045231`).
    * Factura: Serie `F001` - Correlativo incremental (ej. `00012094`).
-3. Retorna la estructura completa del comprobante con la fecha/hora legal de emisión y la cadena para generar el código QR fiscal.
+4. Retorna la estructura completa del comprobante con la fecha/hora legal de emisión y la cadena para generar el código QR fiscal.
 
 ### Frontend
 1. En la pantalla de cobro:
    * Selector tipo radio: *"Boleta de Venta"* (opción predeterminada) o *"Factura Electrónica"*.
+   * Checkbox opcional: *"¿Es para regalo? (Emitir Ticket de Cambio sin precios)"*.
    * Si el total de la venta es mayor o igual a S/ 700.00 y no hay DNI registrado, muestra advertencia obligatoria: *"Por normativa SUNAT, ventas mayores o iguales a S/ 700.00 requieren identificar al cliente con su DNI"*.
 2. Pantalla de Éxito / Ticket de Venta:
    * Despliega la tarjeta visual simulando un ticket térmico de mostrador:
@@ -48,14 +51,18 @@ Permitir la selección del tipo de comprobante (Boleta de Venta o Factura Electr
      * Desglose fiscal: Op. Gravada (S/ XX.XX), IGV 18% (S/ XX.XX) y Total Cancelado (S/ XX.XX).
      * Medio de pago empleado (Efectivo y vuelto, o Tarjeta con N° operación).
      * Código QR de verificación fiscal.
+   * Si se marcó *"Ticket de Regalo"*:
+     * Permite alternar la vista previa a *"Ticket de Cambio"* (muestra únicamente las prendas, tallas, código de barras de cambio y la leyenda *"Válido para cambio en cualquier tienda física hasta [Fecha +30 días]"* sin revelar precios).
 3. Botones de acción final:
    * Botón destacado *"Imprimir Ticket"*: Lanza el diálogo de impresión del navegador con estilos optimizados para papel continuo de 80 mm.
+   * Botón secundario *"Imprimir Ticket de Cambio"* (si aplica).
    * Botón *"Nueva Venta"*: Restablece todo el estado de mostrador para recibir al siguiente cliente en cola.
 
 ## ¿Cómo verificamos? (criterios de aceptación)
 - [ ] Venta de S/ 750.00 con boleta sin DNI de cliente → El sistema impide emitir la boleta y exige asociar DNI.
 - [ ] Venta con factura seleccionada y cliente con DNI → Muestra error *"Para emitir Factura debe asociar un cliente con RUC corporativo"*.
 - [ ] Venta finalizada exitosamente → Muestra ticket con serie B001 o F001, correlativo, fecha y desglose de IGV idéntico al total.
+- [ ] Al marcar "Es para regalo" se habilita la impresión del Ticket de Cambio sin importes monetarios ni desglose de IGV.
 - [ ] Clic en "Imprimir Ticket" activa el diálogo nativo de impresión con estilos CSS `@media print` para ticket térmico.
 - [ ] Clic en "Nueva Venta" limpia el comprobante de la pantalla, vacía el carrito y sitúa el cursor en el buscador de productos.
 

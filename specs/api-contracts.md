@@ -1,13 +1,13 @@
-# Contratos de API REST y Modelos de Datos — Módulo Retail (v0.1)
+# Contratos de API REST y Modelos de Datos — Módulo Retail (v0.2)
 
-Este documento centraliza los contratos de endpoints REST, esquemas de payload JSON y códigos de respuesta HTTP referenciados por las especificaciones SDD del Módulo Retail.
+Este documento centraliza la especificación formal de todos los endpoints REST, esquemas de payload JSON, parámetros y códigos de respuesta HTTP requeridos por el **Módulo Retail (Canal para el Vendedor de Mostrador)**, abarcando tanto los servicios externos consumidos como los endpoints propios del backend de Retail.
 
 ---
 
 ## 1. Módulo Seguridad y Usuarios (Consumido por Retail)
 
 ### `POST /api/v1/auth/login`
-Autentica a un empleado de tienda y genera el token de sesión.
+Autentica al personal de tienda (vendedor o cajero) y genera el token de sesión JWT.
 
 * **Request Body:**
 ```json
@@ -31,12 +31,14 @@ Autentica a un empleado de tienda y genera el token de sesión.
       }
     }
     ```
-  * `400 Bad Request`: Datos de solicitud incompletos o mal formateados.
-  * `401 Unauthorized`: Credenciales inválidas o cuenta bloqueada.
-  * `403 Forbidden`: Usuario no tiene rol de vendedor o cajero.
+  * `400 Bad Request`: Formato de email inválido o campos vacíos.
+  * `401 Unauthorized`: Credenciales erróneas o usuario inactivo.
+  * `403 Forbidden`: El usuario no posee perfil operativo de tienda.
+
+---
 
 ### `GET /api/v1/clientes?documento={nroDocumento}`
-Busca un cliente por DNI o RUC.
+Busca un cliente registrado por su número de DNI o RUC.
 
 * **Responses:**
   * `200 OK`:
@@ -51,10 +53,12 @@ Busca un cliente por DNI o RUC.
       "telefono": "987654321"
     }
     ```
-  * `404 Not Found`: No existe cliente con ese documento.
+  * `404 Not Found`: Cliente no registrado.
+
+---
 
 ### `POST /api/v1/clientes`
-Registro rápido de cliente desde mostrador.
+Alta rápida de un nuevo cliente captado en el mostrador.
 
 * **Request Body:**
 ```json
@@ -68,18 +72,18 @@ Registro rápido de cliente desde mostrador.
 }
 ```
 * **Responses:**
-  * `201 Created`: Devuelve el recurso cliente creado con su `id`.
-  * `400 Bad Request`: Formato de DNI/RUC inválido o campos obligatorios vacíos.
-  * `409 Conflict`: Ya existe un cliente con ese número de documento.
+  * `201 Created`: Devuelve el recurso cliente creado con su identificador `id`.
+  * `400 Bad Request`: Longitud o formato de documento inválido (DNI != 8 dígitos o RUC != 11 dígitos).
+  * `409 Conflict`: Ya existe un cliente registrado con ese número de documento.
 
 ---
 
 ## 2. Módulo Productos y Ofertas (Consumido por Retail)
 
 ### `GET /api/v1/productos/catalogo`
-Consulta de catálogo con filtros rápidos para mostrador.
+Consulta de catálogo con filtros rápidos y búsqueda por SKU/texto.
 
-* **Query Params:** `query` (texto), `categoria`, `disciplina`, `marca`, `talla`, `tiendaId`
+* **Query Params:** `query` (texto/SKU), `categoria`, `disciplina`, `marca`, `talla`, `tiendaId`
 * **Responses:**
   * `200 OK`:
     ```json
@@ -96,6 +100,7 @@ Consulta de catálogo con filtros rápidos para mostrador.
           "variantes": [
             {
               "sku": "CAM-RUN-M-AZUL",
+              "codigoBarras": "7751234567890",
               "talla": "M",
               "color": "Azul",
               "stockTienda": 8,
@@ -107,8 +112,10 @@ Consulta de catálogo con filtros rápidos para mostrador.
     }
     ```
 
+---
+
 ### `POST /api/v1/ofertas/evaluar-carrito`
-Evalúa descuentos y promociones sobre una lista de ítems.
+Evalúa descuentos, promociones automáticas y cupones comerciales sobre una lista de ítems.
 
 * **Request Body:**
 ```json
@@ -141,8 +148,10 @@ Evalúa descuentos y promociones sobre una lista de ítems.
     }
     ```
 
+---
+
 ### `POST /api/v1/inventario/consumir`
-Decrementa stock tras concretar la venta presencial.
+Decrementa el stock tras concretar la venta presencial en mostrador.
 
 * **Request Body:**
 ```json
@@ -156,14 +165,109 @@ Decrementa stock tras concretar la venta presencial.
 ```
 * **Responses:**
   * `200 OK`: `{"status": "CONFIRMADO", "transaccionId": "TRX-STOCK-8841"}`
-  * `409 Conflict`: Stock insuficiente en la tienda para alguno de los ítems.
+  * `409 Conflict`: Stock insuficiente en tienda física.
+
+---
+
+### `GET /api/v1/productos/stock/critico?tiendaId={tiendaId}`
+Consulta artículos con quiebre o stock crítico para la torre de control de mostrador.
+
+* **Responses:**
+  * `200 OK`:
+    ```json
+    {
+      "tiendaId": "TIENDA-MIRAFLORES",
+      "totalCriticos": 2,
+      "items": [
+        {
+          "sku": "ZAP-RUN-41-NEG",
+          "nombre": "Zapatilla Running Pegasus 40",
+          "talla": "41",
+          "color": "Negro",
+          "stockLocal": 0,
+          "stockAlmacenCentral": 28,
+          "nivelAlerta": "AGOTADO"
+        },
+        {
+          "sku": "CAM-PERU-M-BLA",
+          "nombre": "Camiseta Selección 2026",
+          "talla": "M",
+          "color": "Blanco",
+          "stockLocal": 1,
+          "stockAlmacenCentral": 50,
+          "nivelAlerta": "CRITICO"
+        }
+      ]
+    }
+    ```
+
+---
+
+### `GET /api/v1/promociones/vigentes?canal=RETAIL`
+Consulta campañas comerciales del día para el tablón informativo de mostrador.
+
+* **Responses:**
+  * `200 OK`:
+    ```json
+    [
+      {
+        "id": "PROM-001",
+        "titulo": "2x1 en Medias Deportivas",
+        "beneficio": "2X1",
+        "codigoCupon": null,
+        "fechaFin": "2026-10-15T23:59:59Z"
+      },
+      {
+        "id": "PROM-002",
+        "titulo": "20% en Chimpunes Adidas",
+        "beneficio": "DESCUENTO_20",
+        "codigoCupon": "FUTBOL20",
+        "fechaFin": "2026-09-30T23:59:59Z"
+      }
+    ]
+    ```
+
+---
+
+### `POST /api/v1/inventario/incrementar-stock`
+Reingresa stock al inventario de tienda tras un cambio de prenda en buen estado.
+
+* **Request Body:**
+```json
+{
+  "tiendaId": "TIENDA-MIRAFLORES",
+  "sku": "CAM-RUN-M-AZUL",
+  "cantidad": 1,
+  "motivo": "CAMBIO_PRENDA_MOSTRADOR"
+}
+```
+* **Responses:**
+  * `200 OK`: `{"status": "STOCK_INCREMENTADO", "nuevoStock": 9}`
+
+---
+
+### `POST /api/v1/productos/inventario/ajuste-discrepancia`
+Notifica el ajuste patrimonial de stock por acta de merma o prenda dañada en mostrador.
+
+* **Request Body:**
+```json
+{
+  "tiendaId": "TIENDA-MIRAFLORES",
+  "actaNumero": "ACTA-MERMA-2026-0012",
+  "items": [
+    { "sku": "ZAP-RUN-41-NEG", "cantidad": 1, "tipoAjuste": "BAJA_POR_DETERIORO" }
+  ]
+}
+```
+* **Responses:**
+  * `200 OK`: `{"status": "INVENTARIO_REGULARIZADO", "fechaAjuste": "2026-09-27T16:00:00Z"}`
 
 ---
 
 ## 3. Módulo Ventas y Postventa (Consumido por Retail)
 
 ### `POST /api/v1/ordenes/presenciales`
-Registra la orden finalizada, el cobro y genera el comprobante.
+Registra la venta finalizada en mostrador, el cobro y emite comprobante oficial (con soporte de ticket de regalo).
 
 * **Request Body:**
 ```json
@@ -172,6 +276,7 @@ Registra la orden finalizada, el cobro y genera el comprobante.
   "tiendaId": "TIENDA-MIRAFLORES",
   "vendedorId": "usr-001",
   "clienteId": "cli-101",
+  "emitirTicketRegalo": true,
   "items": [
     { "sku": "CAM-RUN-M-AZUL", "cantidad": 2, "precioFinal": 116.91 }
   ],
@@ -199,25 +304,103 @@ Registra la orden finalizada, el cobro y genera el comprobante.
         "subtotal": 198.15,
         "igv": 35.67,
         "total": 233.82,
-        "fechaEmision": "2026-09-19T10:15:30Z"
+        "fechaEmision": "2026-09-27T10:15:30Z"
+      },
+      "ticketRegalo": {
+        "codigoCanje": "GIFT-2026-09124",
+        "fechaLimiteCambio": "2026-10-27T23:59:59Z",
+        "mensaje": "Válido para cambio presencial por 30 días"
       }
     }
     ```
-  * `400 Bad Request`: Inconsistencia en importes o datos fiscales faltantes.
+  * `400 Bad Request`: Discrepancia en importes o cliente sin DNI para boletas >= S/ 700.
+
+---
 
 ### `GET /api/v1/ordenes/{id}`
-Consulta detalle y estado de una orden.
+Consulta detalle histórico y trazabilidad de cualquier pedido.
 
 * **Responses:**
-  * `200 OK`: Devuelve el objeto completo de la orden con sus estados históricos y modalidad de entrega (`TIENDA` o `DOMICILIO`).
-  * `404 Not Found`: No existe orden con dicho identificador.
+  * `200 OK`: Retorna el pedido con su historial de estados (`CREADO`, `EN_PREPARACION`, `LISTO_PARA_RECOJO`, `ENTREGADO`).
+  * `404 Not Found`: No existe la orden especificada.
+
+---
+
+### `GET /api/v1/ventas/comprobantes/validar-cambio`
+Valida si un comprobante de compra o ticket de regalo es apto para cambio de prenda en tienda física.
+
+* **Query Params:** `comprobante` (ej. `B001-00045231`), `codigoTicketRegalo` o `dni`
+* **Responses:**
+  * `200 OK`:
+    ```json
+    {
+      "pedidoId": "ORD-RET-2026-0091",
+      "fechaEmision": "2026-09-15T11:00:00Z",
+      "diasTranscurridos": 12,
+      "plazoValido": true,
+      "items": [
+        {
+          "sku": "CAM-RUN-M-AZUL",
+          "descripcion": "Camiseta Deportiva Running Pro Talla M",
+          "precioPagado": 116.91,
+          "cantidadComprada": 2,
+          "cantidadDisponibleCambio": 2
+        }
+      ]
+    }
+    ```
+  * `422 Unprocessable Entity`: Comprobante con plazo expirado (> 30 días) o compra ya devuelta.
+
+---
+
+### `POST /api/v1/ventas/postventa/generar-nota-credito`
+Emite formalmente una Nota de Crédito o Vale de Compra para canje presencial.
+
+* **Request Body:**
+```json
+{
+  "pedidoIdOrigen": "ORD-RET-2026-0091",
+  "skuDevuelto": "CAM-RUN-M-AZUL",
+  "monto": 116.91,
+  "clienteId": "cli-101",
+  "motivo": "CAMBIO_TALLA_MOSTRADOR"
+}
+```
+* **Responses:**
+  * `201 Created`:
+    ```json
+    {
+      "codigoVale": "NC-RET-2026-00412",
+      "monto": 116.91,
+      "fechaVencimiento": "2026-12-26T23:59:59Z",
+      "qrPayload": "NC-RET-2026-00412|116.91|cli-101"
+    }
+    ```
 
 ---
 
 ## 4. Módulo Despacho y Entrega (Consumido por Retail)
 
 ### `GET /api/v1/despachos/tienda/{tiendaId}/pendientes-pickup`
-Lista pedidos pendientes de recojo en mostrador.
+Lista los bultos arribados a la tienda para retiro presencial por el cliente (Click & Collect).
+
+* **Responses:**
+  * `200 OK`:
+    ```json
+    [
+      {
+        "bultoId": "BLT-8921",
+        "pedidoId": "ORD-WEB-2026-8910",
+        "codigoTracking": "TRK-PICKUP-041",
+        "clienteNombre": "María González",
+        "clienteDni": "45678912",
+        "anaquelUbicacion": "Anaquel B-04",
+        "fechaArriboTienda": "2026-09-27T08:30:00Z"
+      }
+    ]
+    ```
+
+---
 
 ### `POST /api/v1/despachos/confirmar-entrega-tienda`
 Registra la entrega física del paquete al cliente en el mostrador.
@@ -225,12 +408,196 @@ Registra la entrega física del paquete al cliente en el mostrador.
 * **Request Body:**
 ```json
 {
-  "pedidoId": "ORD-RET-2026-0091",
-  "dniRecoge": "72345678",
-  "nombreRecoge": "Juan Pérez Torres",
+  "pedidoId": "ORD-WEB-2026-8910",
+  "dniRecoge": "45678912",
+  "nombreRecoge": "María González",
+  "esTitular": true,
   "encargadoEntregaId": "usr-001"
 }
 ```
 * **Responses:**
-  * `200 OK`: `{"status": "ENTREGADO_EN_TIENDA", "fechaHora": "2026-09-19T11:00:00Z"}`
-  * `400 Bad Request`: El pedido no se encuentra en estado `LISTO_PARA_RECOJO`.
+  * `200 OK`: `{"status": "ENTREGADO_EN_TIENDA", "fechaHora": "2026-09-27T16:30:00Z"}`
+  * `400 Bad Request`: El paquete no figura en estado listo para recojo.
+
+---
+
+## 5. Endpoints Propios del Microservicio Retail (Grupo 4)
+
+### `POST /api/v1/retail/caja/apertura`
+Apertura de turno de caja con fondo fijo inicial.
+
+* **Request Body:**
+```json
+{
+  "terminalPos": "POS-01",
+  "saldoInicialEfectivo": 200.00
+}
+```
+* **Responses:**
+  * `201 Created`: `{"sesionId": "ses-9912", "estado": "ABIERTA", "fechaHoraApertura": "2026-09-27T08:00:00Z"}`
+  * `409 Conflict`: La terminal ya tiene una sesión abierta.
+
+---
+
+### `POST /api/v1/retail/caja/movimientos`
+Registro de ingresos o egresos menores de efectivo (caja chica).
+
+* **Request Body:**
+```json
+{
+  "tipoMovimiento": "SALIDA_GASTO",
+  "monto": 15.00,
+  "motivo": "Compra de rollos de papel térmico para tickets",
+  "autorizadoPor": "Supervisor Juan"
+}
+```
+* **Responses:**
+  * `201 Created`: `{"movimientoId": "mov-004", "nuevoSaldoEstimado": 185.00}`
+  * `422 Unprocessable Entity`: Fondos en gaveta insuficientes para el egreso.
+
+---
+
+### `POST /api/v1/retail/caja/cierre`
+Cierre formal de turno con arqueo ciego (declaración física de billetes y monedas).
+
+* **Request Body:**
+```json
+{
+  "montoDeclarado": 535.00,
+  "observaciones": "Caja cuadrada sin novedad"
+}
+```
+* **Responses:**
+  * `200 OK`:
+    ```json
+    {
+      "sesionId": "ses-9912",
+      "saldoInicial": 200.00,
+      "ventasEfectivoTotal": 350.00,
+      "ingresosMenores": 0.00,
+      "egresosMenores": 15.00,
+      "saldoSistema": 535.00,
+      "saldoDeclarado": 535.00,
+      "diferencia": 0.00,
+      "estado": "CERRADA",
+      "reporteZUrl": "/reportes/corte-z-ses-9912.pdf"
+    }
+    ```
+
+---
+
+### `POST /api/v1/retail/carritos-espera`
+Pausa una venta activa para liberar la cola mientras el cliente va a los probadores.
+
+* **Request Body:**
+```json
+{
+  "aliasTicket": "Probador 3 - Zapatillas Running",
+  "items": [
+    { "sku": "ZAP-RUN-41-NEG", "cantidad": 1, "precioUnitario": 299.90 }
+  ]
+}
+```
+* **Responses:**
+  * `201 Created`: `{"carritoEsperaId": "park-012", "expiracion": "2026-09-27T18:00:00Z"}`
+
+---
+
+### `GET /api/v1/retail/carritos-espera`
+Lista las ventas suspendidas activas de la tienda.
+
+* **Responses:**
+  * `200 OK`: Devuelve el arreglo de carritos en espera para su reanudación en 1 clic.
+
+---
+
+### `DELETE /api/v1/retail/carritos-espera/{id}`
+Descarta o retira un carrito en espera tras ser reanudado en caja.
+
+---
+
+### `POST /api/v1/retail/contingencia/sincronizar`
+Concilia en lote las ventas offline emitidas localmente en IndexedDB tras restablecerse la red.
+
+* **Request Body:**
+```json
+{
+  "terminalPos": "POS-01",
+  "lote": [
+    {
+      "ventaLocalUuid": "c3b9e4a1-0001-49b2-...",
+      "fechaHoraOffline": "2026-09-27T14:20:00Z",
+      "items": [{ "sku": "CAM-RUN-M-AZUL", "cantidad": 1, "precio": 129.90 }],
+      "totalNeto": 129.90,
+      "efectivoRecibido": 150.00,
+      "hashIntegridad": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
+```
+* **Responses:**
+  * `200 OK`:
+    ```json
+    {
+      "totalProcesados": 1,
+      "exitosos": 1,
+      "errores": 0,
+      "ordenesMapeadas": [
+        {
+          "ventaLocalUuid": "c3b9e4a1-0001-49b2-...",
+          "pedidoIdOficial": "ORD-RET-2026-0105",
+          "comprobanteOficial": "B001-00045280"
+        }
+      ]
+    }
+    ```
+
+---
+
+### `POST /api/v1/retail/inventario/incidencias`
+Reporta una prenda física dañada, manchada o extraviada en mostrador poniéndola en cuarentena.
+
+* **Request Body:**
+```json
+{
+  "varianteSkuId": "CAM-PERU-M-BLA",
+  "codigoBarras": "7759876543210",
+  "tipoFalla": "MANCHADO_PROBADOR",
+  "detalleObservacion": "Mancha de maquillaje en el cuello",
+  "fotoUrl": "https://storage.deportesretail.com/evidencias/inc-01.jpg"
+}
+```
+* **Responses:**
+  * `201 Created`: `{"incidenciaId": "INC-2026-0089", "estado": "EN_CUARENTENA", "stockBloqueado": 1}`
+
+---
+
+### `GET /api/v1/retail/inventario/cuarentena`
+Lista las prendas actualmente retenidas en cuarentena de la tienda.
+
+* **Responses:**
+  * `200 OK`: Arreglo de artículos con incidencia que no pueden venderse en mostrador.
+
+---
+
+### `POST /api/v1/retail/inventario/actas-merma`
+Consolida artículos en cuarentena y emite el acta oficial de salida o merma de mostrador.
+
+* **Request Body:**
+```json
+{
+  "incidenciasIds": ["INC-2026-0089"],
+  "tipoDestino": "DEVOLUCION_ALMACEN_CENTRAL",
+  "observaciones": "Lote enviado con transporte interno para cambio con proveedor"
+}
+```
+* **Responses:**
+  * `201 Created`:
+    ```json
+    {
+      "actaNumero": "ACTA-MERMA-2026-0012",
+      "totalPrendas": 1,
+      "urlPdf": "/reportes/actas/ACTA-MERMA-2026-0012.pdf",
+      "notificacionStockCentral": "EXITOSA"
+    }
+    ```

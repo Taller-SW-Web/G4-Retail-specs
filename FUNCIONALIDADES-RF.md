@@ -1,7 +1,7 @@
 # Mapeo de Funcionalidades y Requerimientos Funcionales (RF)
 ## Módulo Retail (Canal para el Vendedor de Mostrador) — Marketplace Deportivo
 
-Este documento establece la **matriz maestra de orden y trazabilidad** del Módulo Retail, vinculando las **7 funcionalidades macro del sistema** con sus **19 Requerimientos Funcionales atómicos (RF-01 al RF-19)** y sus especificaciones formales bajo la metodología **Spec-Driven Development (SDD)**.
+Este documento establece la **matriz maestra de orden y trazabilidad** del Módulo Retail, vinculando las **12 funcionalidades macro del sistema** con sus **34 Requerimientos Funcionales atómicos (RF-01 al RF-34)** y sus especificaciones formales bajo la metodología **Spec-Driven Development (SDD)**.
 
 ---
 
@@ -80,6 +80,46 @@ graph TD
         RF19["RF-19: Confirmación de Entrega Física"]
         class RF18,RF19 rf;
     end
+
+    subgraph F8["F8: Control de Turno y Cuadre de Caja (Miguel)"]
+        class F8 func;
+        RF20["RF-20: Apertura con Fondo Fijo"]
+        RF21["RF-21: Movimientos Menores de Efectivo"]
+        RF22["RF-22: Cierre y Arqueo Ciego X/Z"]
+        class RF20,RF21,RF22 rf;
+    end
+
+    subgraph F9["F9: Cambios y Devoluciones Mostrador (Maye)"]
+        class F9 func;
+        RF23["RF-23: Validación de Boleta y Plazos"]
+        RF24["RF-24: Inspección Física de la Prenda"]
+        RF25["RF-25: Vale / Nota de Crédito Presencial"]
+        class RF23,RF24,RF25 rf;
+    end
+
+    subgraph F10["F10: Contingencia y Resiliencia Offline (Cristhian)"]
+        class F10 func;
+        RF26["RF-26: Conmutación a Modo Offline"]
+        RF27["RF-27: Almacenamiento Local IndexedDB"]
+        RF28["RF-28: Sincronización y Conciliación"]
+        class RF26,RF27,RF28 rf;
+    end
+
+    subgraph F11["F11: Torre de Control Operativa Turno (Kevin)"]
+        class F11 func;
+        RF29["RF-29: Alertas Stock Crítico en Tienda"]
+        RF30["RF-30: Bandeja Pedidos Pick-Up del Día"]
+        RF31["RF-31: Tablón Campañas y Promociones"]
+        class RF29,RF30,RF31 rf;
+    end
+
+    subgraph F12["F12: Incidencias de Inventario y Mermas (Guillermo)"]
+        class F12 func;
+        RF32["RF-32: Reporte Prenda Dañada / No Ubicada"]
+        RF33["RF-33: Cuarentena y Bloqueo en POS"]
+        RF34["RF-34: Acta Discrepancia y Notificación"]
+        class RF32,RF33,RF34 rf;
+    end
 ```
 
 ---
@@ -91,22 +131,37 @@ graph TD
 | **F1: Inicio de Sesión del Vendedor** | **RF-01** | Autenticación de Personal de Tienda | Miguel | Must have | RN-03 | [rf-01-autenticacion-personal.spec.md](./specs/rf-01-autenticacion-personal.spec.md) |
 | | **RF-02** | Control de Acceso por Roles (RBAC) | Miguel | Must have | RN-03 | [rf-02-control-acceso-rbac.spec.md](./specs/rf-02-control-acceso-rbac.spec.md) |
 | | **RF-03** | Gestión y Persistencia de Sesión Segura | Miguel | Must have | RN-03 | [rf-03-persistencia-sesion-segura.spec.md](./specs/rf-03-persistencia-sesion-segura.spec.md) |
-| **F2: Consulta de Catálogo y Disponibilidad** | **RF-04** | Búsqueda Multicriterio de Artículos | Kevin | Must have | RNF-01 | [rf-04-busqueda-multicriterio.spec.md](./specs/rf-04-busqueda-multicriterio.spec.md) |
+| **F2: Consulta de Catálogo y Disponibilidad** | **RF-04** | Búsqueda Multicriterio de Artículos *(con lector de barras/SKU)* | Kevin | Must have | RNF-01 | [rf-04-busqueda-multicriterio.spec.md](./specs/rf-04-busqueda-multicriterio.spec.md) |
 | | **RF-05** | Visualización de Variantes (Talla/Color) | Kevin | Must have | RNF-05 | [rf-05-visualizacion-variantes.spec.md](./specs/rf-05-visualizacion-variantes.spec.md) |
 | | **RF-06** | Consulta de Stock Distribuido en Tiempo Real | Kevin | Must have | RN-02 | [rf-06-stock-distribuido.spec.md](./specs/rf-06-stock-distribuido.spec.md) |
 | **F3: Búsqueda y Registro Rápido de Clientes** | **RF-07** | Búsqueda de Cliente por Documento | Guillermo | Must have | RN-01 | [rf-07-busqueda-cliente-documento.spec.md](./specs/rf-07-busqueda-cliente-documento.spec.md) |
 | | **RF-08** | Alta Rápida de Cliente en Mostrador | Guillermo | Must have | RN-01 | [rf-08-alta-rapida-cliente.spec.md](./specs/rf-08-alta-rapida-cliente.spec.md) |
 | | **RF-09** | Validación Estricta de Formatos (DNI/RUC) | Guillermo | Should have | RN-01 | [rf-09-validacion-formatos-identificacion.spec.md](./specs/rf-09-validacion-formatos-identificacion.spec.md) |
-| **F4: Venta Asistida y Promociones** | **RF-10** | Gestión del Carrito POS en Mostrador | Mihael | Must have | RN-02 | [rf-10-gestion-carrito-pos.spec.md](./specs/rf-10-gestion-carrito-pos.spec.md) |
+| **F4: Venta Asistida y Promociones** | **RF-10** | Gestión del Carrito POS en Mostrador *(soporte Carrito en Espera)* | Mihael | Must have | RN-02 | [rf-10-gestion-carrito-pos.spec.md](./specs/rf-10-gestion-carrito-pos.spec.md) |
 | | **RF-11** | Aplicación Dinámica de Descuentos y Promociones | Mihael | Must have | RN-04 | [rf-11-aplicacion-descuentos-promociones.spec.md](./specs/rf-11-aplicacion-descuentos-promociones.spec.md) |
 | | **RF-12** | Cálculo Consolidado de Totales e Impuestos | Mihael | Must have | RN-01 | [rf-12-calculo-totales-impuestos.spec.md](./specs/rf-12-calculo-totales-impuestos.spec.md) |
-| **F5: Pedido, Pago y Emisión de Boleta** | **RF-13** | Registro de Medios de Pago Presencial | Miguel | Must have | RN-03 | [rf-13-registro-medios-pago.spec.md](./specs/rf-13-registro-medios-pago.spec.md) |
+| **F5: Pedido, Pago y Emisión de Boleta** | **RF-13** | Registro de Medios de Pago Presencial *(Efectivo / Tarjeta POS)* | Miguel | Must have | RN-03 | [rf-13-registro-medios-pago.spec.md](./specs/rf-13-registro-medios-pago.spec.md) |
 | | **RF-14** | Creación Oficial de la Orden Transaccional | Miguel | Must have | RN-02, RN-03 | [rf-14-creacion-orden-transaccional.spec.md](./specs/rf-14-creacion-orden-transaccional.spec.md) |
-| | **RF-15** | Emisión y Despliegue de Comprobante Electrónico | Miguel | Must have | RN-01 | [rf-15-emision-comprobante-pago.spec.md](./specs/rf-15-emision-comprobante-pago.spec.md) |
+| | **RF-15** | Emisión de Comprobante *(Boleta, Factura y Ticket de Regalo)* | Miguel | Must have | RN-01 | [rf-15-emision-comprobante-pago.spec.md](./specs/rf-15-emision-comprobante-pago.spec.md) |
 | **F6: Consulta y Seguimiento de Pedidos** | **RF-16** | Búsqueda Histórica de Órdenes de Clientes | Cristhian | Should have | RN-03 | [rf-16-busqueda-historica-pedidos.spec.md](./specs/rf-16-busqueda-historica-pedidos.spec.md) |
 | | **RF-17** | Visualización de Estados y Trazabilidad | Cristhian | Should have | RN-03 | [rf-17-visualizacion-estados-trazabilidad.spec.md](./specs/rf-17-visualizacion-estados-trazabilidad.spec.md) |
 | **F7: Entrega en Tienda Física (Pickup)** | **RF-18** | Verificación y Validación de Retiro en Tienda | Maye | Must have | RN-03, RN-05 | [rf-18-verificacion-retiro-tienda.spec.md](./specs/rf-18-verificacion-retiro-tienda.spec.md) |
 | | **RF-19** | Registro de Confirmación de Entrega Física | Maye | Must have | RN-03, RN-05 | [rf-19-confirmacion-entrega-fisica.spec.md](./specs/rf-19-confirmacion-entrega-fisica.spec.md) |
+| **F8: Control de Turno y Cuadre de Caja** | **RF-20** | Apertura de Turno con Fondo Fijo de Caja | Miguel | Must have | RN-03 | [rf-20-apertura-turno-fondo-fijo.spec.md](./specs/rf-20-apertura-turno-fondo-fijo.spec.md) |
+| | **RF-21** | Registro de Movimientos Menores de Efectivo | Miguel | Should have | RN-03 | [rf-21-movimientos-menores-efectivo.spec.md](./specs/rf-21-movimientos-menores-efectivo.spec.md) |
+| | **RF-22** | Cierre de Turno y Arqueo Ciego de Caja (Reporte X/Z) | Miguel | Must have | RN-03 | [rf-22-cierre-arqueo-ciego.spec.md](./specs/rf-22-cierre-arqueo-ciego.spec.md) |
+| **F9: Cambios y Devoluciones en Mostrador** | **RF-23** | Validación de Comprobante y Plazos de Cambio Presencial | Maye | Must have | RN-01, RN-03 | [rf-23-validacion-comprobante-cambio.spec.md](./specs/rf-23-validacion-comprobante-cambio.spec.md) |
+| | **RF-24** | Inspección Física y Registro de Estado de la Prenda | Maye | Must have | RN-05 | [rf-24-inspeccion-fisica-prenda.spec.md](./specs/rf-24-inspeccion-fisica-prenda.spec.md) |
+| | **RF-25** | Emisión de Vale de Compra / Nota de Crédito Presencial | Maye | Must have | RN-01, RN-03 | [rf-25-emision-vale-nota-credito.spec.md](./specs/rf-25-emision-vale-nota-credito.spec.md) |
+| **F10: Modo de Contingencia y Resiliencia Offline** | **RF-26** | Detección Automática y Conmutación a Modo Offline | Cristhian | Must have | RNF-02 | [rf-26-deteccion-modo-offline.spec.md](./specs/rf-26-deteccion-modo-offline.spec.md) |
+| | **RF-27** | Almacenamiento Local Seguro en IndexedDB | Cristhian | Must have | RNF-02, RN-03 | [rf-27-almacenamiento-local-indexeddb.spec.md](./specs/rf-27-almacenamiento-local-indexeddb.spec.md) |
+| | **RF-28** | Sincronización Diferida y Conciliación Automática | Cristhian | Must have | RN-02, RN-03 | [rf-28-sincronizacion-diferida.spec.md](./specs/rf-28-sincronizacion-diferida.spec.md) |
+| **F11: Torre de Control Operativa de Turno** | **RF-29** | Panel de Alertas de Stock Crítico y Quiebre en Tienda | Kevin | Should have | RN-02 | [rf-29-alertas-stock-critico-tienda.spec.md](./specs/rf-29-alertas-stock-critico-tienda.spec.md) |
+| | **RF-30** | Bandeja de Pedidos Pick-Up del Día en Tienda | Kevin | Must have | RN-03, RN-05 | [rf-30-bandeja-pedidos-pickup-dia.spec.md](./specs/rf-30-bandeja-pedidos-pickup-dia.spec.md) |
+| | **RF-31** | Tablón Informativo de Campañas y Promociones Vigentes | Kevin | Should have | RN-04 | [rf-31-tablon-campanas-promociones.spec.md](./specs/rf-31-tablon-campanas-promociones.spec.md) |
+| **F12: Gestión de Incidencias de Inventario y Mermas** | **RF-32** | Reporte de Prenda Dañada o No Ubicada en Mostrador | Guillermo | Must have | RN-02 | [rf-32-reporte-prenda-danada-no-ubicada.spec.md](./specs/rf-32-reporte-prenda-danada-no-ubicada.spec.md) |
+| | **RF-33** | Puesta en Cuarentena y Bloqueo Temporal en POS | Guillermo | Must have | RN-02 | [rf-33-cuarentena-bloqueo-pos.spec.md](./specs/rf-33-cuarentena-bloqueo-pos.spec.md) |
+| | **RF-34** | Acta de Discrepancia y Notificación a Inventarios | Guillermo | Should have | RN-02 | [rf-34-acta-discrepancia-notificacion.spec.md](./specs/rf-34-acta-discrepancia-notificacion.spec.md) |
 
 ---
 
@@ -125,12 +180,12 @@ graph TD
 * **Flujo Operativo:** Consulta por DNI o RUC con autocompletado en un segundo ([RF-07](./specs/rf-07-busqueda-cliente-documento.spec.md)); despliegue de modal simplificado ante cliente nuevo ([RF-08](./specs/rf-08-alta-rapida-cliente.spec.md)); y validación estricta de 8 dígitos para DNI y 11 para RUC ([RF-09](./specs/rf-09-validacion-formatos-identificacion.spec.md)).
 
 ### F4: Registro de Venta Asistida y Aplicación de Promociones
-* **Propósito:** Armar la orden asistida asegurando el cumplimiento de existencias físicas y la transparencia de las promociones.
-* **Flujo Operativo:** Panel lateral permanente del carrito POS con control de tope por stock local ([RF-10](./specs/rf-10-gestion-carrito-pos.spec.md)); evaluación de ofertas automáticas y cupones comerciales con el motor de promociones ([RF-11](./specs/rf-11-aplicacion-descuentos-promociones.spec.md)); y cálculo exacto de subtotales, descuentos, IGV (18%) e importe neto a pagar ([RF-12](./specs/rf-12-calculo-totales-impuestos.spec.md)).
+* **Propósito:** Armar la orden asistida asegurando el cumplimiento de existencias físicas, la agilidad en probadores y la transparencia de las promociones.
+* **Flujo Operativo:** Panel lateral permanente del carrito POS con control de tope por stock local y soporte de **Carritos en Espera** para pausar la venta mientras el cliente se prueba prendas ([RF-10](./specs/rf-10-gestion-carrito-pos.spec.md)); evaluación de ofertas automáticas y cupones comerciales con el motor de promociones ([RF-11](./specs/rf-11-aplicacion-descuentos-promociones.spec.md)); y cálculo exacto de subtotales, descuentos, IGV (18%) e importe neto a pagar ([RF-12](./specs/rf-12-calculo-totales-impuestos.spec.md)).
 
 ### F5: Generación de Pedido, Pago en Tienda y Creación de Boleta
-* **Propósito:** Procesar el cierre financiero, coordinar la reserva de stock y emitir el comprobante legal de pago.
-* **Flujo Operativo:** Captura de pago en efectivo (con cálculo de vuelto) o tarjeta (con voucher de referencia) ([RF-13](./specs/rf-13-registro-medios-pago.spec.md)); decremento definitivo de stock en inventario y persistencia de orden en ventas con canal `"RETAIL"` ([RF-14](./specs/rf-14-creacion-orden-transaccional.spec.md)); y emisión de Boleta o Factura con formato de ticket térmico e impresión directa ([RF-15](./specs/rf-15-emision-comprobante-pago.spec.md)).
+* **Propósito:** Procesar el cierre financiero, coordinar la reserva de stock y emitir el comprobante legal o de regalo.
+* **Flujo Operativo:** Captura de pago en efectivo (con cálculo de vuelto) o tarjeta (con voucher/referencia simulada de POS) ([RF-13](./specs/rf-13-registro-medios-pago.spec.md)); decremento definitivo de stock en inventario y persistencia de orden en ventas con canal `"RETAIL"` ([RF-14](./specs/rf-14-creacion-orden-transaccional.spec.md)); y emisión de Boleta, Factura o **Ticket de Cambio/Regalo** (sin precio visible) con formato de ticket térmico e impresión directa ([RF-15](./specs/rf-15-emision-comprobante-pago.spec.md)).
 
 ### F6: Consulta y Seguimiento de Pedidos del Cliente
 * **Propósito:** Atender consultas de clientes en mostrador sobre el progreso de sus compras realizadas en cualquier canal.
@@ -140,8 +195,28 @@ graph TD
 * **Propósito:** Garantizar que los paquetes retirados en mostrador se entreguen a la persona correcta con constancia fehaciente.
 * **Flujo Operativo:** Bandeja de pedidos de la tienda en estado `LISTO_PARA_RECOJO` ([RF-18](./specs/rf-18-verificacion-retiro-tienda.spec.md)); y modal de confirmación con datos de quien recoge (titular o tercero) y checklist de entrega física ([RF-19](./specs/rf-19-confirmacion-entrega-fisica.spec.md)).
 
+### F8: Control de Turno y Cuadre de Caja
+* **Propósito:** Gestionar el ciclo de vida del dinero en efectivo en la estación de trabajo física del vendedor, asegurando el control del fondo inicial y la conciliación al cierre.
+* **Flujo Operativo:** El cajero inicia su turno registrando el fondo fijo de sencillo en monedas y billetes ([RF-20](./specs/rf-20-apertura-turno-fondo-fijo.spec.md)); registra entradas o salidas menores de caja chica durante la jornada ([RF-21](./specs/rf-21-movimientos-menores-efectivo.spec.md)); y al culminar el turno realiza un arqueo ciego (declaración física de billetes sin ver el sistema) generando el reporte X/Z con el cálculo automático de sobrantes o faltantes ([RF-22](./specs/rf-22-cierre-arqueo-ciego.spec.md)).
+
+### F9: Gestión de Cambios y Devoluciones en Mostrador
+* **Propósito:** Atender solicitudes presenciales de clientes que requieren cambio de talla, modelo o devolución por falla en prendas o calzado deportivo.
+* **Flujo Operativo:** Búsqueda y validación de la boleta de compra original corroborando que se encuentre dentro del plazo permitido (30 días) ([RF-23](./specs/rf-23-validacion-comprobante-cambio.spec.md)); checklist de inspección física de la prenda (etiquetas originales intactas, sin signos de uso, empaque) ([RF-24](./specs/rf-24-inspeccion-fisica-prenda.spec.md)); y generación inmediata de una Nota de Crédito o Vale de Compra con código único para canje presencial ([RF-25](./specs/rf-25-emision-vale-nota-credito.spec.md)).
+
+### F10: Modo de Contingencia y Resiliencia Offline
+* **Propósito:** Asegurar la continuidad operativa de la caja en mostrador ante caídas de internet o fallas de red local en la tienda física.
+* **Flujo Operativo:** Detección automática de desconexión mediante `navigator.onLine` y activación del banner de modo contingencia ([RF-26](./specs/rf-26-deteccion-modo-offline.spec.md)); persistencia local transaccional de los tickets cobrados en el motor IndexedDB del navegador ([RF-27](./specs/rf-27-almacenamiento-local-indexeddb.spec.md)); y sincronización diferida automática al restablecerse la red enviando las órdenes en cola a Ventas y conciliando el stock consumido ([RF-28](./specs/rf-28-sincronizacion-diferida.spec.md)).
+
+### F11: Torre de Control Operativa de Turno
+* **Propósito:** Proveer al vendedor de mostrador una vista ejecutiva con información crítica para la atención diaria sin sobrecargar la pantalla con reportes pasivos.
+* **Flujo Operativo:** Visualización de alertas de stock crítico de artículos deportivos en mostrador para evitar ofrecer productos con quiebre inminente ([RF-29](./specs/rf-29-alertas-stock-critico-tienda.spec.md)); bandeja activa con los pedidos web programados para recojo en tienda durante el día para agilizar la entrega al cliente ([RF-30](./specs/rf-30-bandeja-pedidos-pickup-dia.spec.md)); y tablón informativo con las promociones y campañas del día (2x1, combos, descuentos de marca) para asesorar al cliente ([RF-31](./specs/rf-31-tablon-campanas-promociones.spec.md)).
+
+### F12: Gestión de Incidencias de Inventario y Mermas en Tienda
+* **Propósito:** Registrar y aislar formalmente prendas o zapatillas deportivas dañadas en probador, con fallas de confección o discrepancias físicas en el mostrador.
+* **Flujo Operativo:** Captura de reporte de anomalía física indicando SKU, motivo (mancha, costura rota, no ubicado) y observaciones ([RF-32](./specs/rf-32-reporte-prenda-danada-no-ubicada.spec.md)); puesta en cuarentena automática retirando el artículo de la vista de venta del mostrador ([RF-33](./specs/rf-33-cuarentena-bloqueo-pos.spec.md)); y generación de acta digital de discrepancia notificando al módulo de Productos y Almacén Central para su baja o reposición ([RF-34](./specs/rf-34-acta-discrepancia-notificacion.spec.md)).
+
 ---
 
 ## 4. Contratos de API Centralizados
-Los contratos JSON formales de los endpoints consumidos por estas 19 especificaciones se encuentran centralizados en:
+Los contratos JSON formales de los endpoints consumidos por estas especificaciones se encuentran centralizados en:
 * [specs/api-contracts.md](./specs/api-contracts.md)

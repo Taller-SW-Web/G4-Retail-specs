@@ -14,20 +14,23 @@ Durante la venta asistida en tienda, el cliente agrega prendas, pide cambiar can
 Permitir al vendedor armar y gestionar de forma reactiva la orden en mostrador mediante un carrito POS lateral permanente: agregando productos por su variante específica (SKU), incrementando o disminuyendo cantidades con validación estricta de stock disponible en tienda, eliminando ítems individuales o vaciando el carrito completo, con persistencia en el estado local del navegador.
 
 ## ¿Hasta dónde? (alcance)
-* **Incluido:** Panel lateral de carrito POS visible, adición de variantes con verificación contra `stockTienda`, botones de incremento (`+`) y decremento (`-`) con bloqueo al llegar al stock máximo, eliminación de ítems con confirmación rápida, botón para vaciar el carrito, y persistencia en memoria/localStorage del navegador.
+* **Incluido:** Panel lateral de carrito POS visible, adición de variantes con verificación contra `stockTienda`, botones de incremento (`+`) y decremento (`-`) con bloqueo al llegar al stock máximo, eliminación de ítems con confirmación rápida, botón para vaciar el carrito, soporte de **Carritos en Espera (Parked Sales)** para suspender temporalmente ventas activas asignando un alias de ticket (ej. *"Probador 2"*) y reanudarlas posteriormente, y persistencia en memoria/localStorage del navegador.
 * **Excluido:** Aplicación y cálculo dinámico de promociones/cupones (cubierto en RF-11), cálculo de impuestos y desglose financiero (cubierto en RF-12), y reserva de stock transaccional en base de datos (se ejecuta en RF-14 al pagar).
 
 ## Referencias
-* **Contrato:** [api-contracts.md](./api-contracts.md) — `GET /api/v1/productos/catalogo` (Sección 2)
-* **Modelo:** `CarritoItem` (`sku`, `productoId`, `nombre`, `marca`, `talla`, `color`, `precioUnitario`, `cantidad`, `stockMaximoTienda`, `subtotalLinea`)
+* **Contrato:** [api-contracts.md](./api-contracts.md) — `GET /api/v1/productos/catalogo` (Sección 2), `POST /api/v1/retail/carritos-espera`
+* **Modelo:** `CarritoItem` (`sku`, `productoId`, `nombre`, `marca`, `talla`, `color`, `precioUnitario`, `cantidad`, `stockMaximoTienda`, `subtotalLinea`), `CarritoEspera` (`id`, `aliasTicket`, `items`, `fechaCreacion`, `expiracion`)
 
 ## ¿Qué debe hacer? (comportamiento)
 
-### Backend (Retail / Soporte de Validación de Carrito)
+### Backend (Retail / Soporte de Validación de Carrito y Carritos en Espera)
 1. Expone endpoint o función de validación de estructura de carrito:
    * Recibe la lista de ítems (`sku`, `cantidad`).
    * Valida que las cantidades sean números enteros mayores a cero (`cantidad > 0`).
-2. Verifica contra el catálogo de *Productos y Ofertas* que cada SKU continúe existiendo y activo.
+2. Expone endpoints de persistencia de Carritos en Espera:
+   * `POST /api/v1/retail/carritos-espera`: Guarda la lista de ítems con un alias descriptivo.
+   * `GET /api/v1/retail/carritos-espera`: Lista carritos suspendidos vigentes de la tienda.
+   * `DELETE /api/v1/retail/carritos-espera/{id}`: Libera o recupera el carrito suspendido.
 
 ### Frontend
 1. Muestra un panel lateral derecho permanente con el título *"Carrito de Venta Mostrador"*:
@@ -42,9 +45,13 @@ Permitir al vendedor armar y gestionar de forma reactiva la orden en mostrador m
    * Si la cantidad es `1`, presionar `-` despliega opción de eliminar el ítem.
    * Si la cantidad alcanza el `stockTienda`, el botón `+` se deshabilita visualmente y muestra tooltip: *"Stock máximo disponible en tienda alcanzado"*.
    * Ícono de tacho de basura para remover el producto directamente.
-4. Acción de vaciar carrito:
+4. Suspensión de Venta (Carritos en Espera - Probadores):
+   * Botón *"Pausar Venta"*: Despliega modal rápido para ingresar un identificador/alias (ej. *"Probador 3 - Zapatillas Running"*).
+   * Al confirmar, el carrito actual se guarda en la bandeja de carritos en espera y el mostrador queda limpio para atender al siguiente cliente en cola.
+   * Botón superior *"Ventas en Espera (N)"*: Despliega panel con los carritos suspendidos, hora de inicio y botón *"Reanudar"* para cargar los productos al carrito activo en 1 clic.
+5. Acción de vaciar carrito:
    * Botón *"Limpiar Carrito"* que solicita confirmación: *"¿Desea vaciar todos los productos del carrito actual?"*.
-5. Persistencia:
+6. Persistencia:
    * El estado del carrito se almacena en el `localStorage` o `sessionStorage` del navegador para que no se pierda ante recargas involuntarias de la pestaña.
 
 ## ¿Cómo verificamos? (criterios de aceptación)
@@ -52,6 +59,8 @@ Permitir al vendedor armar y gestionar de forma reactiva la orden en mostrador m
 - [ ] Agregar un producto que ya tiene stock máximo de 3 unidades en tienda: al llegar a 3 unidades, el botón `+` se desactiva y no permite subir a 4.
 - [ ] Reducir la cantidad de 2 a 1 actualiza el subtotal de la línea de inmediato.
 - [ ] Clic en el ícono de eliminar retira el producto y recalcula la cantidad total de artículos.
+- [ ] Pausar una venta con el alias "Cliente probador" guarda los ítems en espera y deja el carrito vacío para una nueva atención.
+- [ ] Reanudar una venta en espera recupera todos sus ítems al carrito activo con sus cantidades originales.
 - [ ] Recargar la página del navegador (F5) conserva los productos agregados previamente en el carrito.
 - [ ] Botón "Limpiar Carrito" vacía todos los artículos tras confirmar la acción.
 
