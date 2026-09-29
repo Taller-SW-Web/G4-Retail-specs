@@ -11,6 +11,7 @@ El desarrollo del módulo sigue la metodología **Spec-Driven Development (SDD)*
 * **[FUNCIONALIDADES-RF.md](./FUNCIONALIDADES-RF.md)**: Matriz maestra de orden y trazabilidad que relaciona las 12 funcionalidades del sistema con sus 34 Requerimientos Funcionales (RF-01 al RF-34).
 * **[specs/](./specs/)**: Carpeta que contiene las especificaciones detalladas (.spec.md) por cada requisito funcional.
 * **[specs/api-contracts.md](./specs/api-contracts.md)**: Contratos de interfaces REST, esquemas JSON y códigos de respuesta de los microservicios integrados.
+* **[diseño/](./diseño/modelo-datos.md)**: Modelo Entidad-Relación (Mermaid), diccionario de datos y script DDL SQL de Retail (Hito 2).
 
 ---
 
