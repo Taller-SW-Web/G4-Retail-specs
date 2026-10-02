@@ -44,27 +44,35 @@ Autentica al personal de tienda y genera el token de sesión JWT.
 
 ---
 
-### `GET /api/v1/clientes?documento={nroDocumento}`
-Busca un cliente registrado por su número de DNI o RUC. Se consume desde el backend de Retail mediante **Token de Servicio (M2M)** (`grant_type=client_credentials`, scope `clientes:buscar:documento`, audiencia `api-seguridad`).
+### `POST /api/v1/clientes/buscar`
+Busca un cliente persona natural registrado por su número exacto de DNI. Se consume enviando el token Bearer del usuario con rol `VENDEDOR` (no admite tokens de servicio). Cada consulta queda auditada individualmente y sujeta a límite de peticiones por vendedor.
+
+> **Nota sobre RUC (Facturación a Empresas):** El RUC identifica personas jurídicas y corresponde al dominio tributario de Ventas. Las compras en mostrador con Factura capturan el RUC y la razón social directamente en la orden sin consultar al módulo de Seguridad.
 
 * **Headers:**
-  * `Authorization: Bearer <m2m_token>`
+  * `Authorization: Bearer <token_vendedor>`
+  * `Content-Type: application/json`
+* **Request Body:**
+```json
+{
+  "documento": "72345678"
+}
+```
 * **Responses:**
   * `200 OK`:
     ```json
     {
       "id": "cli-101",
-      "tipoDocumento": "DNI",
-      "numeroDocumento": "72345678",
-      "nombres": "Juan",
-      "apellidos": "Pérez Torres",
-      "email": "juan.perez@email.com",
-      "telefono": "987654321"
+      "nombre": "Juan Pérez Torres",
+      "documentoEnmascarado": "72****78"
     }
     ```
-  * `404 Not Found`: Cliente no registrado.
-  * `401 Unauthorized`: Token de servicio inválido, vencido o emisor no correspondiente.
-  * `403 Forbidden`: Scope insuficiente.
+    *(El POS vincula el `id` y `nombre` con el DNI completo ingresado por el vendedor en pantalla para la orden).*
+  * `400 Bad Request`: Documento no contiene 8 dígitos exactos (`application/problem+json`).
+  * `401 Unauthorized`: Token de vendedor ausente, vencido o inválido (`application/problem+json`).
+  * `403 Forbidden`: El usuario autenticado no posee rol `VENDEDOR` (`application/problem+json`).
+  * `404 Not Found`: Cliente no registrado (`application/problem+json`).
+  * `429 Too Many Requests`: Límite de solicitudes por vendedor alcanzado (`application/problem+json`).
 
 ---
 
