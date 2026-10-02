@@ -1,9 +1,9 @@
-# Spec — RF-03: Gestión y Persistencia de Sesión Segura (v0.1)
+﻿# Spec — RF-03: Gestión y Persistencia de Sesión Segura (v0.1)
 
-### Responsable: Miguel (DevOps / Tech Lead)
+### Responsable: Cristhian (Backend Developer)
 ### Requerimiento Funcional: RF-03: Gestión y Persistencia de Sesión Segura
 ### Funcionalidad Padre: F1: Inicio de Sesión del Vendedor
-### Prioridad: Must have (Crítico)
+### Prioridad: Should have (Secundario en MVP)
 
 ---
 

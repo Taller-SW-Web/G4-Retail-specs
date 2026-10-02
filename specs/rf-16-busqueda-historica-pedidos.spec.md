@@ -1,9 +1,9 @@
-# Spec — RF-16: Búsqueda Histórica de Órdenes de Clientes (v0.1)
+﻿# Spec — RF-16: Búsqueda Histórica de Órdenes de Clientes (v0.1)
 
-### Responsable: Cristhian (Backend Developer)
+### Responsable: Kevin (Frontend / UX)
 ### Requerimiento Funcional: RF-16: Búsqueda Histórica de Órdenes de Clientes
 ### Funcionalidad Padre: F6: Consulta y Seguimiento de Pedidos del Cliente
-### Prioridad: Should have (Importante)
+### Prioridad: Must have (Condicionado a F6)
 
 ---
 

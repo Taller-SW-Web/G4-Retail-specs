@@ -20,7 +20,7 @@ En concordancia con el patrón **Database-per-Service**, el microservicio Retail
 
 ## 2. Diagrama Entidad-Relación (Mermaid)
 
-El siguiente diagrama representa las **7 tablas del modelo de datos de Retail** y sus relaciones internas directas:
+El siguiente diagrama representa las **8 tablas del modelo de datos de Retail** y sus relaciones internas directas:
 
 ```mermaid
 erDiagram
@@ -118,6 +118,17 @@ erDiagram
         timestamp fecha_emision_offline "Momento en que se cobro al cliente offline"
         timestamp fecha_sincronizacion "Momento en que se resincronizo con el servidor central"
         text error_detalle "Trazabilidad del motivo de conflicto si fallo la subida"
+    }
+
+    RET_PERSONAL_TIENDA {
+        uuid id_personal PK "Identificador unico de asignacion de personal"
+        uuid usuario_id "ID logico del colaborador (sub)"
+        uuid tienda_id "ID de la sucursal fisica"
+        string codigo_vendedor "Codigo del colaborador (ej: VEND-1042)"
+        string perfil_tienda "VENDEDOR, CAJERO, SUPERVISOR"
+        boolean activo "Estado operativo del colaborador"
+        timestamp created_at "Auditoria de creacion"
+        timestamp updated_at "Auditoria de actualizacion"
     }
 ```
 
@@ -252,6 +263,22 @@ Cola de resiliencia para ventas emitidas en contingencia offline (cuando se cae 
 
 ---
 
+### Tabla 8: `RET_PERSONAL_TIENDA`
+Gestiona la asignación y perfiles operativos del personal dentro de cada sucursal física.
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `id_personal` | `UUID` | No | `PRIMARY KEY` | Identificador único de asignación de personal |
+| `usuario_id` | `UUID` | No | `UNIQUE` (Ref. lógica `sub`) | Identificador del usuario en el servicio de autenticación |
+| `tienda_id` | `UUID` | No | — | Identificador de la sucursal física |
+| `codigo_vendedor` | `VARCHAR(20)` | No | — | Código alfanumérico del colaborador (ej. `VEND-1042`) |
+| `perfil_tienda` | `VARCHAR(20)` | No | `CHECK IN ('VENDEDOR', 'CAJERO', 'SUPERVISOR')` | Perfil operativo asignado en la sucursal |
+| `activo` | `BOOLEAN` | No | `DEFAULT TRUE` | Estado operativo del colaborador en la tienda |
+| `created_at` | `TIMESTAMP` | No | `DEFAULT CURRENT_TIMESTAMP` | Auditoría de creación |
+| `updated_at` | `TIMESTAMP` | No | `DEFAULT CURRENT_TIMESTAMP` | Auditoría de actualización |
+
+---
+
 ## 4. Índices de Rendimiento Recomendados
 
 ```sql
@@ -266,4 +293,7 @@ CREATE INDEX idx_offline_log_estado ON RET_CONTINGENCIA_OFFLINE_LOG(tienda_id, e
 
 -- Búsqueda de incidencias activas en cuarentena
 CREATE INDEX idx_incidencia_tienda_estado ON RET_INCIDENCIA_INVENTARIO(tienda_id, estado_cuarentena);
+
+-- Resolución rápida de perfiles operativos del personal de tienda
+CREATE INDEX idx_personal_tienda_usuario ON RET_PERSONAL_TIENDA(usuario_id, tienda_id, activo);
 ```

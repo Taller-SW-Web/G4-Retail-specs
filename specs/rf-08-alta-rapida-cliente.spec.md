@@ -25,13 +25,14 @@ Permitir al personal de mostrador dar de alta al nuevo cliente mediante una vent
 
 ### Backend (Retail / Delegación de Alta)
 1. Expone `POST /api/v1/retail/clientes/registro-rapido`:
-   * Recibe el payload con los datos mínimos del cliente.
-   * Valida que los campos obligatorios (`tipoDocumento`, `numeroDocumento`, `nombres`, `email`) no estén vacíos.
-2. Invoca al microservicio de *Seguridad y Usuarios* (`POST /api/v1/clientes`).
-3. Si la respuesta es `201 Created`:
-   * Retorna el objeto del cliente recién creado con su `id` generado por el sistema.
-4. Si la respuesta es `409 Conflict` (el documento ya existía por concurrencia):
-   * Retorna advertencia clara para recuperar el cliente existente sin generar duplicados.
+   * Recibe el payload con los datos mínimos del cliente (`tipoDocumento`, `numeroDocumento`, `nombres`, `apellidos`, `email`, `telefono`).
+   * Valida que los campos obligatorios no estén vacíos y cumplan con los formatos permitidos.
+2. Invoca al servicio de usuarios (`POST /api/v1/clientes`) enviando los datos del cliente junto con `canalOrigen: "RETAIL"`.
+3. La cuenta queda registrada en estado pendiente de activación y el servicio central envía un correo de activación al cliente para que establezca su contraseña en el portal de Marketplace.
+4. Si la respuesta es `201 Created`:
+   * Retorna el objeto del cliente con su identificador `id` generado para asociarlo inmediatamente a la orden de venta en mostrador sin bloquear el cobro.
+5. Si la respuesta es `409 Conflict` (el documento ya existía por concurrencia):
+   * Retorna respuesta controlada permitiendo vincular al cliente existente sin duplicar registros.
 
 ### Frontend
 1. Si la búsqueda de cliente (RF-07) retorna `404 Not Found`, la interfaz despliega automáticamente el modal *"Registrar Nuevo Cliente"*:

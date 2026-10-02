@@ -17,12 +17,13 @@ El desarrollo del módulo sigue la metodología **Spec-Driven Development (SDD)*
 
 ## 👥 Equipo de Trabajo (Grupo 4)
 
-* **Kevin** — *Frontend / UX*
-* **Guillermo** — *QA / Control de Calidad*
 * **Mihael** — *Product Owner (PO)*
 * **Miguel** — *DevOps / Tech Lead*
+* **Kevin** — *Frontend / UX*
 * **Cristhian** — *Backend Developer*
-* **Maye** — *Arquitectura de Software*
+* **Maylle** — *Arquitectura de Software*
+* **Guillermo** — *QA / Control de Calidad*
+* **Angie** — *DBA (Database Administrator)*
 
 ---
 *UNMSM — Facultad de Ingeniería de Sistemas e Informática — Taller de Construcción de Software Web (2026-II)*

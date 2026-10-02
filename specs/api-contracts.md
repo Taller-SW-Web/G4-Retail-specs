@@ -7,7 +7,7 @@ Este documento centraliza la especificación formal de todos los endpoints REST,
 ## 1. Módulo Seguridad y Usuarios (Consumido por Retail)
 
 ### `POST /api/v1/auth/login`
-Autentica al personal de tienda (vendedor o cajero) y genera el token de sesión JWT.
+Autentica al personal de tienda y genera el token de sesión JWT.
 
 * **Request Body:**
 ```json
@@ -20,26 +20,35 @@ Autentica al personal de tienda (vendedor o cajero) y genera el token de sesión
   * `200 OK`:
     ```json
     {
-      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
       "usuario": {
         "id": "usr-001",
         "email": "vendedor1@deportesretail.com",
         "nombres": "Carlos",
         "apellidos": "Mendoza",
-        "rol": "vendedor",
-        "tiendaId": "TIENDA-MIRAFLORES"
+        "codigoVendedor": "VEND-1042",
+        "rol": "VENDEDOR",
+        "tiendaId": "TIENDA-MIRAFLORES",
+        "activo": true
       }
     }
     ```
-  * `400 Bad Request`: Formato de email inválido o campos vacíos.
-  * `401 Unauthorized`: Credenciales erróneas o usuario inactivo.
-  * `403 Forbidden`: El usuario no posee perfil operativo de tienda.
+  * `400 Bad Request`: Formato de email inválido o campos vacíos (`application/problem+json`).
+  * `401 Unauthorized`: Credenciales erróneas o usuario inactivo (`application/problem+json`).
+  * `403 Forbidden`: El usuario no posee perfil operativo autorizado (`application/problem+json`).
+
+> **Reglas de Validación Técnica:**
+> * El emisor (`iss`) se valida dinámicamente consultando el endpoint de descubrimiento OpenID (`/api/v1/auth/.well-known/openid-configuration`).
+> * La verificación de firma del token JWT se realiza de forma local utilizando la clave pública JWKS en caché.
+> * Los permisos específicos dentro de la sucursal (`VENDEDOR`, `CAJERO`, `SUPERVISOR`) se resuelven contra la tabla local `RET_PERSONAL_TIENDA`.
 
 ---
 
 ### `GET /api/v1/clientes?documento={nroDocumento}`
-Busca un cliente registrado por su número de DNI o RUC.
+Busca un cliente registrado por su número de DNI o RUC. Se consume desde el backend de Retail mediante **Token de Servicio (M2M)** (`grant_type=client_credentials`, scope `clientes:buscar:documento`, audiencia `api-seguridad`).
 
+* **Headers:**
+  * `Authorization: Bearer <m2m_token>`
 * **Responses:**
   * `200 OK`:
     ```json
@@ -54,15 +63,18 @@ Busca un cliente registrado por su número de DNI o RUC.
     }
     ```
   * `404 Not Found`: Cliente no registrado.
+  * `401 Unauthorized`: Token de servicio inválido, vencido o emisor no correspondiente.
+  * `403 Forbidden`: Scope insuficiente.
 
 ---
 
 ### `POST /api/v1/clientes`
-Alta rápida de un nuevo cliente captado en el mostrador.
+Alta rápida de un nuevo cliente captado en mostrador.
 
 * **Request Body:**
 ```json
 {
+  "canalOrigen": "RETAIL",
   "tipoDocumento": "DNI",
   "numeroDocumento": "72345678",
   "nombres": "Juan",
@@ -72,8 +84,20 @@ Alta rápida de un nuevo cliente captado en el mostrador.
 }
 ```
 * **Responses:**
-  * `201 Created`: Devuelve el recurso cliente creado con su identificador `id`.
-  * `400 Bad Request`: Longitud o formato de documento inválido (DNI != 8 dígitos o RUC != 11 dígitos).
+  * `201 Created`: Devuelve el recurso cliente creado con su identificador `id` para asociarlo de inmediato a la orden en curso. La cuenta queda en estado pendiente de activación para que el cliente configure su contraseña vía web de Marketplace.
+    ```json
+    {
+      "id": "cli-102",
+      "tipoDocumento": "DNI",
+      "numeroDocumento": "72345678",
+      "nombres": "Juan",
+      "apellidos": "Pérez Torres",
+      "email": "juan.perez@email.com",
+      "telefono": "987654321",
+      "estado": "PENDIENTE_ACTIVACION"
+    }
+    ```
+  * `400 Bad Request`: Longitud o formato de documento inválido.
   * `409 Conflict`: Ya existe un cliente registrado con ese número de documento.
 
 ---

@@ -1,9 +1,9 @@
-# Spec — RF-31: Tablón Informativo de Campañas y Promociones Vigentes (v0.1)
+﻿# Spec — RF-31: Tablón Informativo de Campañas y Promociones Vigentes (v0.1)
 
-### Responsable: Kevin (Frontend / UX)
+### Responsable: Mihael (Product Owner)
 ### Requerimiento Funcional: RF-31: Tablón Informativo de Campañas y Promociones Vigentes
 ### Funcionalidad Padre: F11: Torre de Control Operativa de Turno
-### Prioridad: Should have (Importante)
+### Prioridad: Could have (Opcional si F11 entra)
 
 ---
 

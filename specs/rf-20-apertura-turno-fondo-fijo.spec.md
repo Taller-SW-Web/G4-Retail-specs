@@ -1,6 +1,6 @@
-# Spec — RF-20: Apertura de Turno con Fondo Fijo de Caja (v0.1)
+﻿# Spec — RF-20: Apertura de Turno con Fondo Fijo de Caja (v0.1)
 
-### Responsable: Miguel (DevOps / Tech Lead)
+### Responsable: Angie (DBA)
 ### Requerimiento Funcional: RF-20: Apertura de Turno con Fondo Fijo de Caja
 ### Funcionalidad Padre: F8: Control de Turno y Cuadre de Caja
 ### Prioridad: Must have (Crítico)

@@ -1,9 +1,9 @@
-# Spec — RF-17: Visualización de Estados y Trazabilidad del Pedido (v0.1)
+﻿# Spec — RF-17: Visualización de Estados y Trazabilidad del Pedido (v0.1)
 
-### Responsable: Cristhian (Backend Developer)
+### Responsable: Kevin (Frontend / UX)
 ### Requerimiento Funcional: RF-17: Visualización de Estados y Trazabilidad del Pedido
 ### Funcionalidad Padre: F6: Consulta y Seguimiento de Pedidos del Cliente
-### Prioridad: Should have (Importante)
+### Prioridad: Should have (Secundario si F6 entra)
 
 ---
 

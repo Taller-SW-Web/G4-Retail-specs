@@ -1,9 +1,9 @@
-# Spec — RF-34: Acta de Discrepancia y Notificación a Inventarios (v0.1)
+﻿# Spec — RF-34: Acta de Discrepancia y Notificación a Inventarios (v0.1)
 
-### Responsable: Guillermo (QA / Control de Calidad)
+### Responsable: Maylle (Arquitectura de Software)
 ### Requerimiento Funcional: RF-34: Acta de Discrepancia y Notificación a Inventarios
 ### Funcionalidad Padre: F12: Gestión de Incidencias de Inventario y Mermas en Tienda
-### Prioridad: Should have (Importante)
+### Prioridad: Could have (Opcional si F12 entra)
 
 ---
 

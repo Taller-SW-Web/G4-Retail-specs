@@ -1,9 +1,9 @@
-# Spec — RF-21: Registro de Movimientos Menores de Efectivo (v0.1)
+﻿# Spec — RF-21: Registro de Movimientos Menores de Efectivo (v0.1)
 
-### Responsable: Miguel (DevOps / Tech Lead)
+### Responsable: Angie (DBA)
 ### Requerimiento Funcional: RF-21: Registro de Movimientos Menores de Efectivo
 ### Funcionalidad Padre: F8: Control de Turno y Cuadre de Caja
-### Prioridad: Should have (Importante)
+### Prioridad: Should have (Secundario en MVP)
 
 ---
 

@@ -1,6 +1,6 @@
-# Spec — RF-18: Verificación y Validación de Retiro en Tienda (v0.1)
+﻿# Spec — RF-18: Verificación y Validación de Retiro en Tienda (v0.1)
 
-### Responsable: Maye (Arquitectura de Software)
+### Responsable: Maylle (Arquitectura de Software)
 ### Requerimiento Funcional: RF-18: Verificación y Validación de Retiro en Tienda
 ### Funcionalidad Padre: F7: Entrega del Producto en Tienda Física / Pickup
 ### Prioridad: Must have (Crítico)

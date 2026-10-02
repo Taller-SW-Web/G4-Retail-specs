@@ -1,6 +1,6 @@
-# Spec — RF-22: Cierre de Turno y Arqueo Ciego de Caja (Reporte X/Z) (v0.1)
+﻿# Spec — RF-22: Cierre de Turno y Arqueo Ciego de Caja (Reporte X/Z) (v0.1)
 
-### Responsable: Miguel (DevOps / Tech Lead)
+### Responsable: Angie (DBA)
 ### Requerimiento Funcional: RF-22: Cierre de Turno y Arqueo Ciego de Caja (Reporte X/Z)
 ### Funcionalidad Padre: F8: Control de Turno y Cuadre de Caja
 ### Prioridad: Must have (Crítico)

@@ -1,6 +1,6 @@
-# Spec — RF-01: Autenticación de Personal de Tienda (v0.1)
+﻿# Spec — RF-01: Autenticación de Personal de Tienda (v0.1)
 
-### Responsable: Miguel (DevOps / Tech Lead)
+### Responsable: Cristhian (Backend Developer)
 ### Requerimiento Funcional: RF-01: Autenticación de Personal de Tienda
 ### Funcionalidad Padre: F1: Inicio de Sesión del Vendedor
 ### Prioridad: Must have (Crítico)
@@ -30,7 +30,7 @@ Permitir al usuario ingresar su correo corporativo institucional y contraseña, 
    * `password`: obligatorio, no vacío, longitud mínima requerida.
 3. Si los datos no cumplen la estructura, responde `400 Bad Request` indicando los campos inválidos.
 4. Si las credenciales no coinciden o la cuenta está inactiva en *Seguridad y Usuarios*, propaga el error `401 Unauthorized` con mensaje genérico de seguridad.
-5. Si la autenticación es exitosa, retorna `200 OK` con el token JWT emitido y la información del usuario y tienda.
+5. Si la autenticación es exitosa, resuelve el perfil operativo asignado en `RET_PERSONAL_TIENDA` y retorna `200 OK` con el token JWT emitido y la información del usuario y su perfil de tienda.
 
 ### Frontend
 1. Presenta la vista de Login con campos: Correo Institucional, Contraseña y selector visual de Tienda asignada.

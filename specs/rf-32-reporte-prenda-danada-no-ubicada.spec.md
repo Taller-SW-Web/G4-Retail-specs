@@ -1,9 +1,9 @@
-# Spec — RF-32: Reporte de Prenda Dañada o No Ubicada en Mostrador (v0.1)
+﻿# Spec — RF-32: Reporte de Prenda Dañada o No Ubicada en Mostrador (v0.1)
 
-### Responsable: Guillermo (QA / Control de Calidad)
+### Responsable: Maylle (Arquitectura de Software)
 ### Requerimiento Funcional: RF-32: Reporte de Prenda Dañada o No Ubicada en Mostrador
 ### Funcionalidad Padre: F12: Gestión de Incidencias de Inventario y Mermas en Tienda
-### Prioridad: Must have (Crítico)
+### Prioridad: Must have (Condicionado a F12)
 
 ---
 

@@ -1,9 +1,9 @@
-# Spec — RF-26: Detección Automática y Conmutación a Modo Offline (v0.1)
+﻿# Spec — RF-26: Detección Automática y Conmutación a Modo Offline (v0.1)
 
-### Responsable: Cristhian (Backend Developer)
+### Responsable: Miguel (DevOps / Tech Lead)
 ### Requerimiento Funcional: RF-26: Detección Automática y Conmutación a Modo Offline
 ### Funcionalidad Padre: F10: Modo de Contingencia y Resiliencia Offline
-### Prioridad: Must have (Crítico)
+### Prioridad: Must have (Condicionado a F10)
 
 ---
 

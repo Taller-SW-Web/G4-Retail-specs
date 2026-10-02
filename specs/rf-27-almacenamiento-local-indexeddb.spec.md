@@ -1,9 +1,9 @@
-# Spec — RF-27: Almacenamiento Local Seguro en IndexedDB (v0.1)
+﻿# Spec — RF-27: Almacenamiento Local Seguro en IndexedDB (v0.1)
 
-### Responsable: Cristhian (Backend Developer)
+### Responsable: Miguel (DevOps / Tech Lead)
 ### Requerimiento Funcional: RF-27: Almacenamiento Local Seguro en IndexedDB
 ### Funcionalidad Padre: F10: Modo de Contingencia y Resiliencia Offline
-### Prioridad: Must have (Crítico)
+### Prioridad: Must have (Condicionado a F10)
 
 ---
 

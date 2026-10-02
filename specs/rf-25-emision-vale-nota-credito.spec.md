@@ -1,9 +1,9 @@
-# Spec — RF-25: Emisión de Vale de Compra / Nota de Crédito Presencial (v0.1)
+﻿# Spec — RF-25: Emisión de Vale de Compra / Nota de Crédito Presencial (v0.1)
 
-### Responsable: Maye (Arquitectura de Software)
+### Responsable: Cristhian (Backend Developer)
 ### Requerimiento Funcional: RF-25: Emisión de Vale de Compra / Nota de Crédito Presencial
 ### Funcionalidad Padre: F9: Gestión de Cambios y Devoluciones en Mostrador
-### Prioridad: Must have (Crítico)
+### Prioridad: Should have (Secundario si F9 entra)
 
 ---
 

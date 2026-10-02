@@ -1,9 +1,9 @@
-# Spec — RF-29: Panel de Alertas de Stock Crítico y Quiebre en Tienda (v0.1)
+﻿# Spec — RF-29: Panel de Alertas de Stock Crítico y Quiebre en Tienda (v0.1)
 
-### Responsable: Kevin (Frontend / UX)
+### Responsable: Mihael (Product Owner)
 ### Requerimiento Funcional: RF-29: Panel de Alertas de Stock Crítico y Quiebre en Tienda
 ### Funcionalidad Padre: F11: Torre de Control Operativa de Turno
-### Prioridad: Should have (Importante)
+### Prioridad: Should have (Secundario si F11 entra)
 
 ---
 

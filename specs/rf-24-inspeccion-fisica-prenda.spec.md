@@ -1,9 +1,9 @@
-# Spec — RF-24: Inspección Física y Registro de Estado de la Prenda (v0.1)
+﻿# Spec — RF-24: Inspección Física y Registro de Estado de la Prenda (v0.1)
 
-### Responsable: Maye (Arquitectura de Software)
+### Responsable: Cristhian (Backend Developer)
 ### Requerimiento Funcional: RF-24: Inspección Física y Registro de Estado de la Prenda
 ### Funcionalidad Padre: F9: Gestión de Cambios y Devoluciones en Mostrador
-### Prioridad: Must have (Crítico)
+### Prioridad: Must have (Condicionado a F9)
 
 ---
 

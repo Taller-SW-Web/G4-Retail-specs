@@ -1,9 +1,9 @@
-# Spec — RF-30: Bandeja de Pedidos Pick-Up del Día en Tienda (v0.1)
+﻿# Spec — RF-30: Bandeja de Pedidos Pick-Up del Día en Tienda (v0.1)
 
-### Responsable: Kevin (Frontend / UX)
+### Responsable: Mihael (Product Owner)
 ### Requerimiento Funcional: RF-30: Bandeja de Pedidos Pick-Up del Día en Tienda
 ### Funcionalidad Padre: F11: Torre de Control Operativa de Turno
-### Prioridad: Must have (Crítico)
+### Prioridad: Must have (Condicionado a F11)
 
 ---
 

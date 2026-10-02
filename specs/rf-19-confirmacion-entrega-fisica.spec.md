@@ -1,6 +1,6 @@
-# Spec — RF-19: Registro de Confirmación de Entrega Física (v0.1)
+﻿# Spec — RF-19: Registro de Confirmación de Entrega Física (v0.1)
 
-### Responsable: Maye (Arquitectura de Software)
+### Responsable: Maylle (Arquitectura de Software)
 ### Requerimiento Funcional: RF-19: Registro de Confirmación de Entrega Física
 ### Funcionalidad Padre: F7: Entrega del Producto en Tienda Física / Pickup
 ### Prioridad: Must have (Crítico)

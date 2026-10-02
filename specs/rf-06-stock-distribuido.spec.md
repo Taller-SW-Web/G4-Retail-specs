@@ -1,9 +1,9 @@
-# Spec — RF-06: Consulta de Stock Distribuido en Tiempo Real (v0.1)
+﻿# Spec — RF-06: Consulta de Stock Distribuido en Tiempo Real (v0.1)
 
 ### Responsable: Kevin (Frontend / UX)
 ### Requerimiento Funcional: RF-06: Consulta de Stock Distribuido en Tiempo Real
 ### Funcionalidad Padre: F2: Consulta del Catálogo y Disponibilidad de Productos
-### Prioridad: Must have (Crítico)
+### Prioridad: Should have (Secundario en MVP)
 
 ---
 

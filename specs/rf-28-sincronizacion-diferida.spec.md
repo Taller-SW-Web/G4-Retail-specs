@@ -1,9 +1,9 @@
-# Spec — RF-28: Sincronización Diferida y Conciliación Automática (v0.1)
+﻿# Spec — RF-28: Sincronización Diferida y Conciliación Automática (v0.1)
 
-### Responsable: Cristhian (Backend Developer)
+### Responsable: Miguel (DevOps / Tech Lead)
 ### Requerimiento Funcional: RF-28: Sincronización Diferida y Conciliación Automática
 ### Funcionalidad Padre: F10: Modo de Contingencia y Resiliencia Offline
-### Prioridad: Must have (Crítico)
+### Prioridad: Should have (Secundario si F10 entra)
 
 ---
 

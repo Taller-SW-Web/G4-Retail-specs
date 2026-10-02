@@ -1,9 +1,9 @@
-# Spec — RF-11: Aplicación Dinámica de Descuentos y Promociones (v0.1)
+﻿# Spec — RF-11: Aplicación Dinámica de Descuentos y Promociones (v0.1)
 
 ### Responsable: Mihael (Product Owner)
 ### Requerimiento Funcional: RF-11: Aplicación Dinámica de Descuentos y Promociones
 ### Funcionalidad Padre: F4: Registro de Venta Asistida y Aplicación de Ofertas/Promociones
-### Prioridad: Must have (Crítico)
+### Prioridad: Should have (Secundario en MVP)
 
 ---
 

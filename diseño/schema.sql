@@ -139,9 +139,26 @@ CREATE TABLE IF NOT EXISTS RET_CONTINGENCIA_OFFLINE_LOG (
 );
 
 -- -----------------------------------------------------------------------------
+-- 8. TABLA: RET_PERSONAL_TIENDA
+-- Perfiles y roles operativos del personal dentro de la sucursal (F1, F8)
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS RET_PERSONAL_TIENDA (
+    id_personal             UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    usuario_id              UUID NOT NULL UNIQUE, -- Identificador lógico del usuario ('sub')
+    tienda_id               UUID NOT NULL,
+    codigo_vendedor         VARCHAR(20) NOT NULL,
+    perfil_tienda           VARCHAR(20) NOT NULL 
+                            CHECK (perfil_tienda IN ('VENDEDOR', 'CAJERO', 'SUPERVISOR')),
+    activo                  BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- -----------------------------------------------------------------------------
 -- ÍNDICES DE CONSULTA FRECUENTE
 -- -----------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_caja_sesion_tienda_vendedor ON RET_CAJA_SESION(tienda_id, vendedor_id, estado);
 CREATE INDEX IF NOT EXISTS idx_carrito_espera_tienda_estado ON RET_CARRITO_ESPERA(tienda_id, estado);
 CREATE INDEX IF NOT EXISTS idx_offline_log_estado ON RET_CONTINGENCIA_OFFLINE_LOG(tienda_id, estado_sincronizacion);
 CREATE INDEX IF NOT EXISTS idx_incidencia_tienda_estado ON RET_INCIDENCIA_INVENTARIO(tienda_id, estado_cuarentena);
+CREATE INDEX IF NOT EXISTS idx_personal_tienda_usuario ON RET_PERSONAL_TIENDA(usuario_id, tienda_id, activo);

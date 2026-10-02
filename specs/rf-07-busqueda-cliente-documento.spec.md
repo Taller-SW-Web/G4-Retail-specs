@@ -27,7 +27,7 @@ Permitir al personal de mostrador buscar en un segundo a un cliente ingresando �
 1. Expone `GET /api/v1/retail/clientes/buscar`:
    * Recibe el parámetro `documento` por query string.
    * Valida que no venga vacío.
-2. Reenvía la petición a *Seguridad y Usuarios* (`GET /api/v1/clientes?documento={documento}`).
+2. Reenvía la petición a *Seguridad y Usuarios* (`GET /api/v1/clientes?documento={documento}`) utilizando token de servicio (`grant_type=client_credentials`, scope `clientes:buscar:documento`, aud `api-seguridad`).
 3. Si el microservicio responde `200 OK`:
    * Retorna el objeto `ClienteResumen` con el perfil del comprador.
 4. Si el microservicio responde `404 Not Found`:

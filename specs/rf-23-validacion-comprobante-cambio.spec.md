@@ -1,9 +1,9 @@
-# Spec — RF-23: Validación de Comprobante y Plazos de Cambio Presencial (v0.1)
+﻿# Spec — RF-23: Validación de Comprobante y Plazos de Cambio Presencial (v0.1)
 
-### Responsable: Maye (Arquitectura de Software)
+### Responsable: Cristhian (Backend Developer)
 ### Requerimiento Funcional: RF-23: Validación de Comprobante y Plazos de Cambio Presencial
 ### Funcionalidad Padre: F9: Gestión de Cambios y Devoluciones en Mostrador
-### Prioridad: Must have (Crítico)
+### Prioridad: Must have (Condicionado a F9)
 
 ---
 
