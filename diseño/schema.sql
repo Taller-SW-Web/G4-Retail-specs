@@ -89,7 +89,8 @@ CREATE TABLE IF NOT EXISTS RET_SOLICITUD_CAMBIO_MOSTRADOR (
     pedido_id_origen        UUID NOT NULL, -- Ref. externa lógica: Módulo Ventas
     variante_sku_devuelta_id UUID NOT NULL, -- Ref. externa lógica: Módulo Productos
     cliente_id              UUID NOT NULL, -- Ref. externa lógica: Módulo Seguridad
-    motivo_cambio           VARCHAR(50) NOT NULL,
+    motivo_cambio           VARCHAR(50) NOT NULL
+                            CHECK (motivo_cambio IN ('CAMBIO_TALLA', 'CAMBIO_MODELO', 'FALLA_FABRICA')),
     inspeccion_etiquetas    BOOLEAN NOT NULL DEFAULT FALSE,
     inspeccion_sin_uso      BOOLEAN NOT NULL DEFAULT FALSE,
     inspeccion_empaque      BOOLEAN NOT NULL DEFAULT FALSE,
@@ -112,7 +113,8 @@ CREATE TABLE IF NOT EXISTS RET_INCIDENCIA_INVENTARIO (
     vendedor_reporta_id     UUID NOT NULL, -- Ref. externa lógica: Módulo Seguridad
     variante_sku_id         UUID NOT NULL, -- Ref. externa lógica: Módulo Productos
     codigo_barras           VARCHAR(50) NOT NULL,
-    tipo_falla              VARCHAR(50) NOT NULL,
+    tipo_falla              VARCHAR(50) NOT NULL
+                            CHECK (tipo_falla IN ('MANCHADO_PROBADOR', 'COSTURA_ROTA', 'EXTRAVIO_NO_UBICADO', 'DEFECTO_FABRICA')),
     detalle_observacion     TEXT NOT NULL,
     evidencia_foto_url      VARCHAR(255) NULL,
     estado_cuarentena       VARCHAR(30) NOT NULL DEFAULT 'EN_CUARENTENA'
