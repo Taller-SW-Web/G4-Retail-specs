@@ -216,7 +216,7 @@ Gobierna la recepción física e inspección de prendas para cambio en tienda pr
 | `pedido_id_origen` | `UUID` | No | Ref. externa Ventas | Orden original de compra |
 | `variante_sku_devuelta_id`| `UUID` | No | Ref. externa Productos | SKU de la prenda que se devuelve |
 | `cliente_id` | `UUID` | No | Ref. externa Seguridad | Cliente que solicita el cambio |
-| `motivo_cambio` | `VARCHAR(50)` | No | — | Motivo (Talla incorrecta, defecto, etc.) |
+| `motivo_cambio` | `VARCHAR(50)` | No | `CHECK IN ('CAMBIO_TALLA', 'CAMBIO_MODELO', 'FALLA_FABRICA')` | Motivo del cambio según RF-24 |
 | `inspeccion_etiquetas` | `BOOLEAN` | No | `DEFAULT FALSE` | Etiquetas de fábrica intactas |
 | `inspeccion_sin_uso` | `BOOLEAN` | No | `DEFAULT FALSE` | Prenda limpia sin olores ni señales de uso |
 | `inspeccion_empaque` | `BOOLEAN` | No | `DEFAULT FALSE` | Empaque o caja original entregada |
@@ -237,7 +237,7 @@ Control y registro de mermas físicas, prendas dañadas en probadores o extraví
 | `vendedor_reporta_id`| `UUID` | No | Ref. externa Seguridad | Vendedor que reporta la prenda |
 | `variante_sku_id` | `UUID` | No | Ref. externa Productos | SKU de la prenda en mal estado |
 | `codigo_barras` | `VARCHAR(50)` | No | — | Código EAN-13 leído por pistola láser |
-| `tipo_falla` | `VARCHAR(50)` | No | — | Ej: `MANCHADO_PROBADOR`, `COSTURA_ROTA` |
+| `tipo_falla` | `VARCHAR(50)` | No | `CHECK IN ('MANCHADO_PROBADOR', 'COSTURA_ROTA', 'EXTRAVIO_NO_UBICADO', 'DEFECTO_FABRICA')` | Tipo de incidencia física según RF-32 |
 | `detalle_observacion` | `TEXT` | No | — | Explicación detallada del estado físico |
 | `evidencia_foto_url` | `VARCHAR(255)` | Sí | — | URL fotográfica adjunta como evidencia |
 | `estado_cuarentena` | `VARCHAR(30)` | No | `CHECK IN ('EN_CUARENTENA', 'DERIVADO_ALMACEN', 'DESCARTADO', 'RECHAZADO')` | Estado del lote/prenda |
