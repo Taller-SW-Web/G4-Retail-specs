@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "G4-Retail - Specs y gobernanza"
+    },
+    {
+      "path": "G4-Retail-frontend"
+    },
+    {
+      "path": "G4-Retail-backend"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "G4-Retail-frontend": true,
+      "G4-Retail-backend": true
+    }
+  }
+}
