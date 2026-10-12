@@ -1,12 +1,12 @@
-# Contrato de API — Módulo Retail (G4) · v0.3
+# Contrato de API — Módulo Retail (G4) · v0.4
 
 | Campo | Valor |
 |---|---|
-| Versión | **0.3 — borrador saneado** (reemplaza a v0.2) |
+| Versión | **0.4 — borrador corregido** (reemplaza a v0.3) |
 | Estado | Pendiente de aprobación por PO (Mihael) y Tech Lead (Miguel) |
 | Responsable | Arquitectura de Software (Maylle) |
-| Fecha | 08/10/2026 |
-| Base | Specs F1–F12 (fuente de verdad) · Reporte de Consistencia Intermodular (corte 05/10/2026) · Contrato de Despacho G2 · Convenciones de Seguridad G7 |
+| Fecha | 11/10/2026 |
+| Base | Specs F1–F12 (fuente de verdad) · Reporte de Consistencia Intermodular (corte 05/10/2026) · Contrato de Despacho G2 · Convenciones de Seguridad G7 · Observaciones de la revisión del pull request de v0.3 |
 
 > **Regla de implementación (Guía Semana 7):** ningún endpoint se programa en backend ni se consume en frontend hasta que figure como **APROBADO** en el [tablero de endpoints](#8-tablero-de-endpoints). Arquitectura notifica a Miguel y Cristhian cada aprobación.
 
@@ -78,9 +78,10 @@ SPA (navegador del POS) ──► ms-retail  /api/v1/retail/*  ──► Segurid
 
 | Perfil local | Puede |
 |---|---|
-| `VENDEDOR` | Catálogo, clientes, carrito, carritos en espera, pedidos, pickup, incidencias |
-| `CAJERO` | Todo lo anterior + venta y cobro, turnos de caja, contingencia offline |
+| `VENDEDOR` | Catálogo, clientes, carrito, carritos en espera, venta y cobro, turnos de caja, contingencia offline, pedidos, pickup, cambios, incidencias |
 | `SUPERVISOR` | Todo lo anterior + autorizar egresos de caja, actas de merma y excepciones |
+
+> Retail maneja un **único perfil operativo de mostrador: `VENDEDOR`**. La misma persona atiende, vende, cobra y opera la caja; **no existe un perfil `CAJERO`** (D-08).
 
 ### 2.5. Errores
 
@@ -113,9 +114,34 @@ Se adopta **`application/problem+json` (RFC 7807)**, el mismo formato de Segurid
 | `429` | Límite de consultas excedido |
 | `503` | Un módulo externo no responde (la SPA puede pasar a contingencia, F10) |
 
-### 2.6. Paginación
+### 2.6. Parámetros de consulta y de ruta
 
-Las listas paginadas reciben `page` (desde 0) y `size` (por defecto 20) y responden `{ "items": [...], "page": 0, "size": 20, "total": 57 }`.
+Cada parámetro de query o de ruta se documenta con su **ubicación**, **tipo**, **obligatoriedad**, **valor por defecto** y **restricciones**. Tipos usados:
+
+| Tipo | Significado | Ejemplo válido | Ejemplo inválido |
+|---|---|---|---|
+| `string` | Texto UTF-8 | `POS-01` | — |
+| `integer` | Entero de 32 bits en base 10, sin decimales | `20` | `20.5`, `abc` |
+| `enum` | Uno de los valores listados, en `UPPER_SNAKE_CASE` | `DNI` | `dni` |
+| `uuid` | UUID en texto (36 caracteres) | `5b0e3f0a-6c1d-4d3e-9a2b-1f0c7e8d9a10` | `123` |
+
+Reglas:
+
+- Los documentos (DNI, RUC) se tipan como `string`, nunca como `integer`, para no perder ceros a la izquierda.
+- Un parámetro con tipo, formato o rango inválido responde `400 PARAMETRO_INVALIDO`, indicando en `errores[]` el `campo` y el `motivo`.
+- Un parámetro obligatorio ausente responde `400 PARAMETRO_OBLIGATORIO`.
+- Un parámetro opcional enviado vacío (`?marca=`) se trata como ausente.
+
+### 2.7. Paginación
+
+Las listas paginadas reciben:
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `page` | query | `integer` | No | `0` | ≥ 0 (la primera página es la `0`) |
+| `size` | query | `integer` | No | `20` | Entre `1` y `100` |
+
+Y responden `{ "items": [...], "page": 0, "size": 20, "total": 57 }`, donde `page`, `size` y `total` son `integer` e `items` es un arreglo (vacío si no hay resultados).
 
 ---
 
@@ -220,7 +246,7 @@ Devuelve el perfil operativo del usuario autenticado. La SPA lo llama justo desp
 {
   "usuarioId": "2f31c1b1-7568-41b8-bf91-342db68431df",
   "codigoVendedor": "VEND-1042",
-  "perfilTienda": "CAJERO",
+  "perfilTienda": "VENDEDOR",
   "tiendaId": "TIENDA-MIRAFLORES",
   "activo": true
 }
@@ -234,8 +260,18 @@ Heartbeat de la contingencia (F10). **Sin autenticación.**
 ### 5.2. F2 — Catálogo y lector de código de barras
 
 #### `GET /api/v1/retail/catalogo` 🟢
-- **Roles:** VENDEDOR, CAJERO, SUPERVISOR.
-- **Query:** `q`, `categoria`, `disciplina`, `marca`, `page`, `size`. La tienda sale del perfil.
+- **Roles:** VENDEDOR, SUPERVISOR.
+- **Parámetros** (la tienda sale del perfil):
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `q` | query | `string` | No | — | Texto libre de búsqueda |
+| `categoria` | query | `string` | No | — | Ej. `Textil` |
+| `disciplina` | query | `string` | No | — | Ej. `Running` |
+| `marca` | query | `string` | No | — | Ej. `AeroSport` |
+| `page` | query | `integer` | No | `0` | Ver §2.7 |
+| `size` | query | `integer` | No | `20` | Ver §2.7 |
+
 - **200 OK** (paginado):
 ```json
 {
@@ -269,7 +305,13 @@ Heartbeat de la contingencia (F10). **Sin autenticación.**
 
 #### `GET /api/v1/retail/catalogo/codigo-barras/{codigo}` 🟢
 Lectura prioritaria por escáner (EAN-13 / Code128).
-- **Roles:** VENDEDOR, CAJERO, SUPERVISOR.
+- **Roles:** VENDEDOR, SUPERVISOR.
+- **Parámetros:**
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `codigo` | ruta | `string` | Sí | — | Solo dígitos, de 8 a 14 (`^\d{8,14}$`). Ej. `7751234567890` |
+
 - **200 OK:**
 ```json
 {
@@ -287,9 +329,17 @@ Lectura prioritaria por escáner (EAN-13 / Code128).
 
 ### 5.3. F3 — Clientes
 
-#### `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678` 🟢
-- **Roles:** VENDEDOR, CAJERO, SUPERVISOR.
-- **Validación (RF-09):** DNI de exactamente 8 dígitos (`^\d{8}$`). La búsqueda **solo admite DNI** (ver §4.1).
+#### `GET /api/v1/retail/clientes` 🟢
+Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678`
+- **Roles:** VENDEDOR, SUPERVISOR.
+- **Parámetros:**
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `tipoDocumento` | query | `enum` | Sí | — | Solo `DNI` |
+| `numeroDocumento` | query | `string` | Sí | — | Exactamente 8 dígitos (`^\d{8}$`) |
+
+- **Validación (RF-09):** DNI de exactamente 8 dígitos. La búsqueda **solo admite DNI** (ver §4.1).
 - **200 OK:**
 ```json
 {
@@ -303,7 +353,7 @@ Lectura prioritaria por escáner (EAN-13 / Code128).
 - **Integración:** `/usuarios/busqueda-documento` (Seguridad).
 
 #### `POST /api/v1/retail/clientes` 🟢
-- **Roles:** VENDEDOR, CAJERO, SUPERVISOR.
+- **Roles:** VENDEDOR, SUPERVISOR.
 - **Body:**
 ```json
 {
@@ -324,7 +374,7 @@ Lectura prioritaria por escáner (EAN-13 / Code128).
 
 #### `POST /api/v1/retail/carritos/calcular` 🟢
 Vista previa de totales y promociones. **No crea nada.** El total oficial lo congela Ventas al crear el pedido (X-P0-05).
-- **Roles:** VENDEDOR, CAJERO, SUPERVISOR.
+- **Roles:** VENDEDOR, SUPERVISOR.
 - **Body:** solo SKU y cantidad; el precio lo obtiene el backend, **nunca se confía en el precio enviado por el cliente**.
 ```json
 { "items": [ { "sku": "CAM-RUN-M-AZUL", "cantidad": 2 } ], "cupon": "VERANO2026" }
@@ -374,12 +424,19 @@ Body de `POST`:
 ```
 Estados: `SUSPENDIDO` · `REANUDADO` · `EXPIRADO`.
 
+Parámetros:
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `estado` | query (`GET`) | `enum` | No | `SUSPENDIDO` | `SUSPENDIDO` · `REANUDADO` · `EXPIRADO` |
+| `id` | ruta (`reanudar`, `DELETE`) | `uuid` | Sí | — | `carritoEsperaId` devuelto al pausar |
+
 ### 5.5. F5 — Venta y cobro
 
 #### `POST /api/v1/retail/ventas` 🟢 🔁
 Cierra la venta en mostrador: crea el pedido en Ventas, registra el cobro y devuelve el comprobante emitido por Ventas.
 
-- **Roles:** CAJERO, SUPERVISOR. **Precondición:** turno de caja `ABIERTA` en la terminal.
+- **Roles:** VENDEDOR, SUPERVISOR. **Precondición:** turno de caja `ABIERTA` en la terminal.
 - **Body:**
 ```json
 {
@@ -439,16 +496,38 @@ Cierra la venta en mostrador: crea el pedido en Ventas, registra el cobro y devu
 - **Pendiente intermodular (X-P0-02):** si Ventas formaliza el estado "apto para pagar", el paso 4 esperará esa señal antes de registrar el cobro. La firma de este endpoint no cambia.
 
 #### `GET /api/v1/retail/ventas/{ventaId}/comprobante`
-Reimpresión del ticket. **Roles:** CAJERO, SUPERVISOR. **200** con la misma estructura `comprobante`; **404** `VENTA_NO_ENCONTRADA`.
+Reimpresión del ticket. **Roles:** VENDEDOR, SUPERVISOR. **200** con la misma estructura `comprobante`; **404** `VENTA_NO_ENCONTRADA`.
+- **Parámetros:**
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `ventaId` | ruta | `uuid` | Sí | — | `ventaId` devuelto por `POST /ventas` |
 
 ### 5.6. F6 — Consulta de pedidos
 
-#### `GET /api/v1/retail/pedidos?codigoPedido=&documentoCliente=`
-- **Roles:** VENDEDOR, CAJERO, SUPERVISOR. Exige al menos un filtro (`400` si no llega ninguno).
-- **200 OK:** lista de la más reciente a la más antigua: `pedidoId`, `canal`, `fechaCreacion`, `estadoComercial`, `total`.
+#### `GET /api/v1/retail/pedidos`
+Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
+- **Roles:** VENDEDOR, SUPERVISOR. Exige al menos un filtro (`400 PARAMETRO_OBLIGATORIO` si no llega ninguno).
+- **Parámetros:**
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `codigoPedido` | query | `string` | Condicional | — | Identificador opaco de Ventas. Ej. `PED-2026-00981` |
+| `documentoCliente` | query | `string` | Condicional | — | DNI de 8 dígitos o RUC de 11 (`^(\d{8}\|\d{11})$`) |
+| `page` | query | `integer` | No | `0` | Ver §2.7 |
+| `size` | query | `integer` | No | `20` | Ver §2.7 |
+
+- **200 OK** (paginado, §2.7): `items` ordenados del más reciente al más antiguo, cada uno con `pedidoId`, `canal`, `fechaCreacion`, `estadoComercial`, `total`.
 - **Errores:** `404 PEDIDO_NO_ENCONTRADO`.
 
 #### `GET /api/v1/retail/pedidos/{pedidoId}`
+- **Roles:** VENDEDOR, SUPERVISOR.
+- **Parámetros:**
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `pedidoId` | ruta | `string` | Sí | — | Identificador opaco de Ventas. Ej. `PED-2026-00981` |
+
 - **200 OK:** cabecera, líneas (`sku`, nombre, talla, color, cantidad, precio) e `historialEstados` en orden cronológico ascendente.
 - Los estados se separan por dimensión (X-P0-08): `estadoComercial`, `estadoPago`, `modalidad` (`DELIVERY` · `PICKUP` · `IN_STORE`) y `estadoFulfillment`. Los valores exactos son los que publique Ventas.
 - **Integración:** consulta de pedidos de Ventas (🟡).
@@ -459,6 +538,13 @@ Reimpresión del ticket. **Roles:** CAJERO, SUPERVISOR. **200** con la misma est
 |---|---|
 | `GET /api/v1/retail/pickup/pendientes` | Pedidos listos para recoger en la tienda del perfil |
 | `POST /api/v1/retail/pickup/{pedidoId}/entrega` 🔁 | Confirmar la entrega física |
+
+- **Roles:** VENDEDOR, SUPERVISOR.
+- **Parámetros:**
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `pedidoId` | ruta (`entrega`) | `string` | Sí | — | Identificador opaco de Ventas. Ej. `PED-2026-00981` |
 
 Body de la entrega:
 ```json
@@ -472,21 +558,32 @@ Body de la entrega:
 
 Estados del turno: `ABIERTA` · `CERRADA` · `OBSERVADA` (cerrada con diferencia).
 
+La caja la opera el `VENDEDOR` (no hay perfil `CAJERO`, D-08). En `…/movimientos` y `…/cierre`, el parámetro de ruta `turnoId` es `uuid`, obligatorio, y corresponde al `turnoId` devuelto en la apertura.
+
 #### `POST /api/v1/retail/caja/turnos` 🟢
 Apertura con fondo fijo (RF-20).
-- **Roles:** CAJERO, SUPERVISOR.
+- **Roles:** VENDEDOR, SUPERVISOR.
 - **Body:** `{ "terminalPos": "POS-01", "saldoInicialEfectivo": 200.00 }`, con `saldoInicialEfectivo ≥ 0`.
 - **201 Created:** `{ "turnoId": "…", "terminalPos": "POS-01", "estado": "ABIERTA", "fechaHoraApertura": "…", "saldoInicialEfectivo": 200.00 }`.
 - **Errores:** `400`; `409 TURNO_YA_ABIERTO` (la terminal ya tiene un turno abierto).
 
-#### `GET /api/v1/retail/caja/turnos/actual?terminalPos=POS-01` 🟢
+#### `GET /api/v1/retail/caja/turnos/actual` 🟢
+Ejemplo: `GET /api/v1/retail/caja/turnos/actual?terminalPos=POS-01`
+
 Recupera el turno abierto tras recargar la página (`cajaStore`). **No muestra ventas ni saldo esperado** (arqueo ciego).
+- **Roles:** VENDEDOR, SUPERVISOR.
+- **Parámetros:**
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `terminalPos` | query | `string` | Sí | — | Código de la terminal. Ej. `POS-01` |
+
 - **200 OK:** `{ "turnoId", "terminalPos", "estado", "fechaHoraApertura", "saldoInicialEfectivo" }`.
-- **Errores:** `404 SIN_TURNO_ABIERTO`.
+- **Errores:** `400 PARAMETRO_OBLIGATORIO` (falta `terminalPos`); `404 SIN_TURNO_ABIERTO`.
 
 #### `POST /api/v1/retail/caja/turnos/{turnoId}/movimientos` 🔁
 Ingresos y egresos menores (RF-21).
-- **Roles:** CAJERO. Un egreso exige la autorización de un SUPERVISOR.
+- **Roles:** VENDEDOR, SUPERVISOR. Un egreso registrado por un VENDEDOR exige la autorización de un SUPERVISOR.
 - **Body:**
 ```json
 {
@@ -503,7 +600,7 @@ Ingresos y egresos menores (RF-21).
 
 #### `POST /api/v1/retail/caja/turnos/{turnoId}/cierre`
 Cierre con arqueo ciego (RF-22).
-- **Roles:** CAJERO, SUPERVISOR.
+- **Roles:** VENDEDOR, SUPERVISOR.
 - **Body:** `{ "montoDeclarado": 535.00, "observaciones": "Caja cuadrada sin novedad" }`.
 - **Cálculo en el servidor:** `saldoSistema = saldoInicial + ventasEfectivo + ingresos − egresos`; `diferencia = montoDeclarado − saldoSistema`. `ventasEfectivo` sale de los **cobros por turno** que guarda F5.
 - **200 OK:**
@@ -520,8 +617,17 @@ Cierre con arqueo ciego (RF-22).
 
 ### 5.9. F9 — Cambios de prenda
 
-#### `GET /api/v1/retail/cambios/validacion?comprobante=B001-00045231` (o `codigoTicketRegalo=`, o `dni=`)
-- **Roles:** VENDEDOR, CAJERO, SUPERVISOR.
+#### `GET /api/v1/retail/cambios/validacion`
+Ejemplo: `GET /api/v1/retail/cambios/validacion?comprobante=B001-00045231`
+- **Roles:** VENDEDOR, SUPERVISOR.
+- **Parámetros** (llega **exactamente uno**; ninguno o más de uno responde `400 PARAMETRO_INVALIDO`):
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `comprobante` | query | `string` | Condicional | — | Serie y correlativo: `^[BF]\d{3}-\d{8}$`. Ej. `B001-00045231` |
+| `codigoTicketRegalo` | query | `string` | Condicional | — | Código de canje del ticket de regalo. Ej. `GIFT-2026-09124` |
+| `dni` | query | `string` | Condicional | — | Exactamente 8 dígitos (`^\d{8}$`) |
+
 - **200 OK:**
 ```json
 {
@@ -539,7 +645,7 @@ Cierre con arqueo ciego (RF-22).
 
 #### `POST /api/v1/retail/cambios` 🔁
 Registra la inspección física y solicita el cambio a Postventa.
-- **Roles:** VENDEDOR, CAJERO, SUPERVISOR.
+- **Roles:** VENDEDOR, SUPERVISOR.
 - **Body:**
 ```json
 {
@@ -569,7 +675,7 @@ Registra la inspección física y solicita el cambio a Postventa.
 ### 5.10. F10 — Contingencia offline
 
 #### `POST /api/v1/retail/contingencia/sincronizar` 🔁 (cada venta es idempotente por `ventaLocalUuid`)
-- **Roles:** CAJERO, SUPERVISOR. Lote máximo propuesto: 50 ventas.
+- **Roles:** VENDEDOR, SUPERVISOR. Lote máximo propuesto: 50 ventas.
 - **Body:**
 ```json
 {
@@ -617,7 +723,7 @@ Registra la inspección física y solicita el cambio a Postventa.
 Estados locales: `EN_CUARENTENA` · `DERIVADO_ALMACEN` · `BAJA_DEFINITIVA` · `PENDIENTE_REPORTE` (Inventory todavía no la aceptó; se reintenta desde el outbox).
 
 #### `POST /api/v1/retail/inventario/incidencias` 🔁
-- **Roles:** VENDEDOR, CAJERO, SUPERVISOR, con turno activo.
+- **Roles:** VENDEDOR, SUPERVISOR, con turno activo.
 - **Body:**
 ```json
 {
@@ -654,7 +760,7 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 
 | Integración | Comportamiento del mock en la Semana 8 | Datos semilla (Angie) |
 |---|---|---|
-| Seguridad · login | Emula `POST /api/v1/auth/login` con los usuarios semilla y firma con una clave de prueba; la SPA apunta a él por variable de entorno | 2 usuarios (vendedor y cajero) + su perfil en `RET_PERSONAL_TIENDA` |
+| Seguridad · login | Emula `POST /api/v1/auth/login` con los usuarios semilla y firma con una clave de prueba; la SPA apunta a él por variable de entorno | 2 usuarios (1 vendedor y 1 supervisor) + su perfil en `RET_PERSONAL_TIENDA` |
 | Seguridad · clientes | Búsqueda por DNI y alta | 3 a 5 clientes de prueba |
 | Productos · catálogo y código de barras | Catálogo, resolución de código de barras, disponibilidad y `stockTienda` | 15 a 20 productos con variantes y código de barras único por SKU |
 | Productos · promociones | Evalúa un cupón de prueba (`VERANO2026`) | 1 o 2 promociones |
@@ -674,6 +780,8 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 | D-05 | `tiendaId` = `store_code` en texto | X-P0-04 | `schema.sql`: `tienda_id` pasa a `text` |
 | D-06 | Carritos en espera en `localStorage` en la Semana 8 y en el servidor después | La spec permite ambos | Ninguno para la Semana 8 |
 | D-07 | Los estados del turno son `ABIERTA`, `CERRADA` y `OBSERVADA` | Coincide con `schema.sql` | Specs F5 y F8 usan `ABIERTO`; deben corregirse |
+| D-08 | Un solo perfil de mostrador: `VENDEDOR`; se elimina `CAJERO` | Observación de la revisión del PR de v0.3: no separar cajero y vendedor | Specs F1 y F8, `schema.sql` y `modelo-datos.md` (`perfil_tienda`), `specs/generales/api-contracts.md` |
+| D-09 | Todo parámetro de query y de ruta declara ubicación, tipo, obligatoriedad, valor por defecto y restricciones (§2.6) | Observación de la revisión del PR de v0.3: no se sabía si `size` era entero o texto | Validación en los controladores (`400 PARAMETRO_INVALIDO` / `PARAMETRO_OBLIGATORIO`) y tipado del cliente HTTP en la SPA |
 
 ### 7.1. Pendientes intermodulares (no se inventan; se marcan 🟡)
 
@@ -737,15 +845,23 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 
 | Artefacto | Cambio |
 |---|---|
-| `diseño/schema.sql` y `modelo-datos.md` | `tienda_id`, `variante_sku_id`, `producto_id` y `pedido_id_origen` pasan a `text`; nueva tabla de cobros por turno; enums `INGRESO_SENCILLO`, `BAJA_DEFINITIVA`, `PENDIENTE_REPORTE` y `REQUIERE_REVISION` |
-| Spec y plan F1 | Login contra Seguridad (sin HMAC ni `/auth/login` propio); rol `SUPERVISOR` (no `SUPERVISOR_TIENDA`) |
+| `diseño/schema.sql` y `modelo-datos.md` | `tienda_id`, `variante_sku_id`, `producto_id` y `pedido_id_origen` pasan a `text`; nueva tabla de cobros por turno; enums `INGRESO_SENCILLO`, `BAJA_DEFINITIVA`, `PENDIENTE_REPORTE` y `REQUIERE_REVISION`; `perfil_tienda` solo admite `VENDEDOR` y `SUPERVISOR` (D-08) |
+| Spec y plan F1 | Login contra Seguridad (sin HMAC ni `/auth/login` propio); perfiles `VENDEDOR` y `SUPERVISOR` (sin `CAJERO` ni `SUPERVISOR_TIENDA`, D-08) |
+| Spec F8 | La caja la abre, opera y cierra el `VENDEDOR` (sin `CAJERO`, D-08) |
 | Specs F2 a F12 | Rutas de esta versión; quitar `RET_STOCK_TIENDA`, `RET_ORDENES`, `RET_PAGOS`, `RET_COMPROBANTES`, `RET_CLIENTES`, `RET_VARIANTES_PRODUCTO` y `RET_VALES_COMPRA` |
 | `AGENTS.md` y `overview.md` | Formato de error `problem+json` (D-01) |
 | `specs/api-contracts.md` | Era un duplicado de v0.2; ahora solo apunta a este archivo |
 
 ---
 
-## 11. Cambios respecto de v0.2
+## 11. Cambios respecto de v0.3
+
+- **Perfil único de mostrador (D-08):** se elimina `CAJERO`; el `VENDEDOR` asume la venta, el cobro, la caja y la contingencia offline. Los perfiles quedan en `VENDEDOR` y `SUPERVISOR` (§2.4) y se actualizan los roles de cada endpoint, el ejemplo de `GET /perfil` y los usuarios semilla de los mocks (§6).
+- **Tipado de parámetros (D-09):** nueva §2.6 con los tipos de parámetro y los errores `400 PARAMETRO_INVALIDO` y `400 PARAMETRO_OBLIGATORIO`. La paginación pasa a §2.7 con `page` y `size` como `integer`, sus valores por defecto y el límite `size ≤ 100`.
+- **Tablas de parámetros** en `catalogo`, `catalogo/codigo-barras/{codigo}`, `clientes`, `carritos-espera`, `ventas/{ventaId}/comprobante`, `pedidos`, `pedidos/{pedidoId}`, `pickup/{pedidoId}/entrega`, `caja/turnos/actual`, `caja/turnos/{turnoId}/*` y `cambios/validacion`.
+- **`GET /pedidos`** pasa a ser paginado (§2.7).
+
+## 12. Cambios respecto de v0.2
 
 - **Eliminados:** `/inventario/consumir`, `/inventario/incrementar-stock`, `/productos/inventario/ajuste-discrepancia` y los dos endpoints de Despacho.
 - **Reemplazados por rutas oficiales:** `/clientes/buscar` y `/clientes` (ahora `/usuarios/*`), `/productos/catalogo` (`/productos`), `/ofertas/evaluar-carrito` (`/promociones/evaluar`) y `/ordenes/presenciales` (`POST /pedidos` de Ventas, detrás de `/retail/ventas`).
