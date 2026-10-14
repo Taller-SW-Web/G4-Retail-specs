@@ -36,9 +36,9 @@ Permitir al cajero registrar el pago de la orden en mostrador calculando automá
 ---
 
 ## 4. Referencias y Contratos
-* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `POST /api/v1/ordenes`, `GET /api/v1/comprobantes/{id}`
+* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `POST /api/v1/pedidos`, `POST /api/v1/inventario/consumir`
 * **Design System:** [`specs/generales/design-system.md`](../generales/design-system.md)
-* **Modelo de Base de Datos:** `RET_ORDENES`, `RET_ORDEN_DETALLE`, `RET_PAGOS`, `RET_COMPROBANTES`
+* **Modelo de Base de Datos Retail:** `RET_CAJA_SESION` (actualización de saldo sistema), persistencia de orden delegada a Ventas (`POST /api/v1/pedidos`)
 
 ---
 
@@ -67,14 +67,14 @@ Permitir al cajero registrar el pago de la orden en mostrador calculando automá
 
 ### <a id="rf-14"></a>RF-14: Creación Oficial de la Orden Transaccional
 * **Backend:**
-  1. Expone `POST /api/v1/ordenes`:
-     * Extrae `vendedorId` y `tiendaId` del token de sesión.
+  1. Expone la orquestación de venta en mostrador (consumiendo `POST /api/v1/pedidos` de Ventas):
+     * Extrae `vendedorId` (UUID) y `tiendaId` del token de sesión.
      * Inicia bloque transaccional `@Transactional`.
-     * Valida que la terminal tenga un turno de caja abierto en estado `ABIERTO`.
-     * Verifica y descuenta el stock en `RET_STOCK_TIENDA` para cada SKU. Si alguna prenda no tiene existencias suficientes, aborta con `409 Conflict` (`STOCK_INSUFICIENTE`).
-     * Registra cabecera en `RET_ORDENES` (estado `PAGADA`) y líneas en `RET_ORDEN_DETALLE`.
-     * Registra el pago en `RET_PAGOS`.
-     * Retorna `201 Created` con el ID de orden y datos del pedido.
+     * Valida que la terminal tenga un turno de caja abierto en `RET_CAJA_SESION` en estado `ABIERTA`.
+     * Consume el servicio de Inventario (`POST /api/v1/inventario/consumir`) para cada SKU. Si alguna prenda no tiene existencias suficientes, aborta con `409 Conflict` (`STOCK_INSUFICIENTE`).
+     * Invoca `POST /api/v1/pedidos` del módulo Ventas enviando `canal: "RETAIL"`, naciendo en estado `PAGADO` e identificador `PED-YYYY-NNNNN`.
+     * Actualiza el saldo en sistema de la sesión de caja activa si hubo cobro en efectivo.
+     * Retorna `201 Created` con el ID de orden oficial generado por Ventas (`PED-YYYY-NNNNN`) y datos del comprobante.
 * **Frontend:**
   1. Al confirmar pago, muestra spinner en botón y bloquea la pantalla para evitar ventas duplicadas.
   2. Al recibir 201 Created: limpia el carrito en memoria y `localStorage` y avanza a la vista de comprobante.

@@ -38,7 +38,7 @@ Gestionar de forma reactiva la orden en mostrador mediante un panel lateral perm
 ## 4. Referencias y Contratos
 * **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `POST /api/v1/ordenes/calcular`
 * **Design System:** [`specs/generales/design-system.md`](../generales/design-system.md)
-* **Modelo de Base de Datos:** `RET_ORDENES_TEMPORALES`, `RET_PROMOCIONES`
+* **Modelo de Base de Datos:** `RET_CARRITO_ESPERA`, `RET_CARRITO_ESPERA_ITEM`
 
 ---
 
