@@ -14,7 +14,7 @@ Los clientes acuden al mostrador para consultar por compras realizadas en cualqu
 ---
 
 ## 2. ¿Para qué? (Objetivo)
-Permitir al personal de mostrador buscar y listar órdenes de compra realizadas en cualquier canal comercial mediante código de pedido o documento del comprador (DNI/RUC), visualizando el desglose de prendas y desplegando un componente interactivo de línea de tiempo (*Timeline / Stepper*) con el historial cronológico de estados (`REGISTRADO`, `PAGADO`, `EN_PREPARACION`, `LISTO_PARA_RECOJO`, `ENTREGADO`, `ANULADO`).
+Permitir al personal de mostrador buscar y listar órdenes de compra realizadas en cualquier canal comercial mediante código de pedido (`PED-YYYY-NNNNN`) o documento del comprador (DNI/RUC), visualizando el desglose de prendas y desplegando un componente interactivo de línea de tiempo (*Timeline / Stepper*) con el historial cronológico de estados oficiales de Ventas (`CREADO`, `PAGADO`, `EN_PREPARACION`, `DESPACHADO`, `ENTREGADO`, `ANULADO`).
 
 ---
 
@@ -24,9 +24,9 @@ Permitir al personal de mostrador buscar y listar órdenes de compra realizadas 
   * Lista cronológica descendente de órdenes históricas del cliente.
   * Vista profunda de orden con prendas adquiridas, fotos, tallas y comprobantes asociados.
   * Línea de tiempo gráfica de estados con fechas/horas exactas (UTC-5 Lima).
-  * Badges semánticos de estado (verde: entregado, azul: listo para recojo, ámbar: en preparación, rojo: anulado).
+  * Badges semánticos de estado (verde: entregado, azul: despachado / en camino, ámbar: en preparación, rojo: anulado).
 * **Excluido:**
-  * Entrega física en tienda con firma o código PIN (cubierto en F7 / Pickup).
+  * Entrega física en tienda con firma o código PIN (cubierto en F7 / Pickup con Despacho G2).
   * Anulaciones y devoluciones (cubierto en Postventa G5).
 
 ---
@@ -34,7 +34,7 @@ Permitir al personal de mostrador buscar y listar órdenes de compra realizadas 
 ## 4. Referencias y Contratos
 * **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `GET /api/v1/pedidos`, `GET /api/v1/pedidos/{id}`
 * **Design System:** [`specs/generales/design-system.md`](../generales/design-system.md)
-* **Modelo de Base de Datos:** `RET_ORDENES`, `RET_ORDEN_HISTORIAL`
+* **Modelo de Base de Datos:** Consulta delegada al Módulo de Ventas y Postventa (G5) (`GET /api/v1/pedidos`)
 
 ---
 
@@ -44,7 +44,7 @@ Permitir al personal de mostrador buscar y listar órdenes de compra realizadas 
 * **Backend:**
   1. Expone `GET /api/v1/pedidos?codigoPedido=&documentoCliente=`:
      * Valida que al menos uno de los dos filtros esté presente.
-     * Consulta `RET_ORDENES` y cruza con *Ventas y Postventa* (o mock controlado).
+     * Consume el servicio de *Ventas y Postventa (G5)* para buscar pedidos omnicanal.
      * Retorna órdenes ordenadas de la más reciente a la más antigua.
      * Si no existen registros, responde `404 Not Found` (`PEDIDO_NO_ENCONTRADO`).
 * **Frontend:**
