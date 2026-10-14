@@ -5,8 +5,8 @@
 ---
 
 ## 1. Decisiones Técnicas Confirmadas
-1. **Índices de Base de Datos:** Se definen índices compuestos sobre `RET_ORDENES(tienda_id, fecha_creacion DESC)` y `RET_ORDENES(cliente_documento)` para optimizar búsquedas frecuentes.
-2. **Historial Desnormalizado de Eventos:** Se mantiene la tabla `RET_ORDEN_HISTORIAL` registrando cada cambio de estado, timestamp, usuario responsable y motivo.
+1. **Desacoplamiento de Microservicios:** La consulta histórica y trazabilidad se delega al Módulo de Ventas y Postventa (G5) mediante `GET /api/v1/pedidos?codigoPedido=&documentoCliente=` y `GET /api/v1/pedidos/{id}`.
+2. **Historial de Estados Omnicanal:** Se consume el array de eventos de Ventas con el enum cerrado oficial (`CREADO`, `PAGADO`, `EN_PREPARACION`, `DESPACHADO`, `ENTREGADO`, `ANULADO`), mapeando la línea de tiempo en el frontend.
 
 ## 2. Registro de Incidencias y Regularizaciones
 - *(Pendiente de registro durante la ejecución del sprint)*.

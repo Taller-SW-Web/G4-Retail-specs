@@ -7,29 +7,29 @@
 
 ## Backend (`G4-Retail-backend`)
 
-### [ ] Tarea B1 (RF-13, RF-14): Entidades JPA y Repositorios de Orden, Detalle y Pago
-- **Archivos:** `model/Orden.java`, `model/OrdenDetalle.java`, `model/Pago.java`, repositorios JPA correspondientes.
-- **Qué hace:** Mapeo de tablas `RET_ORDENES`, `RET_ORDEN_DETALLE`, `RET_PAGOS` con relaciones `@ManyToOne` y `@OneToMany` en cascada.
-- **Criterio que verifica:** "Estructura de persistencia relacional para ventas en mostrador" (RF-14).
-- **Test:** `OrdenRepositoryTest.java` — Valida guardado en cascada de cabecera, líneas y método de pago.
+### [ ] Tarea B1 (RF-13, RF-14): Cliente de Integración de Pedidos y DTOs de Venta
+- **Archivos:** `client/VentasClient.java`, `dto/CrearPedidoRequest.java`, `dto/PedidoResponse.java`, `repository/CajaSesionRepository.java`.
+- **Qué hace:** Define DTOs de comunicación hacia Ventas (`POST /api/v1/pedidos`) y valida que la sesión de caja local en `RET_CAJA_SESION` se encuentre `ABIERTA`.
+- **Criterio que verifica:** "Estructura de integración y validación de turno para ventas en mostrador" (RF-14).
+- **Test:** `VentasClientTest.java` — Valida serialización del payload con `canal: RETAIL`, `Idempotency-Key` y manejo de respuesta `PED-YYYY-NNNNN`.
 
 ### [ ] Tarea B2 (RF-14): Servicio Transaccional de Venta y Control de Stock
-- **Archivos:** `service/VentaService.java`, `service/impl/VentaServiceImpl.java`, `dto/CrearOrdenRequest.java`, `dto/OrdenResponse.java`.
-- **Qué hace:** Ejecuta la venta dentro de `@Transactional`: valida turno de caja abierto, descuenta stock de variantes y realiza rollback si falla el inventario.
+- **Archivos:** `service/VentaService.java`, `service/impl/VentaServiceImpl.java`, `dto/CobroMostradorRequest.java`, `dto/CobroMostradorResponse.java`.
+- **Qué hace:** Ejecuta la orquestación dentro de `@Transactional`: valida turno de caja abierto en `RET_CAJA_SESION`, descuenta stock consumiendo Inventario y envía orden a Ventas para nacer en `PAGADO`.
 - **Criterios que verifica:** "Venta descuenta stock de la tienda" y "Rollback ante quiebre de existencias con 409 Conflict" (RF-14).
 - **Test:** `VentaServiceTest.java` — Verifica decremento de existencias y aborto transaccional si `stock < cantidad`.
 
 ### [ ] Tarea B3 (RF-15): Servicio de Emisión de Comprobantes Fiscales y Series
-- **Archivos:** `model/Comprobante.java`, `service/ComprobanteService.java`, `service/impl/ComprobanteServiceImpl.java`.
-- **Qué hace:** Asigna correlativo atómico (`B001` o `F001`), valida reglas SUNAT (DNI obligatorio si >= S/ 700.00) y genera ticket de regalo opcional.
+- **Archivos:** `service/ComprobanteService.java`, `service/impl/ComprobanteServiceImpl.java`, `dto/ComprobanteTicketDto.java`.
+- **Qué hace:** Asigna correlativo atómico de tienda (`B001` o `F001`), calcula desglose de IGV (18%), valida reglas SUNAT (DNI obligatorio si >= S/ 700.00) y genera ticket de regalo opcional.
 - **Criterios que verifica:** "Correlativo único sin duplicidad" y "Venta >= 700 exige DNI" (RF-15).
 - **Test:** `ComprobanteServiceTest.java` — Comprueba numeración correlativa concurrente y generación de ticket de cambio.
 
-### [ ] Tarea B4 (RF-13, RF-14, RF-15): Controlador REST de Órdenes y Comprobantes
-- **Archivos:** `controller/OrdenController.java`, `controller/ComprobanteController.java`.
-- **Qué hace:** Expone `POST /api/v1/ordenes` y `GET /api/v1/comprobantes/{id}` retornando 201 Created con orden y comprobante.
+### [ ] Tarea B4 (RF-13, RF-14, RF-15): Controlador REST de Orquestación de Venta en Mostrador
+- **Archivos:** `controller/VentaMostradorController.java`.
+- **Qué hace:** Expone `POST /api/v1/retail/ventas/cobrar` retornando 201 Created con pedido `PED-YYYY-NNNNN` y comprobante de ticket térmico.
 - **Criterios que verifica:** Respuestas 201 Created, 400 Bad Request y 409 Conflict según el contrato.
-- **Test:** `OrdenControllerTest.java` (MockMvc) — Comprueba contratos de API completos.
+- **Test:** `VentaMostradorControllerTest.java` (MockMvc) — Comprueba contratos de API completos.
 
 ---
 

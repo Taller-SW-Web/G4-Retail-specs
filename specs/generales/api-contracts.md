@@ -22,7 +22,7 @@ Autentica al personal de tienda y genera el token de sesión JWT.
     {
       "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
       "usuario": {
-        "id": "usr-001",
+        "id": "e3a89012-3456-4abc-8def-1234567890ab",
         "email": "vendedor1@deportesretail.com",
         "nombres": "Carlos",
         "apellidos": "Mendoza",
@@ -62,7 +62,7 @@ Busca un cliente persona natural registrado por su número exacto de DNI. Se con
   * `200 OK`:
     ```json
     {
-      "id": "cli-101",
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
       "nombre": "Juan Pérez Torres",
       "documentoEnmascarado": "72****78"
     }
@@ -95,7 +95,7 @@ Alta rápida de un nuevo cliente captado en mostrador.
   * `201 Created`: Devuelve el recurso cliente creado con su identificador `id` para asociarlo de inmediato a la orden en curso. La cuenta queda en estado pendiente de activación para que el cliente configure su contraseña vía web de Marketplace.
     ```json
     {
-      "id": "cli-102",
+      "id": "c89b1420-1b72-4d89-9821-3962d3aef651",
       "tipoDocumento": "DNI",
       "numeroDocumento": "72345678",
       "nombres": "Juan",
@@ -189,7 +189,7 @@ Decrementa el stock tras concretar la venta presencial en mostrador.
 ```json
 {
   "tiendaId": "TIENDA-MIRAFLORES",
-  "ordenReferencia": "ORD-RET-2026-0091",
+  "ordenReferencia": "PED-2026-00091",
   "items": [
     { "sku": "CAM-RUN-M-AZUL", "cantidad": 2 }
   ]
@@ -298,27 +298,31 @@ Notifica el ajuste patrimonial de stock por acta de merma o prenda dañada en mo
 
 ## 3. Módulo Ventas y Postventa (Consumido por Retail)
 
-### `POST /api/v1/ordenes/presenciales`
-Registra la venta finalizada en mostrador, el cobro y emite comprobante oficial (con soporte de ticket de regalo).
+### `POST /api/v1/pedidos`
+Registra la orden de compra generada en mostrador. En canal `RETAIL`, dado que el cobro físico (efectivo o POS terminal) se realiza de forma presencial previa, el pedido nace directamente en estado `PAGADO`. Admite el header `Idempotency-Key` (UUID) para garantizar tolerancia a reintentos o sincronización diferida post-offline.
 
+* **Headers:**
+  * `Authorization: Bearer <token_vendedor>`
+  * `Idempotency-Key: <UUID_operacion>`
+  * `Content-Type: application/json`
 * **Request Body:**
 ```json
 {
   "canal": "RETAIL",
   "tiendaId": "TIENDA-MIRAFLORES",
-  "vendedorId": "usr-001",
-  "clienteId": "cli-101",
-  "emitirTicketRegalo": true,
+  "vendedorId": "e3a89012-3456-4abc-8def-1234567890ab",
+  "clienteId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "items": [
-    { "sku": "CAM-RUN-M-AZUL", "cantidad": 2, "precioFinal": 116.91 }
+    { "sku": "CAM-RUN-M-AZUL", "cantidad": 2, "precioUnitario": 116.91 }
   ],
   "pago": {
     "medioPago": "TARJETA_POS",
     "monto": 233.82,
     "referenciaOperacion": "OP-983120"
   },
-  "comprobante": {
+  "comprobanteReferencia": {
     "tipo": "BOLETA",
+    "serieNumero": "B001-00045231",
     "numeroDocumento": "72345678",
     "razonSocial": "Juan Pérez Torres"
   }
@@ -328,86 +332,51 @@ Registra la venta finalizada en mostrador, el cobro y emite comprobante oficial 
   * `201 Created`:
     ```json
     {
-      "pedidoId": "ORD-RET-2026-0091",
+      "pedidoId": "PED-2026-00091",
       "estado": "PAGADO",
-      "comprobante": {
-        "serie": "B001",
-        "correlativo": "00045231",
-        "subtotal": 198.15,
-        "igv": 35.67,
-        "total": 233.82,
-        "fechaEmision": "2026-09-27T10:15:30Z"
-      },
-      "ticketRegalo": {
-        "codigoCanje": "GIFT-2026-09124",
-        "fechaLimiteCambio": "2026-10-27T23:59:59Z",
-        "mensaje": "Válido para cambio presencial por 30 días"
-      }
+      "total": 233.82,
+      "fechaCreacion": "2026-09-27T10:15:30Z"
     }
     ```
-  * `400 Bad Request`: Discrepancia en importes o cliente sin DNI para boletas >= S/ 700.
+  * `400 Bad Request`: Discrepancia en importes o estructura inválida.
+  * `409 Conflict`: `Idempotency-Key` ya procesada anteriormente.
+
+> **Nota de Arquitectura sobre Comprobantes:** La asignación de correlativo oficial (`B001` / `F001`), el cálculo de IGV y el renderizado del ticket térmico imprimible (80 mm) son procesados directamente por el microservicio Retail en caja, enviando a Ventas la referencia para trazabilidad.
 
 ---
 
-### `GET /api/v1/ordenes/{id}`
-Consulta detalle histórico y trazabilidad de cualquier pedido.
+### `GET /api/v1/pedidos/{id}`
+Consulta el detalle y trazabilidad omnicanal de una orden de compra mediante su identificador único de formato `PED-YYYY-NNNNN`. También se utiliza en mostrador para validar compras previas en solicitudes de cambio (F9).
 
-* **Responses:**
-  * `200 OK`: Retorna el pedido con su historial de estados (`CREADO`, `EN_PREPARACION`, `LISTO_PARA_RECOJO`, `ENTREGADO`).
-  * `404 Not Found`: No existe la orden especificada.
-
----
-
-### `GET /api/v1/ventas/comprobantes/validar-cambio`
-Valida si un comprobante de compra o ticket de regalo es apto para cambio de prenda en tienda física.
-
-* **Query Params:** `comprobante` (ej. `B001-00045231`), `codigoTicketRegalo` o `dni`
 * **Responses:**
   * `200 OK`:
     ```json
     {
-      "pedidoId": "ORD-RET-2026-0091",
+      "pedidoId": "PED-2026-00091",
+      "canal": "RETAIL",
+      "estado": "PAGADO",
       "fechaEmision": "2026-09-15T11:00:00Z",
-      "diasTranscurridos": 12,
-      "plazoValido": true,
+      "total": 233.82,
       "items": [
         {
           "sku": "CAM-RUN-M-AZUL",
           "descripcion": "Camiseta Deportiva Running Pro Talla M",
           "precioPagado": 116.91,
-          "cantidadComprada": 2,
-          "cantidadDisponibleCambio": 2
+          "cantidadComprada": 2
         }
+      ],
+      "historialEstados": [
+        { "estado": "CREADO", "fecha": "2026-09-15T11:00:00Z" },
+        { "estado": "PAGADO", "fecha": "2026-09-15T11:00:00Z" }
       ]
     }
     ```
-  * `422 Unprocessable Entity`: Comprobante con plazo expirado (> 30 días) o compra ya devuelta.
+    *(Enum cerrado de estados en Ventas: `CREADO`, `PAGADO`, `EN_PREPARACION`, `DESPACHADO`, `ENTREGADO`, `ANULADO`).*
+  * `404 Not Found`: No existe la orden especificada (`PEDIDO_NO_ENCONTRADO`).
 
----
-
-### `POST /api/v1/ventas/postventa/generar-nota-credito`
-Emite formalmente una Nota de Crédito o Vale de Compra para canje presencial.
-
-* **Request Body:**
-```json
-{
-  "pedidoIdOrigen": "ORD-RET-2026-0091",
-  "skuDevuelto": "CAM-RUN-M-AZUL",
-  "monto": 116.91,
-  "clienteId": "cli-101",
-  "motivo": "CAMBIO_TALLA_MOSTRADOR"
-}
-```
-* **Responses:**
-  * `201 Created`:
-    ```json
-    {
-      "codigoVale": "NC-RET-2026-00412",
-      "monto": 116.91,
-      "fechaVencimiento": "2026-12-26T23:59:59Z",
-      "qrPayload": "NC-RET-2026-00412|116.91|cli-101"
-    }
-    ```
+> **Nota sobre Pickup y Cambios en Mostrador:**
+> * El sub-estado operativo `LISTO_PARA_RECOJO` de paquetes Click & Collect reside en el Módulo Despacho y Entrega (G2), el cual es consultado directamente por Retail en F7.
+> * La inspección de prendas devueltas y la emisión de vales de compra térmicos se gestionan de forma autónoma en el backend de Retail mediante la tabla `RET_SOLICITUD_CAMBIO_MOSTRADOR`, requiriendo de Ventas únicamente la consulta histórica de la orden.
 
 ---
 
@@ -422,7 +391,7 @@ Lista los bultos arribados a la tienda para retiro presencial por el cliente (Cl
     [
       {
         "bultoId": "BLT-8921",
-        "pedidoId": "ORD-WEB-2026-8910",
+        "pedidoId": "PED-2026-08910",
         "codigoTracking": "TRK-PICKUP-041",
         "clienteNombre": "María González",
         "clienteDni": "45678912",
@@ -440,11 +409,11 @@ Registra la entrega física del paquete al cliente en el mostrador.
 * **Request Body:**
 ```json
 {
-  "pedidoId": "ORD-WEB-2026-8910",
+  "pedidoId": "PED-2026-08910",
   "dniRecoge": "45678912",
   "nombreRecoge": "María González",
   "esTitular": true,
-  "encargadoEntregaId": "usr-001"
+  "encargadoEntregaId": "e3a89012-3456-4abc-8def-1234567890ab"
 }
 ```
 * **Responses:**
@@ -577,7 +546,7 @@ Concilia en lote las ventas offline emitidas localmente en IndexedDB tras restab
       "ordenesMapeadas": [
         {
           "ventaLocalUuid": "c3b9e4a1-0001-49b2-...",
-          "pedidoIdOficial": "ORD-RET-2026-0105",
+          "pedidoIdOficial": "PED-2026-00105",
           "comprobanteOficial": "B001-00045280"
         }
       ]

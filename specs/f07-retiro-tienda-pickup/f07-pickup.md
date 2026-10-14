@@ -33,9 +33,9 @@ Permitir al personal de mostrador visualizar la bandeja exclusiva de pedidos asi
 ---
 
 ## 4. Referencias y Contratos
-* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `GET /api/v1/pickup`, `POST /api/v1/pickup/confirmar`
+* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `GET /api/v1/despachos/tienda/{tiendaId}/pendientes-pickup`, `POST /api/v1/despachos/confirmar-entrega-tienda`
 * **Design System:** [`specs/generales/design-system.md`](../generales/design-system.md)
-* **Modelo de Base de Datos:** `RET_ORDENES`, `RET_DESPACHOS_PICKUP`
+* **Modelo de Base de Datos:** Consulta y actualización delegada al Módulo Despacho y Entrega (G2)
 
 ---
 

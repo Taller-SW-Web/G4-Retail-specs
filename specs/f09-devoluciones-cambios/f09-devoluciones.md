@@ -33,9 +33,9 @@ Gestionar solicitudes de postventa presenciales en mostrador: buscar y validar l
 ---
 
 ## 4. Referencias y Contratos
-* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `POST /api/v1/devoluciones`, `POST /api/v1/vales`
+* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `GET /api/v1/pedidos/{id}` (Ventas G5), `POST /api/v1/inventario/incrementar-stock` (Productos G3)
 * **Design System:** [`specs/generales/design-system.md`](../generales/design-system.md)
-* **Modelo de Base de Datos:** `RET_DEVOLUCIONES`, `RET_VALES_COMPRA`
+* **Modelo de Base de Datos:** `RET_SOLICITUD_CAMBIO_MOSTRADOR` (gestión local autónoma de inspección y vales de cambio)
 
 ---
 
