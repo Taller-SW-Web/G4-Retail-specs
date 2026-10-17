@@ -22,14 +22,14 @@ Este documento es el manual definitivo paso a paso para dejar el sistema 100% co
 Ingresa a [Railway Dashboard](https://railway.com/) > Proyecto Retail > Servicio **`ms-retail`** > Pestaña **Variables**.
 
 ### A. Para conectar a Supabase Oficial (Persistencia Real)
-Pide a Angie el **`PROJECT_REF`** de Supabase (es el código de ~20 letras que aparece en la URL del proyecto: `https://supabase.com/dashboard/project/<PROJECT_REF>`).
+El identificador de proyecto (**`PROJECT_REF`**) de Supabase ya está confirmado: **`sengrwjntjhrinpyqmen`**.
 
 Configura las siguientes variables exactas:
 
 ```env
 SPRING_PROFILES_ACTIVE=supabase,mock
 SUPABASE_DB_URL=jdbc:postgresql://aws-0-us-west-2.pooler.supabase.com:5432/postgres
-SUPABASE_DB_USER=postgres.<PROJECT_REF>
+SUPABASE_DB_USER=postgres.sengrwjntjhrinpyqmen
 SUPABASE_DB_PASSWORD=KOUZd6VJSqqX9dtl
 SPRING_JPA_HIBERNATE_DDL_AUTO=none
 RETAIL_CORS_ORIGENES_PERMITIDOS=https://g4-retail-frontend-gamma.vercel.app,http://localhost:5173
@@ -40,8 +40,8 @@ RETAIL_VENTAS_HABILITADO=true
 RETAIL_SEGURIDAD_JWKS_URI=https://g7-auth-service.onrender.com/api/v1/auth/.well-known/jwks.json
 ```
 
-> **¿Por qué `SUPABASE_DB_USER=postgres.<PROJECT_REF>`?**  
-> El pooler Supavisor (`aws-0-us-west-2.pooler.supabase.com`) comparte el puerto 5432 entre miles de proyectos. Si pones solo `postgres`, Supabase rechaza con `FATAL: (ENOIDENTIFIER) no tenant identifier provided`. El sufijo `.<PROJECT_REF>` le indica a qué base de datos rutear la conexión.
+> **¿Por qué `SUPABASE_DB_USER=postgres.sengrwjntjhrinpyqmen`?**  
+> El pooler Supavisor (`aws-0-us-west-2.pooler.supabase.com`) comparte el puerto 5432 entre múltiples proyectos. Si se coloca solo `postgres`, Supabase rechaza con `FATAL: (ENOIDENTIFIER) no tenant identifier provided`. El sufijo `.sengrwjntjhrinpyqmen` le indica exactamente a qué base de datos rutear la conexión.
 
 ---
 
