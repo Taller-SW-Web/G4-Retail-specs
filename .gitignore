@@ -9,6 +9,8 @@ assets/
 # Archivos temporales y logs
 *.tmp
 *.log
+__pycache__/
+*.pyc
 
 # Carpetas de repo
 G4-Retail-backend/
