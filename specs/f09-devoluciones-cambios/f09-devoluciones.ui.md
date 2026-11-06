@@ -1,25 +1,9 @@
-# UI Spec — F9: Solicitud de Cambio de Prenda y Emisión de Vales
+# UI Spec — F9: Cambios y vales de compra (Semana 11)
 
-**Pantalla:** Gestión de Cambios y Vales de Devolución  
-**Ruta:** `/devoluciones`  
-**Spec Funcional:** `f09-devoluciones.md`  
-**Design System:** `specs/generales/design-system.md`  
+**Acceso:** desde el POS para VENDEDOR o SUPERVISOR.
+**Referencias:** [Spec funcional](f09-devoluciones.md) y [Design System](../generales/design-system.md).
 
----
-
-## 1. Usuario Objetivo
-Cajero o supervisor de tienda atendiendo solicitudes de cambio de producto.
-
-## 2. Composición y Layout
-- Buscador por número de Boleta o Factura original (ej. `B001-0004521`).
-- Desglose de prendas adquiridas en la boleta con casillas de selección (*Checkboxes*).
-- Checklist de inspección física:
-  - *Etiquetas originales presentes*.
-  - *Prenda sin manchas ni signos de uso*.
-  - *Empaque / caja original*.
-- Selector de Destino: Reingreso a inventario / Enviar a revisión técnica.
-- Botón *"Generar Vale de Compra"* y vista previa del vale imprimible con código de barras.
-
-## 3. Estados de Interfaz
-- **Plazo Vencido:** Advertencia en rojo si la fecha de compra supera los 30 días.
-- **Aprobado:** Generación de vale con formato imprimible.
+1. Buscar por número de boleta, por ejemplo `B001-00000045`.
+2. Mostrar las prendas y las cantidades disponibles para cambio. Ante boleta inexistente, no elegible o fuera de los siete días calendario, mostrar el motivo y bloquear la selección.
+3. Registrar motivo, etiquetas, signos de uso y estado del empaque. Para cambio de talla, bloquear el botón si las etiquetas no están intactas o la prenda presenta signos de uso. Indicar la derivación a Postventa en caso de falla de fábrica.
+4. Mostrar el vale emitido con su código, importe, código de barras, fecha de vencimiento y opción de impresión térmica.
