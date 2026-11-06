@@ -15,7 +15,7 @@ Validar una boleta emitida por el POS, inspeccionar las prendas seleccionadas y 
 ### <a id="rf-23"></a>RF-23: Validación de boleta y plazo
 
 - Retail busca por número de boleta `B001` con ocho dígitos de correlativo en `RET_VENTA`, dentro de la tienda del perfil. La venta debe estar confirmada y contener la referencia del pedido central.
-- El plazo comercial es de siete días calendario desde la compra en la zona horaria de la tienda. La compra del día siete es elegible y la del día ocho se rechaza.
+- El plazo comercial es de siete días calendario desde la compra en la zona horaria de la tienda. La solicitud es elegible en el día siete y se rechaza en el día ocho.
 - El POS muestra las prendas de la compra y las unidades que aún pueden cambiarse. Si la boleta no existe o no es elegible, la interfaz muestra el motivo y bloquea la selección.
 
 **Criterios de aceptación**

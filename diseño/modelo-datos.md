@@ -175,6 +175,17 @@ Gestiona la apertura, turnos, fondo fijo inicial y el **arqueo ciego de caja (Ci
 
 ---
 
+### Registro de ventas confirmadas de mostrador (F5, Semana 11)
+
+La migración `diseño_bd/migracion-f5-registro-venta.sql` de `G4-Retail-backend` se ejecuta después del esquema base. Agrega el registro que F9 consulta por tienda, serie y correlativo.
+
+| Tabla | Datos y restricciones |
+|-------|-----------------------|
+| `RET_VENTA` | Identificador local, turno (`RET_CAJA_SESION`), tienda, `pedido_id` de G5 como texto opaco y único, serie, correlativo, fecha de emisión y total. El par serie y correlativo es único. |
+| `RET_VENTA_ITEM` | Una fila por línea, con número de línea, SKU, cantidad y precio unitario efectivamente pagado. La clave es `(venta_id, numero_linea)`. |
+
+Cada serie (`B001`, `F001`) tiene una secuencia durable. El POS representa el correlativo con ocho dígitos. El registro solo admite ventas confirmadas y la cabecera y sus líneas se escriben en la misma transacción. El pedido central sigue en G5.
+
 ### Tabla 2: `RET_MOVIMIENTO_CAJA`
 Registra movimientos menores de efectivo durante el turno (compras de insumos urgentes, ingreso de sencillo auxiliar).
 
