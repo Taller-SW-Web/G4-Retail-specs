@@ -226,7 +226,7 @@ Permisos de `modulo-retail` en `api-productos`: **lecturas comerciales e inciden
 
 * **Detalles del Acuerdo de Integración (G4 ↔ G5 — Octubre 2026):**
   1. **Nacimiento de la orden:** En canal `RETAIL`, al realizarse el cobro físico previo en mostrador, el pedido se registra directamente en estado `PAGADO` (no `CREADO`).
-  2. **Comprobante fiscal:** Retail gestiona el correlativo de mostrador (`B001`/`F001`), el cálculo del IGV (18%) y la generación del ticket térmico de 80 mm. Ventas recibe `comprobanteReferencia` en el payload únicamente como metadato informativo.
+  2. **Comprobante de mostrador:** Retail gestiona el correlativo (`B001`/`F001`), el cálculo del IGV (18%) y la generación del ticket térmico de 80 mm. El vínculo comprobante–pedido se guarda en Retail. El DTO de creación publicado por G5 todavía carece de `comprobanteReferencia`.
   3. **Identificadores estándar:** `vendedorId`, `clienteId` y `tiendaId` se manejan como `UUID` v4 canónicos (claims del JWT de Seguridad G7). Identificador oficial de pedido: `PED-YYYY-NNNNN`.
   4. **Idempotencia obligatoria:** Envío permanente del header `Idempotency-Key: <UUID>` en cada creación de pedido.
   5. **Estados oficiales de pedido:** Enum cerrado de Ventas: `CREADO`, `PAGADO`, `EN_PREPARACION`, `DESPACHADO`, `ENTREGADO`, `ANULADO`.
@@ -473,7 +473,7 @@ Cierra la venta en mostrador: registra el pedido y el pago en Ventas y devuelve 
 - **Flujo en el backend:**
   1. Valida el turno y recalcula los totales.
   2. Crea el pedido `IN_STORE` en Ventas, con la **misma** `Idempotency-Key`.
-  3. Ventas orquesta la reserva y el consumo de stock con Productos.
+  3. El DTO de G5 usa `canal: RETAIL` y responde con el pedido confirmado. El flujo de reserva de G5 omite este canal en la implementación publicada. La coordinación del descuento de stock queda pendiente y fuera de este cambio de F5/F9.
   4. El pedido presencial se registra con el pago incluido (§4.3).
   5. Retail asigna el correlativo durable de ocho dígitos por serie y emite el comprobante de mostrador.
   6. Antes de devolver una venta confirmada, Retail guarda el vínculo entre turno, boleta y pedido central, junto con sus líneas, cantidades e importes pagados, en `RET_VENTA` y su detalle. El registro sirve al arqueo (F8) y a la consulta por boleta (F9).
@@ -486,6 +486,7 @@ Cierra la venta en mostrador: registra el pedido y el pago en Ventas y devuelve 
   "pedidoId": "PED-2026-00981",
   "estadoPedido": "PAGADO",
   "pago": { "medioPago": "EFECTIVO", "montoRecibido": 250.00, "vuelto": 16.18 },
+  "items": [ { "sku": "CAM-RUN-M-AZUL", "cantidad": 2, "precioFinal": 116.91 } ],
   "comprobante": {
     "tipo": "BOLETA", "serie": "B001", "correlativo": "00045231",
     "subtotal": 198.15, "igv": 35.67, "total": 233.82,

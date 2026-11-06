@@ -11,7 +11,7 @@
 
 - Migración con cabecera, líneas y secuencias durables por serie.
 - **Test:** `RegistroVentaSqlTest` comprueba que, tras reabrir la base, se recuperan el pedido y las líneas por boleta y que el siguiente correlativo es diferente.
-- La conexión de `VentaService` al registro y el uso de su respuesta en el POS son tareas de integración posteriores.
+- **Pruebas de integración:** `VentaBoletaCambioTest` abre caja, confirma la venta, recupera su boleta y emite el vale. `PaymentModal.test.tsx` verifica que un reintento conserva la clave y que el ticket utiliza el comprobante del backend.
 
 ### [ ] Tarea B1 (RF-13, RF-14): Cliente de Integración de Pedidos y DTOs de Venta
 - **Archivos:** `client/VentasClient.java`, `dto/CrearPedidoRequest.java`, `dto/PedidoResponse.java`, `repository/CajaSesionRepository.java`.
