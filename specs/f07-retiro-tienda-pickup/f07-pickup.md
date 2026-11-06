@@ -33,9 +33,9 @@ Permitir al personal de mostrador visualizar la bandeja exclusiva de pedidos asi
 ---
 
 ## 4. Referencias y Contratos
-* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `GET /api/v1/despachos/tienda/{tiendaId}/pendientes-pickup`, `POST /api/v1/despachos/confirmar-entrega-tienda`
+* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) §5.7 → `GET /api/v1/retail/pickup/pendientes`, `POST /api/v1/retail/pickup/{pedidoId}/entrega` (Ventas G5: `GET /api/v1/pedidos/pickup`, `POST /api/v1/pedidos/{pedidoId}/entrega-pickup`)
 * **Design System:** [`specs/generales/design-system.md`](../generales/design-system.md)
-* **Modelo de Base de Datos:** Consulta y actualización delegada al Módulo Despacho y Entrega (G2)
+* **Modelo de Base de Datos:** Sin tablas propias: el pedido y su estado los guarda Ventas (G5). Decisión #9 resuelta en la Semana 11.
 
 ---
 
@@ -62,11 +62,12 @@ Permitir al personal de mostrador visualizar la bandeja exclusiva de pedidos asi
 
 ### <a id="rf-19"></a>RF-19: Registro de Confirmación de Entrega Física
 * **Backend:**
-  1. Expone `POST /api/v1/pickup/confirmar`:
-     * Recibe `{ pedidoId, dniRecoge, nombreRecoge, esTerceroAutorizado }`.
-     * Inyecta `encargadoEntregaId` del vendedor y `tiendaId`.
+  1. Expone `POST /api/v1/retail/pickup/{pedidoId}/entrega`:
+     * Recibe `{ dniRecoge, nombreRecoge, esTerceroAutorizado, cartaPoderVerificada, codigoRetiro? }`.
+     * Toma el vendedor (`sub` del JWT) y la tienda de su perfil local.
      * Valida `dniRecoge` de 8 dígitos y `nombreRecoge` no vacío.
-     * Actualiza el estado a `ENTREGADO_EN_TIENDA` y notifica a Despacho y Ventas (mock).
+     * Si recoge el titular, el DNI debe ser el del pedido (`422 DNI_NO_COINCIDE_CON_TITULAR`); si recoge un tercero, exige carta poder verificada (`422 CARTA_PODER_REQUERIDA`).
+     * Informa la entrega a Ventas (G5) con token de servicio de G7; Ventas pasa el pedido a `ENTREGADO`.
      * Retorna `200 OK` con constancia digital (timestamp y número de constancia).
 * **Frontend:**
   1. Modal `DeliveryModal` con lista de prendas contenidas para verificación física.
