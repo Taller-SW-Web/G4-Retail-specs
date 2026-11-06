@@ -547,7 +547,7 @@ Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
 | `POST /api/v1/retail/pickup/{pedidoId}/entrega` 🔁 | Confirmar la entrega física |
 
 - **Roles:** VENDEDOR, SUPERVISOR.
-- **Tienda:** sale del perfil local del vendedor (`RET_PERSONAL_TIENDA`), nunca del cliente. Si el perfil aún guarda la tienda como UUID (D-05), se usa `TIENDA-MIRAFLORES`.
+- **Tienda:** sale del perfil local del vendedor (`RET_PERSONAL_TIENDA`, buscado por el `sub` del JWT), nunca del token ni del cliente. Si el perfil aún guarda la tienda como UUID (D-05), se traduce a su código (`TIENDA-...`) con la tabla `retail.tienda.codigos-por-uuid` (variable `RETAIL_TIENDAS_POR_UUID`). Un UUID sin código **no se adivina**: responde `409 TIENDA_SIN_CODIGO_SUCURSAL`.
 - **Parámetros:**
 
 | Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
@@ -561,7 +561,7 @@ Body de la entrega:
 
 | Campo | Tipo | Obligatorio | Regla |
 |---|---|:---:|---|
-| `dniRecoge` | `string` | Sí | 8 dígitos. Si recoge el titular, debe ser el DNI del pedido |
+| `dniRecoge` | `string` | Sí | 8 dígitos, digitados por el vendedor desde el documento físico. Si recoge el titular, debe ser el DNI del pedido |
 | `nombreRecoge` | `string` | Sí | Máximo 120 caracteres |
 | `esTerceroAutorizado` | `boolean` | Sí | `true` si no recoge el titular |
 | `cartaPoderVerificada` | `boolean` | Solo si es tercero | El vendedor revisó la carta poder del titular |
@@ -572,7 +572,9 @@ Body de la entrega:
   - `400 PARAMETRO_INVALIDO`: DNI que no tiene 8 dígitos o código de retiro mal formado.
   - `404 PEDIDO_NO_ENCONTRADO`: el pedido no figura en la bandeja de la tienda (no existe, ya se entregó o es de otra tienda).
   - `409 PEDIDO_NO_LISTO_PARA_RECOJO`: el paquete todavía no llega a la tienda.
+  - `409 TIENDA_SIN_CODIGO_SUCURSAL` (también en `pendientes`): la tienda del perfil es un UUID sin código de sucursal configurado.
   - `422 DNI_NO_COINCIDE_CON_TITULAR`: recoge el titular pero el DNI no es el del pedido.
+  - `422 DNI_TITULAR_NO_REGISTRADO`: recoge el titular pero el pedido llegó sin DNI (`clienteDni: null`); no hay identidad que verificar, así que solo puede recoger un tercero con carta poder.
   - `422 CARTA_PODER_REQUERIDA`: recoge un tercero sin carta poder verificada.
   - `503 VENTAS_NO_DISPONIBLE` · `503 VENTAS_CREDENCIAL_RECHAZADA` · `503 SEGURIDAD_NO_DISPONIBLE`: Ventas o Seguridad no responden; se puede reintentar.
 - Se retiran `422 PEDIDO_DE_OTRA_TIENDA` (Ventas filtra por tienda; se responde 404) y `422 CODIGO_RETIRO_INVALIDO` (Ventas no emite códigos de retiro).
