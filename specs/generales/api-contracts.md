@@ -188,6 +188,7 @@ Y responden `{ "items": [...], "page": 0, "size": 20, "total": 57 }`, donde `pag
 | Alta rápida de cliente | `/usuarios/clientes` (G4-P1-01) | `ms-retail` | 🟡 payload pendiente |
 
 Notas:
+- **Credenciales de servicio:** `ms-retail` envía `grant_type=client_credentials`, `client_id=modulo-retail` y `client_secret` como formulario a `POST /api/v1/auth/token`. El OpenAPI de G7 documenta `scope` opcional, con los valores separados por espacios. La respuesta `200` contiene `accessToken`, `tokenType`, `expiresIn` (segundos) y `scopes` concedidos. El secreto se configura solo en el servidor y el token de servicio viaja como Bearer en la llamada al módulo destino.
 - La búsqueda de clientes se hace con el token del vendedor, queda auditada y tiene límite de consultas (`429`); la respuesta enmascara el documento.
 - **RUC:** identifica a personas jurídicas y no se consulta en Seguridad. El RUC y la razón social se capturan en la venta (§5.5).
 
@@ -221,6 +222,8 @@ Permisos de `modulo-retail` en `api-productos`: **lecturas comerciales e inciden
 | Consultar pedido y su historial | `GET /api/v1/pedidos/{id}` | ✅ Acordado (14-Oct) |
 | Registrar venta offline | `POST /api/v1/pedidos` (uno a uno con `Idempotency-Key: <ventaLocalUuid>`) | ✅ Acordado (14-Oct) |
 | Validar compra y plazos para cambio | `GET /api/v1/pedidos/{id}` | ✅ Acordado (14-Oct) |
+
+**Evidencia externa de Pickup (Semana 11):** se reportó un `200 OK` al consultar directamente `GET /api/v1/pedidos/pickup?tiendaId={tiendaId}` en G5 con un token de servicio emitido por G7. La prueba cubrió la emisión del token y la lectura de la bandeja. La entrega, el flujo desde Retail y el cierre formal de la decisión #9 se verifican por separado.
 
 * **Detalles del Acuerdo de Integración (G4 ↔ G5 — Octubre 2026):**
   1. **Nacimiento de la orden:** En canal `RETAIL`, al realizarse el cobro físico previo en mostrador, el pedido se registra directamente en estado `PAGADO` (no `CREADO`).
