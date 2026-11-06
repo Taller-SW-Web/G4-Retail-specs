@@ -155,7 +155,7 @@ Y responden `{ "items": [...], "page": 0, "size": 20, "total": 57 }`, donde `pag
 | F4 | Carrito y totales | §5.4 | Productos: evaluación de promociones |
 | F5 | Venta y cobro | §5.5 | Ventas: pedido `IN_STORE`, cobro, comprobante |
 | F6 | Pedidos | §5.6 | Ventas |
-| F7 | Pickup | §5.7 | Ventas (pendiente decisión #9) |
+| F7 | Pickup | §5.7 | Ventas: bandeja pickup y entrega (decisión #9 resuelta) |
 | F8 | Caja | §5.8 | — (datos propios) |
 | F9 | Cambios | §5.9 | Ventas y Postventa |
 | F10 | Contingencia offline | §5.10 | Ventas (conciliación) |
@@ -235,7 +235,7 @@ Permisos de `modulo-retail` en `api-productos`: **lecturas comerciales e inciden
 
 ### 4.4. Despacho y Entrega (G2)
 
-**Sin integración.** El contrato de G2 solo atiende a Marketplace, Chatbot y Ventas y cubre entregas a domicilio. Se eliminan los endpoints `pendientes-pickup` y `confirmar-entrega-tienda` de v0.2. El retiro en tienda queda entre Retail y Ventas (decisión #9).
+**Sin integración.** El contrato de G2 solo atiende a Marketplace, Chatbot y Ventas y cubre entregas a domicilio. Se eliminan los endpoints `pendientes-pickup` y `confirmar-entrega-tienda` de v0.2. El retiro en tienda queda entre Retail y Ventas (decisión #9, resuelta en la Semana 11: el dueño es Ventas; ver §5.7).
 
 ---
 
@@ -540,7 +540,9 @@ Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
 - Los estados se separan por dimensión (X-P0-08): `estadoComercial`, `estadoPago`, `modalidad` (`DELIVERY` · `PICKUP` · `IN_STORE`) y `estadoFulfillment`. Los valores exactos son los que publique Ventas.
 - **Integración:** consulta de pedidos de Ventas (🟡).
 
-### 5.7. F7 — Retiro en tienda (pickup) · 🟡 bloqueado por la decisión #9
+### 5.7. F7 — Retiro en tienda (pickup) · 🟢 integrado con Ventas (G5) en la Semana 11
+
+**Decisión #9 resuelta:** el dueño del pedido pickup y de su estado es **Ventas (G5)**. Retail lee la bandeja de su tienda y le informa la entrega; Ventas hace la transición a `ENTREGADO`. Retail solo verifica en mostrador a quien recoge.
 
 | Método y ruta | Uso |
 |---|---|
@@ -548,6 +550,7 @@ Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
 | `POST /api/v1/retail/pickup/{pedidoId}/entrega` 🔁 | Confirmar la entrega física |
 
 - **Roles:** VENDEDOR, SUPERVISOR.
+- **Tienda:** sale del perfil local del vendedor (`RET_PERSONAL_TIENDA`, buscado por el `sub` del JWT), nunca del token ni del cliente. Si el perfil aún guarda la tienda como UUID (D-05), se traduce a su código (`TIENDA-...`) con la tabla `retail.tienda.codigos-por-uuid` (variable `RETAIL_TIENDAS_POR_UUID`). Un UUID sin código **no se adivina**: responde `409 TIENDA_SIN_CODIGO_SUCURSAL`.
 - **Parámetros:**
 
 | Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
@@ -556,11 +559,40 @@ Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
 
 Body de la entrega:
 ```json
-{ "dniRecoge": "45678912", "nombreRecoge": "María González", "esTerceroAutorizado": false, "codigoRetiro": "A7K2Q9" }
+{ "dniRecoge": "45678912", "nombreRecoge": "María González", "esTerceroAutorizado": false, "codigoRetiro": null, "cartaPoderVerificada": null }
 ```
-- **200 OK:** `{ "constanciaId": "…", "fechaHoraEntrega": "…", "estado": "ENTREGADO" }`.
-- **Errores:** `400` (DNI que no tiene 8 dígitos); `409 PEDIDO_NO_LISTO_PARA_RECOJO`; `422 PEDIDO_DE_OTRA_TIENDA`; `422 CODIGO_RETIRO_INVALIDO`.
+
+| Campo | Tipo | Obligatorio | Regla |
+|---|---|:---:|---|
+| `dniRecoge` | `string` | Sí | 8 dígitos, digitados por el vendedor desde el documento físico. Si recoge el titular, debe ser el DNI del pedido |
+| `nombreRecoge` | `string` | Sí | Máximo 120 caracteres |
+| `esTerceroAutorizado` | `boolean` | Sí | `true` si no recoge el titular |
+| `cartaPoderVerificada` | `boolean` | Solo si es tercero | El vendedor revisó la carta poder del titular |
+| `codigoRetiro` | `string` | No | 6 caracteres `[A-Z0-9]`. Opcional: Ventas no lo valida |
+
+- **200 OK:** `{ "constanciaId": "CONST-PED-2026-00981", "fechaHoraEntrega": "…", "estado": "ENTREGADO" }` (la constancia la emite Ventas).
+- **Errores:**
+  - `400 PARAMETRO_INVALIDO`: DNI que no tiene 8 dígitos o código de retiro mal formado.
+  - `404 PEDIDO_NO_ENCONTRADO`: el pedido no figura en la bandeja de la tienda (no existe, ya se entregó o es de otra tienda).
+  - `409 PEDIDO_NO_LISTO_PARA_RECOJO`: el paquete todavía no llega a la tienda.
+  - `409 TIENDA_SIN_CODIGO_SUCURSAL` (también en `pendientes`): la tienda del perfil es un UUID sin código de sucursal configurado.
+  - `422 DNI_NO_COINCIDE_CON_TITULAR`: recoge el titular pero el DNI no es el del pedido.
+  - `422 DNI_TITULAR_NO_REGISTRADO`: recoge el titular pero el pedido llegó sin DNI (`clienteDni: null`); no hay identidad que verificar, así que solo puede recoger un tercero con carta poder.
+  - `422 CARTA_PODER_REQUERIDA`: recoge un tercero sin carta poder verificada.
+  - `503 VENTAS_NO_DISPONIBLE` · `503 VENTAS_CREDENCIAL_RECHAZADA` · `503 SEGURIDAD_NO_DISPONIBLE`: Ventas o Seguridad no responden; se puede reintentar.
+- Se retiran `422 PEDIDO_DE_OTRA_TIENDA` (Ventas filtra por tienda; se responde 404) y `422 CODIGO_RETIRO_INVALIDO` (Ventas no emite códigos de retiro).
 - La entrega se informa **solo a Ventas**; Despacho no participa (§4.4).
+
+**Integración consumida (Ventas G5, `https://g5-servicio-ventas.onrender.com`):**
+
+| Retail | Ventas (G5) | Scope del token de servicio |
+|---|---|---|
+| `GET /retail/pickup/pendientes` | `GET /api/v1/pedidos/pickup?tiendaId={tienda}` | `ventas:pedidos:consultar` |
+| `POST /retail/pickup/{id}/entrega` | `POST /api/v1/pedidos/{pedidoId}/entrega-pickup` | `ventas:pedidos:estado` |
+
+- Ambas llamadas llevan `Authorization: Bearer <token de servicio>`. El token lo emite Seguridad (G7) con `client_credentials` (`client_id=modulo-retail`, `audience=api-ventas`) y Retail lo reutiliza hasta un minuto antes de vencer.
+- El secreto del cliente solo se configura por la variable de entorno `G7_CLIENT_SECRET`. Sin ella, `ms-retail` usa pedidos de ejemplo en memoria (`retail.integracion.ventas.pickup.modo=auto`).
+- A Ventas se le envían solo `dniRecoge`, `nombreRecoge`, `esTerceroAutorizado` y `codigoRetiro`; la carta poder se verifica en Retail.
 
 ### 5.8. F8 — Turnos de caja y arqueo ciego
 
@@ -797,7 +829,7 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 |---|---|---|
 | Firmas de Ventas `api-ventas.md` 1.4 y Postventa | Payloads de §4.3 | Pedir el contrato a G5 |
 | OpenAPI de Seguridad (MFA y `/usuarios/*`) | Payloads de §4.1 | Pedir el contrato a G7 |
-| Dueño del Pickup (decisión #9) | §5.7 y §5.11 | Retail + Ventas + Despacho |
+| ~~Dueño del Pickup (decisión #9)~~ ✅ Resuelta en S11: Ventas (§5.7) | §5.11 | Retail + Ventas |
 | Señal de "apto para pagar" (X-P0-02) | Paso 4 del flujo de §5.5 | Ventas + Productos + canales |
 | Validar N unidades sin exponer saldos (X-P0-03) | `stockTienda` y stock crítico | Productos |
 | Prorrateo de descuentos (X-P0-13) | `montoAcreditado` de §5.9 | Postventa + Productos + Retail |
@@ -823,7 +855,7 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 | `POST …/turnos/{id}/movimientos` · `…/cierre` | F8 | — | PROPUESTO | Según la matriz de RF |
 | `/retail/carritos-espera/*` | F4 | — | PROPUESTO | Según la matriz de RF |
 | `/retail/pedidos/*` | F6 | — | BLOQUEADO (G5) | Según la matriz de RF |
-| `/retail/pickup/*` | F7 | — | BLOQUEADO (#9) | Según la matriz de RF |
+| `/retail/pickup/*` | F7 | — | PROPUESTO (integrado con G5 en S11) | Maylle |
 | `/retail/cambios/*` | F9 | — | BLOQUEADO (G5) | Según la matriz de RF |
 | `POST /retail/contingencia/sincronizar` | F10 | — | PROPUESTO | Según la matriz de RF |
 | `/retail/control/*` | F11 | — | BLOQUEADO (#9, X-P0-03) | Según la matriz de RF |
