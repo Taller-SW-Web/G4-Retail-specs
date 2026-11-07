@@ -245,6 +245,7 @@ graph TD
 * **Responsable:** Kevin (Frontend / UX)
 * **Propósito:** Atender consultas de clientes en mostrador sobre el progreso de sus compras realizadas en cualquier canal.
 * **Flujo Operativo:** Buscador multicanal por código de pedido o documento ([RF-16](./specs/f06-trazabilidad-pedidos/f06-trazabilidad.md#rf-16)); y visualización visual del estado y trazabilidad del pedido ([RF-17](./specs/f06-trazabilidad-pedidos/f06-trazabilidad.md#rf-17)).
+* **Corte del Hito 4 (06/11/2026):** consulta por código y trazabilidad. La búsqueda histórica por DNI/RUC queda pendiente para el siguiente hito como [RF-16-DOC](./specs/f06-trazabilidad-pedidos/f06-trazabilidad.md#31-pendiente-para-la-planificación-del-siguiente-hito--rf-16-doc), por la restricción A10 de G5. Mihael coordina el acceso con G5 y, si se requiere un permiso nuevo, con G7. RF-16 no se considera completado en su totalidad con la búsqueda por código.
 
 ### F7: Entrega del Producto en Tienda Física / Pickup `[MUST HAVE]`
 * **Responsable:** Maylle (Arquitectura de Software)

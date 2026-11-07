@@ -28,10 +28,10 @@ SPA (navegador del POS) ──► ms-retail  /api/v1/retail/*  ──► Segurid
 
 | Módulo | Es dueño de | Retail le pide | Retail nunca hace |
 |---|---|---|---|
-| **Retail (G4)** | Turnos de caja, movimientos y arqueo, cobros por turno, carritos en espera, evidencia de cambios, proyección de incidencias, log offline, perfil local del personal | — | — |
+| **Retail (G4)** | Turnos de caja, movimientos y arqueo, cobros por turno, comprobantes de mostrador y registro local de ventas confirmadas, carritos en espera, inspección y vales comerciales de mostrador, proyección de incidencias, log offline, perfil local del personal | — | — |
 | **Seguridad (G7)** | Usuarios, clientes, credenciales, JWT, roles globales | Login, claves públicas (JWKS), búsqueda y alta de clientes | Emitir tokens propios ni guardar contraseñas |
 | **Productos y Ofertas (G6)** | Catálogo, precios, promociones, stock (Inventory) | Lecturas comerciales e incidencias de inventario | Consumir, reintegrar o ajustar stock (G4-P0-01, 03, 05) |
-| **Ventas y Postventa (G5)** | Pedido, pago, comprobante fiscal, devoluciones y su saga con Inventario | Crear pedidos `IN_STORE`, registrar cobros, sincronizar ventas offline, cambios | Numerar comprobantes ni crear pedidos paralelos |
+| **Ventas y Postventa (G5)** | Pedido central, pago del pedido, garantía y devoluciones con Inventario | Crear pedidos `IN_STORE` con pago, consultar el pedido, sincronizar ventas offline | Crear pedidos centrales paralelos |
 | **Despacho (G2)** | Envíos a domicilio | — | Retail no se integra con Despacho (ver §4.4) |
 
 ---
@@ -155,9 +155,9 @@ Y responden `{ "items": [...], "page": 0, "size": 20, "total": 57 }`, donde `pag
 | F4 | Carrito y totales | §5.4 | Productos: evaluación de promociones |
 | F5 | Venta y cobro | §5.5 | Ventas: pedido `IN_STORE`, cobro, comprobante |
 | F6 | Pedidos | §5.6 | Ventas |
-| F7 | Pickup | §5.7 | Ventas (pendiente decisión #9) |
+| F7 | Pickup | §5.7 | Ventas: bandeja pickup y entrega (decisión #9 resuelta) |
 | F8 | Caja | §5.8 | — (datos propios) |
-| F9 | Cambios | §5.9 | Ventas y Postventa |
+| F9 | Cambios de mostrador | §5.9 | Registro local de ventas confirmadas (F5) |
 | F10 | Contingencia offline | §5.10 | Ventas (conciliación) |
 | F11 | Alertas | §5.11 | Ventas y Productos |
 | F12 | Incidencias | §5.12 | Productos: Inventory incidencias |
@@ -188,6 +188,7 @@ Y responden `{ "items": [...], "page": 0, "size": 20, "total": 57 }`, donde `pag
 | Alta rápida de cliente | `/usuarios/clientes` (G4-P1-01) | `ms-retail` | 🟡 payload pendiente |
 
 Notas:
+- **Credenciales de servicio:** `ms-retail` envía `grant_type=client_credentials`, `client_id=modulo-retail` y `client_secret` como formulario a `POST /api/v1/auth/token`. El OpenAPI de G7 documenta `scope` opcional, con los valores separados por espacios. La respuesta `200` contiene `accessToken`, `tokenType`, `expiresIn` (segundos) y `scopes` concedidos. El secreto se configura solo en el servidor y el token de servicio viaja como Bearer en la llamada al módulo destino.
 - La búsqueda de clientes se hace con el token del vendedor, queda auditada y tiene límite de consultas (`429`); la respuesta enmascara el documento.
 - **RUC:** identifica a personas jurídicas y no se consulta en Seguridad. El RUC y la razón social se capturan en la venta (§5.5).
 
@@ -220,19 +221,20 @@ Permisos de `modulo-retail` en `api-productos`: **lecturas comerciales e inciden
 | Registrar el pago aprobado del pedido | Incluido en `POST /api/v1/pedidos` (`canal: RETAIL`, nace `PAGADO`) | ✅ Acordado (14-Oct) |
 | Consultar pedido y su historial | `GET /api/v1/pedidos/{id}` | ✅ Acordado (14-Oct) |
 | Registrar venta offline | `POST /api/v1/pedidos` (uno a uno con `Idempotency-Key: <ventaLocalUuid>`) | ✅ Acordado (14-Oct) |
-| Validar compra y plazos para cambio | `GET /api/v1/pedidos/{id}` | ✅ Acordado (14-Oct) |
+
+**Evidencia externa de Pickup (Semana 11):** se reportó un `200 OK` al consultar directamente `GET /api/v1/pedidos/pickup?tiendaId={tiendaId}` en G5 con un token de servicio emitido por G7. La prueba cubrió la emisión del token y la lectura de la bandeja. La entrega, el flujo desde Retail y el cierre formal de la decisión #9 se verifican por separado.
 
 * **Detalles del Acuerdo de Integración (G4 ↔ G5 — Octubre 2026):**
   1. **Nacimiento de la orden:** En canal `RETAIL`, al realizarse el cobro físico previo en mostrador, el pedido se registra directamente en estado `PAGADO` (no `CREADO`).
-  2. **Comprobante fiscal:** Retail gestiona el correlativo de mostrador (`B001`/`F001`), el cálculo del IGV (18%) y la generación del ticket térmico de 80 mm. Ventas recibe `comprobanteReferencia` en el payload únicamente como metadato informativo.
+  2. **Comprobante de mostrador:** Retail gestiona el correlativo (`B001`/`F001`), el cálculo del IGV (18%) y la generación del ticket térmico de 80 mm. El vínculo comprobante–pedido se guarda en Retail. El DTO de creación publicado por G5 todavía carece de `comprobanteReferencia`.
   3. **Identificadores estándar:** `vendedorId`, `clienteId` y `tiendaId` se manejan como `UUID` v4 canónicos (claims del JWT de Seguridad G7). Identificador oficial de pedido: `PED-YYYY-NNNNN`.
   4. **Idempotencia obligatoria:** Envío permanente del header `Idempotency-Key: <UUID>` en cada creación de pedido.
   5. **Estados oficiales de pedido:** Enum cerrado de Ventas: `CREADO`, `PAGADO`, `EN_PREPARACION`, `DESPACHADO`, `ENTREGADO`, `ANULADO`.
-  6. **Autonomía en cambios:** Los vales térmicos de tienda física se gestionan 100% de forma local en `RET_SOLICITUD_CAMBIO_MOSTRADOR`; de Ventas solo se consulta el historial de la compra (`GET /api/v1/pedidos/{id}`).
+  6. **Autonomía en cambios:** En Semana 11, Retail valida la boleta de mostrador en su registro local de ventas confirmadas y emite el vale comercial según §5.9. G5 conserva la orden central y atiende la revisión de garantía.
 
 ### 4.4. Despacho y Entrega (G2)
 
-**Sin integración.** El contrato de G2 solo atiende a Marketplace, Chatbot y Ventas y cubre entregas a domicilio. Se eliminan los endpoints `pendientes-pickup` y `confirmar-entrega-tienda` de v0.2. El retiro en tienda queda entre Retail y Ventas (decisión #9).
+**Sin integración.** El contrato de G2 solo atiende a Marketplace, Chatbot y Ventas y cubre entregas a domicilio. Se eliminan los endpoints `pendientes-pickup` y `confirmar-entrega-tienda` de v0.2. El retiro en tienda queda entre Retail y Ventas (decisión #9, resuelta en la Semana 11: el dueño es Ventas; ver §5.7).
 
 ---
 
@@ -341,10 +343,11 @@ Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678
 
 | Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
 |---|---|---|:---:|---|---|
-| `tipoDocumento` | query | `enum` | Sí | — | Solo `DNI` |
-| `numeroDocumento` | query | `string` | Sí | — | Exactamente 8 dígitos (`^\d{8}$`) |
+| `tipoDocumento` | query | `enum` | Sí | — | `DNI`, `CE` o `PASAPORTE` |
+| `numeroDocumento` | query | `string` | Sí | — | Según el tipo (RF-09): DNI `^\d{8}$`; CE 9 a 12 y pasaporte 6 a 16 caracteres alfanuméricos |
 
-- **Validación (RF-09):** DNI de exactamente 8 dígitos. La búsqueda **solo admite DNI** (ver §4.1).
+- **Validación (RF-09, Semana 11):** DNI `^\d{8}$`, CE `^[A-Za-z0-9]{9,12}$`, pasaporte `^[A-Za-z0-9]{6,16}$`.
+- **RUC excluido de la búsqueda:** `tipoDocumento=RUC` responde `400 DATO_INVALIDO` con el campo `tipoDocumento`, aunque ese RUC se haya registrado con el `POST`. El RUC identifica a una persona jurídica: no se busca en el padrón, se captura con la razón social para la factura.
 - **200 OK:**
 ```json
 {
@@ -354,7 +357,7 @@ Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678
   "documentoEnmascarado": "72****78"
 }
 ```
-- **Errores:** `400 DOCUMENTO_INVALIDO`; `404 CLIENTE_NO_ENCONTRADO` (la SPA abre el alta rápida); `429 LIMITE_CONSULTAS`.
+- **Errores:** `400 DATO_INVALIDO` (formato inválido, tipo no admitido o `RUC`; código homologado con G5, el campo va en `errores[]`); `404 CLIENTE_NO_ENCONTRADO` (la SPA abre el alta rápida); `429 LIMITE_CONSULTAS`.
 - **Integración:** `/usuarios/busqueda-documento` (Seguridad).
 
 #### `POST /api/v1/retail/clientes` 🟢
@@ -370,9 +373,10 @@ Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678
   "telefono": "987654321"
 }
 ```
-- `email` y `telefono` son opcionales; si llega `email`, se valida su formato. El backend agrega `canalOrigen = RETAIL`.
+- `tipoDocumento` admite `DNI`, `RUC`, `CE` o `PASAPORTE`, con las reglas de RF-09 (RUC `^(10|20)\d{9}$`). A diferencia del `GET`, el alta sí admite RUC.
+- `email` y `telefono` son opcionales; si llega `email`, se valida su formato según RF-09 (dominio con etiquetas separadas por un único punto y TLD de al menos 2 letras; `rosa@correo..com` responde `400 PARAMETRO_INVALIDO`). El backend agrega `canalOrigen = RETAIL`.
 - **201 Created:** `{ "clienteId": "…", "nombreCompleto": "Juan Pérez Torres", "estado": "PENDIENTE_ACTIVACION" }`
-- **Errores:** `400 DOCUMENTO_INVALIDO`; `409 DOCUMENTO_DUPLICADO`.
+- **Errores:** `400 DATO_INVALIDO`; `409 DOCUMENTO_DUPLICADO`.
 - **Integración:** `/usuarios/clientes` (Seguridad).
 
 ### 5.4. F4 — Carrito, totales y carritos en espera
@@ -439,7 +443,7 @@ Parámetros:
 ### 5.5. F5 — Venta y cobro
 
 #### `POST /api/v1/retail/ventas` 🟢 🔁
-Cierra la venta en mostrador: crea el pedido en Ventas, registra el cobro y devuelve el comprobante emitido por Ventas.
+Cierra la venta en mostrador: registra el pedido y el pago en Ventas y devuelve el comprobante de mostrador emitido por Retail. La SPA imprime los datos de esa respuesta.
 
 - **Roles:** VENDEDOR, SUPERVISOR. **Precondición:** turno de caja `ABIERTA` en la terminal.
 - **Body:**
@@ -466,17 +470,17 @@ Cierra la venta en mostrador: crea el pedido en Ventas, registra el cobro y devu
   - `TARJETA_POS`: `referenciaOperacion` obligatoria, de al menos 4 caracteres; `vuelto = 0`.
   - `MIXTO`: `montoRecibidoEfectivo + montoTarjeta ≥ totalPagar` y referencia obligatoria.
   - `BOLETA` con total ≥ S/ 700.00: exige DNI y nombre del cliente (sin cliente anónimo).
-  - `FACTURA`: exige RUC de 11 dígitos que empiece con 10, 15, 17 o 20, más la razón social.
+  - `FACTURA`: exige RUC de 11 dígitos que empiece con 10 o 20 (`^(10|20)\d{9}$`, RF-09), más la razón social.
   - Sin `clienteId` y total < S/ 700.00: boleta a "Clientes varios".
 - **Flujo en el backend:**
   1. Valida el turno y recalcula los totales.
   2. Crea el pedido `IN_STORE` en Ventas, con la **misma** `Idempotency-Key`.
-  3. Ventas orquesta la reserva y el consumo de stock con Productos.
-  4. Registra el pago en Ventas.
-  5. Ventas emite el comprobante.
-  6. Retail guarda **solo** el cobro del turno (pedido, medio, monto en efectivo y vuelto) para el arqueo de F8.
+  3. El DTO de G5 usa `canal: RETAIL` y responde con el pedido confirmado. El flujo de reserva de G5 omite este canal en la implementación publicada. La coordinación del descuento de stock queda pendiente y fuera de este cambio de F5/F9.
+  4. El pedido presencial se registra con el pago incluido (§4.3).
+  5. Retail asigna el correlativo durable de ocho dígitos por serie y emite el comprobante de mostrador.
+  6. Antes de devolver una venta confirmada, Retail guarda el vínculo entre turno, boleta y pedido central, junto con sus líneas, cantidades e importes pagados, en `RET_VENTA` y su detalle. El registro sirve al arqueo (F8) y a la consulta por boleta (F9).
 
-  Retail **no toca inventario** (G4-P0-01) **ni numera comprobantes**.
+  Retail **no toca inventario** (G4-P0-01).
 - **201 Created:**
 ```json
 {
@@ -484,6 +488,7 @@ Cierra la venta en mostrador: crea el pedido en Ventas, registra el cobro y devu
   "pedidoId": "PED-2026-00981",
   "estadoPedido": "PAGADO",
   "pago": { "medioPago": "EFECTIVO", "montoRecibido": 250.00, "vuelto": 16.18 },
+  "items": [ { "sku": "CAM-RUN-M-AZUL", "cantidad": 2, "precioFinal": 116.91 } ],
   "comprobante": {
     "tipo": "BOLETA", "serie": "B001", "correlativo": "00045231",
     "subtotal": 198.15, "igv": 35.67, "total": 233.82,
@@ -497,7 +502,8 @@ Cierra la venta en mostrador: crea el pedido en Ventas, registra el cobro y devu
   - `400 MONTO_INSUFICIENTE` (indica el faltante) · `400 REFERENCIA_VOUCHER_INVALIDA`.
   - `409 TURNO_NO_ABIERTO` · `409 STOCK_INSUFICIENTE` (reserva rechazada por Ventas/Inventory) · `409 IDEMPOTENCY_CONFLICT`.
   - `422 DNI_OBLIGATORIO` · `422 RUC_INVALIDO`.
-  - `503 VENTAS_NO_DISPONIBLE` (la SPA ofrece contingencia, F10).
+  - `503 VENTAS_NO_DISPONIBLE` (si no hay confirmación, se conserva la clave y el cuerpo para reintentar; el POS no emite comprobante).
+  - `409 MONTO_TARJETA_DISTINTO` cuando el importe cobrado por el POS físico difiere del total recalculado.
 - **Pendiente intermodular (X-P0-02):** si Ventas formaliza el estado "apto para pagar", el paso 4 esperará esa señal antes de registrar el cobro. La firma de este endpoint no cambia.
 
 #### `GET /api/v1/retail/ventas/{ventaId}/comprobante`
@@ -510,15 +516,19 @@ Reimpresión del ticket. **Roles:** VENDEDOR, SUPERVISOR. **200** con la misma e
 
 ### 5.6. F6 — Consulta de pedidos
 
+**Corte de alcance del PO (06/11/2026):** Hito 4 / Semana 11 incluye consulta por código y trazabilidad. La búsqueda histórica por DNI/RUC se difiere al siguiente hito como **RF-16-DOC**, con seguimiento en [la spec de F6](../f06-trazabilidad-pedidos/f06-trazabilidad.md#31-pendiente-para-la-planificación-del-siguiente-hito--rf-16-doc) y sus tareas B4/F4. Las firmas siguientes conservan el objetivo completo; `documentoCliente` no está habilitado para la integración de este hito.
+
+**Restricción A10 confirmada por G5 al PO:** `GET /api/v1/pedidos?buscar={DNI_o_RUC}` busca pedidos de cualquier canal y estado, pero solo admite `ADMIN_VENTAS`. El cliente de servicio `modulo-retail` no tiene acceso a ese listado. Para retomarlo, acordar primero con G5 datos visibles, límites y autorización; coordinar con G7 únicamente si el acuerdo exige un permiso nuevo. No asignar `ADMIN_VENTAS` a Retail.
+
 #### `GET /api/v1/retail/pedidos`
-Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
+Ejemplo del hito actual: `GET /api/v1/retail/pedidos?codigoPedido=PED-2026-00981&page=0&size=20`
 - **Roles:** VENDEDOR, SUPERVISOR. Exige al menos un filtro (`400 PARAMETRO_OBLIGATORIO` si no llega ninguno).
 - **Parámetros:**
 
 | Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
 |---|---|---|:---:|---|---|
 | `codigoPedido` | query | `string` | Condicional | — | Identificador opaco de Ventas. Ej. `PED-2026-00981` |
-| `documentoCliente` | query | `string` | Condicional | — | DNI de 8 dígitos o RUC de 11 (`^(\d{8}\|\d{11})$`) |
+| `documentoCliente` | query | `string` | Condicional | — | **Siguiente hito (RF-16-DOC), pendiente de acuerdo A10.** DNI de 8 dígitos o RUC de 11 (`^(\d{8}\|\d{11})$`) |
 | `page` | query | `integer` | No | `0` | Ver §2.7 |
 | `size` | query | `integer` | No | `20` | Ver §2.7 |
 
@@ -535,9 +545,11 @@ Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
 
 - **200 OK:** cabecera, líneas (`sku`, nombre, talla, color, cantidad, precio) e `historialEstados` en orden cronológico ascendente.
 - Los estados se separan por dimensión (X-P0-08): `estadoComercial`, `estadoPago`, `modalidad` (`DELIVERY` · `PICKUP` · `IN_STORE`) y `estadoFulfillment`. Los valores exactos son los que publique Ventas.
-- **Integración:** consulta de pedidos de Ventas (🟡).
+- **Integración por código:** `GET /api/v1/pedidos/{pedidoId}` de G5 con `ventas:pedidos:consultar`; G5 confirmó el acceso al detalle y su historial. El filtro local por DNI de la bandeja Pickup (§5.7) solo cubre recojos pendientes de la tienda y no sustituye RF-16-DOC. Esta definición de contrato no acredita por sí sola una integración desplegada de F6.
 
-### 5.7. F7 — Retiro en tienda (pickup) · 🟡 bloqueado por la decisión #9
+### 5.7. F7 — Retiro en tienda (pickup) · 🟢 integrado con Ventas (G5) en la Semana 11
+
+**Decisión #9 resuelta:** el dueño del pedido pickup y de su estado es **Ventas (G5)**. Retail lee la bandeja de su tienda y le informa la entrega; Ventas hace la transición a `ENTREGADO`. Retail solo verifica en mostrador a quien recoge.
 
 | Método y ruta | Uso |
 |---|---|
@@ -545,6 +557,7 @@ Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
 | `POST /api/v1/retail/pickup/{pedidoId}/entrega` 🔁 | Confirmar la entrega física |
 
 - **Roles:** VENDEDOR, SUPERVISOR.
+- **Tienda:** sale del perfil local del vendedor (`RET_PERSONAL_TIENDA`, buscado por el `sub` del JWT), nunca del token ni del cliente. Si el perfil aún guarda la tienda como UUID (D-05), se traduce a su código (`TIENDA-...`) con la tabla `retail.tienda.codigos-por-uuid` (variable `RETAIL_TIENDAS_POR_UUID`). Un UUID sin código **no se adivina**: responde `409 TIENDA_SIN_CODIGO_SUCURSAL`.
 - **Parámetros:**
 
 | Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
@@ -553,11 +566,40 @@ Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
 
 Body de la entrega:
 ```json
-{ "dniRecoge": "45678912", "nombreRecoge": "María González", "esTerceroAutorizado": false, "codigoRetiro": "A7K2Q9" }
+{ "dniRecoge": "45678912", "nombreRecoge": "María González", "esTerceroAutorizado": false, "codigoRetiro": null, "cartaPoderVerificada": null }
 ```
-- **200 OK:** `{ "constanciaId": "…", "fechaHoraEntrega": "…", "estado": "ENTREGADO" }`.
-- **Errores:** `400` (DNI que no tiene 8 dígitos); `409 PEDIDO_NO_LISTO_PARA_RECOJO`; `422 PEDIDO_DE_OTRA_TIENDA`; `422 CODIGO_RETIRO_INVALIDO`.
+
+| Campo | Tipo | Obligatorio | Regla |
+|---|---|:---:|---|
+| `dniRecoge` | `string` | Sí | 8 dígitos, digitados por el vendedor desde el documento físico. Si recoge el titular, debe ser el DNI del pedido |
+| `nombreRecoge` | `string` | Sí | Máximo 120 caracteres |
+| `esTerceroAutorizado` | `boolean` | Sí | `true` si no recoge el titular |
+| `cartaPoderVerificada` | `boolean` | Solo si es tercero | El vendedor revisó la carta poder del titular |
+| `codigoRetiro` | `string` | No | 6 caracteres `[A-Z0-9]`. Opcional: Ventas no lo valida |
+
+- **200 OK:** `{ "constanciaId": "CONST-PED-2026-00981", "fechaHoraEntrega": "…", "estado": "ENTREGADO" }` (la constancia la emite Ventas).
+- **Errores:**
+  - `400 PARAMETRO_INVALIDO`: DNI que no tiene 8 dígitos o código de retiro mal formado.
+  - `404 PEDIDO_NO_ENCONTRADO`: el pedido no figura en la bandeja de la tienda (no existe, ya se entregó o es de otra tienda).
+  - `409 PEDIDO_NO_LISTO_PARA_RECOJO`: el paquete todavía no llega a la tienda.
+  - `409 TIENDA_SIN_CODIGO_SUCURSAL` (también en `pendientes`): la tienda del perfil es un UUID sin código de sucursal configurado.
+  - `422 DNI_NO_COINCIDE_CON_TITULAR`: recoge el titular pero el DNI no es el del pedido.
+  - `422 DNI_TITULAR_NO_REGISTRADO`: recoge el titular pero el pedido llegó sin DNI (`clienteDni: null`); no hay identidad que verificar, así que solo puede recoger un tercero con carta poder.
+  - `422 CARTA_PODER_REQUERIDA`: recoge un tercero sin carta poder verificada.
+  - `503 VENTAS_NO_DISPONIBLE` · `503 VENTAS_CREDENCIAL_RECHAZADA` · `503 SEGURIDAD_NO_DISPONIBLE`: Ventas o Seguridad no responden; se puede reintentar.
+- Se retiran `422 PEDIDO_DE_OTRA_TIENDA` (Ventas filtra por tienda; se responde 404) y `422 CODIGO_RETIRO_INVALIDO` (Ventas no emite códigos de retiro).
 - La entrega se informa **solo a Ventas**; Despacho no participa (§4.4).
+
+**Integración consumida (Ventas G5, `https://g5-servicio-ventas.onrender.com`):**
+
+| Retail | Ventas (G5) | Scope del token de servicio |
+|---|---|---|
+| `GET /retail/pickup/pendientes` | `GET /api/v1/pedidos/pickup?tiendaId={tienda}` | `ventas:pedidos:consultar` |
+| `POST /retail/pickup/{id}/entrega` | `POST /api/v1/pedidos/{pedidoId}/entrega-pickup` | `ventas:pedidos:estado` |
+
+- Ambas llamadas llevan `Authorization: Bearer <token de servicio>`. El token lo emite Seguridad (G7) con `client_credentials` (`client_id=modulo-retail`, `audience=api-ventas`) y Retail lo reutiliza hasta un minuto antes de vencer.
+- El secreto del cliente solo se configura por la variable de entorno `G7_CLIENT_SECRET`. Sin ella, `ms-retail` usa pedidos de ejemplo en memoria (`retail.integracion.ventas.pickup.modo=auto`).
+- A Ventas se le envían solo `dniRecoge`, `nombreRecoge`, `esTerceroAutorizado` y `codigoRetiro`; la carta poder se verifica en Retail.
 
 ### 5.8. F8 — Turnos de caja y arqueo ciego
 
@@ -620,67 +662,44 @@ Cierre con arqueo ciego (RF-22).
   Si `diferencia ≠ 0`, el estado es `OBSERVADA` y las observaciones son obligatorias.
 - **Errores:** `409 TURNO_NO_ABIERTO`; `422 OBSERVACION_OBLIGATORIA`.
 
-### 5.9. F9 — Cambios de prenda
+### 5.9. F9 — Cambios de prenda en mostrador (Semana 11)
 
-#### `GET /api/v1/retail/cambios/validacion`
-Ejemplo: `GET /api/v1/retail/cambios/validacion?comprobante=B001-00045231`
-- **Roles:** VENDEDOR, SUPERVISOR.
-- **Parámetros** (llega **exactamente uno**; ninguno o más de uno responde `400 PARAMETRO_INVALIDO`):
+#### `GET /api/v1/retail/cambios/validar/{boletaNumero}`
 
-| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
-|---|---|---|:---:|---|---|
-| `comprobante` | query | `string` | Condicional | — | Serie y correlativo: `^[BF]\d{3}-\d{8}$`. Ej. `B001-00045231` |
-| `codigoTicketRegalo` | query | `string` | Condicional | — | Código de canje del ticket de regalo. Ej. `GIFT-2026-09124` |
-| `dni` | query | `string` | Condicional | — | Exactamente 8 dígitos (`^\d{8}$`) |
-
-- **200 OK:**
-```json
-{
-  "pedidoId": "PED-2026-00981",
-  "fechaEmision": "2026-09-27T10:15:30Z",
-  "diasTranscurridos": 12,
-  "plazoDias": 30,
-  "plazoValido": true,
-  "items": [ { "sku": "CAM-RUN-M-AZUL", "descripcion": "Camiseta Running Pro Talla M",
-               "precioPagado": 116.91, "cantidadComprada": 2, "cantidadDisponibleCambio": 2 } ]
-}
-```
-- `plazoDias` lo define la política vigente: 30 días según la spec y 7 según Postventa (G4-P1-03, pendiente de unificar).
-- **Errores:** `404 COMPROBANTE_NO_ENCONTRADO`; `422 PLAZO_VENCIDO`; `422 PEDIDO_NO_APTO` (no está `PAGADO` ni `ENTREGADO`).
+- **Roles:** VENDEDOR, SUPERVISOR. Tienda resuelta desde el perfil (§2.4).
+- **Parámetro:** `boletaNumero`, ruta, texto obligatorio y sin valor por defecto. Formato `^B001-[0-9]{8}$`. Ejemplo: `B001-00000045`.
+- Retail recupera la venta de mostrador confirmada desde `RET_VENTA` y sus líneas. El `pedidoId` identifica la orden central de origen. La consulta de F9 se resuelve en Retail.
+- El cambio comercial se admite hasta el séptimo día calendario inclusive desde la fecha de compra en la zona horaria de la tienda.
+- **200 OK:** devuelve `boletaNumero`, `pedidoId`, `fechaEmision`, `diasTranscurridos`, `plazoDias` (7), `plazoValido` e `items` con `sku`, `descripcion`, `precioPagado`, `cantidadComprada` y `cantidadDisponibleCambio`. La consulta de una boleta vencida devuelve `plazoValido: false` para mostrar el motivo en el POS.
+- **Errores:** `400 PARAMETRO_INVALIDO`, `404 COMPROBANTE_NO_ENCONTRADO`, `422 PEDIDO_NO_APTO`.
 
 #### `POST /api/v1/retail/cambios` 🔁
-Registra la inspección física y solicita el cambio a Postventa.
-- **Roles:** VENDEDOR, SUPERVISOR.
+
+- **Roles:** VENDEDOR, SUPERVISOR. Vendedor y tienda resueltos desde el perfil (§2.4).
 - **Body:**
+
 ```json
 {
-  "pedidoId": "PED-2026-00981",
+  "boletaNumero": "B001-00000045",
   "sku": "CAM-RUN-M-AZUL",
   "cantidad": 1,
   "motivo": "CAMBIO_TALLA",
   "inspeccion": { "etiquetasIntactas": true, "sinSignosUso": true, "empaqueOriginal": true },
-  "modalidad": "CANJE_INMEDIATO"
+  "clienteId": null
 }
 ```
-- `motivo`: `CAMBIO_TALLA` · `CAMBIO_MODELO` · `FALLA_FABRICA`. `modalidad`: `CANJE_INMEDIATO` · `VALE`.
-- Un cambio de talla exige etiquetas intactas y prenda sin uso (RF-24).
-- **201 Created:**
-```json
-{
-  "solicitudId": "…",
-  "estadoAprobacion": "APROBADO_EN_TIENDA",
-  "solicitudPostventaId": "DEV-2026-00412",
-  "montoAcreditado": 116.91,
-  "vale": { "codigoVale": "NC-RET-2026-00412", "monto": 116.91, "fechaVencimiento": "…", "codigoBarras": "…" }
-}
-```
-- Retail guarda **solo la evidencia de la inspección**. Postventa decide, emite el vale o la nota de crédito y pide el reintegro a Inventory. **Retail no incrementa stock** (G4-P0-03). El monto acreditado depende del prorrateo de descuentos (X-P0-13, pendiente).
-- **Errores:** `422 INSPECCION_NO_APTA`; `422 PLAZO_VENCIDO`; `409 IDEMPOTENCY_CONFLICT`.
+
+- Los motivos comerciales son `CAMBIO_TALLA` y `CAMBIO_MODELO`. Para cambio de talla se exigen etiquetas intactas y prenda sin signos de uso. El estado del empaque se registra. `clienteId` es opcional para la atención en mostrador. La modalidad del hito es vale comercial. Los casos de falla de fábrica pasan a revisión de garantía en Postventa.
+- Revalida el plazo y la cantidad disponible. Registra la inspección en `RET_SOLICITUD_CAMBIO_MOSTRADOR` y emite el vale comercial en `RET_VALE_COMPRA` en una misma transacción. Retail no ajusta stock (G4-P0-03).
+- El vale tiene código único `VALE-AAAA-NNNNN`, código de barras y vigencia de 30 días desde su emisión. El monto es el efectivamente pagado por las unidades cambiadas. Los casos cuyo descuento no pueda atribuirse a las unidades quedan pendientes de X-P0-13.
+- **201 Created:** devuelve `solicitudId`, `estadoAprobacion` (`APROBADO_EN_TIENDA`), `destinoSugerido`, `observaciones`, `montoAcreditado` y `vale` con `codigoVale`, `monto`, `boletaOrigen`, `fechaEmision`, `fechaVencimiento`, `estado` y `codigoBarras`.
+- Aplica la semántica de `Idempotency-Key` de §2.3. Reintentar la misma operación devuelve el vale original y no consume unidades adicionales.
+- **Errores:** `400 PARAMETRO_INVALIDO`, `404 COMPROBANTE_NO_ENCONTRADO`, `422 INSPECCION_NO_APTA`, `422 PLAZO_VENCIDO`, `422 PEDIDO_NO_APTO`, `422 CANTIDAD_NO_DISPONIBLE`, `422 MONTO_NO_DETERMINABLE`, `422 GARANTIA_REQUIERE_POSTVENTA`, `409 IDEMPOTENCY_CONFLICT`.
 
 ### 5.10. F10 — Contingencia offline
 
 #### `POST /api/v1/retail/contingencia/sincronizar` 🔁 (cada venta es idempotente por `ventaLocalUuid`)
-- **Roles:** VENDEDOR, SUPERVISOR. Lote máximo propuesto: 50 ventas.
+- **Roles:** VENDEDOR, SUPERVISOR. Lote máximo: 50 ventas.
 - **Body:**
 ```json
 {
@@ -713,6 +732,8 @@ Registra la inspección física y solicita el cambio a Postventa.
 ```
 - `estado` por venta: `RESINCRONIZADO` · `DUPLICADO` (ya se había procesado; devuelve el resultado original) · `REQUIERE_REVISION` (conciliación parcial; queda visible para el supervisor) · `RECHAZADO` (hash inválido).
 - **Flujo:** Retail registra el log y envía cada venta a Ventas de forma idempotente; Ventas concilia el inventario. **Retail no descuenta stock** (G4-P0-02).
+
+Detalles de implementación F10 S11: el hash canónico, la reserva de comprobante B010 y los casos de revisión se especifican en [F10 §7](../f10-contingencia-offline/f10-contingencia-offline.md#7-criterios-de-integración-de-semana-11). Se conserva la firma del lote. `DUPLICADO` devuelve el pedido y comprobante originales incluso tras reiniciar Retail. Un UUID con cuerpo diferente devuelve `RECHAZADO` con motivo `IDEMPOTENCY_CONFLICT`; sin respuesta verificable de G5 devuelve `REQUIERE_REVISION`, nunca un pedido ficticio. La tienda procede del perfil; se verifica terminal y turno. Los errores de cada venta no abortan las restantes.
 
 ### 5.11. F11 — Torre de control (alertas)
 
@@ -781,7 +802,7 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 | D-01 | Errores en `application/problem+json` | Mismo formato que Seguridad y Despacho | Actualizar `AGENTS.md` §3.4 y `overview.md` §6 |
 | D-02 | El login va de la SPA a Seguridad; en la Semana 8, a su mock | El JWT y el MFA son de Seguridad (G4-P1-02) | Spec F1: el backend ya no expone `/auth/login` y deja de emitir tokens HMAC |
 | D-03 | Prefijo único `/api/v1/retail/*` | Evita chocar con las rutas de Productos y Ventas | Specs F2–F8 y la guía (`/productos`, `/ordenes`) |
-| D-04 | La venta es una fachada propia que crea el pedido en Ventas | Ventas es dueño del pedido, del stock y de lo fiscal (G4-P0-01) | Spec F5 y su plan: sin `RET_ORDENES` ni `RET_STOCK_TIENDA` ni series locales |
+| D-04 | La venta es una fachada propia que crea el pedido en Ventas | Ventas es dueño del pedido central y orquesta el stock con Productos (G4-P0-01). Retail emite el comprobante de mostrador | F5 mantiene el registro local y el correlativo, sin replicar pedidos centrales ni stock |
 | D-05 | `tiendaId` = `store_code` en texto | X-P0-04 | `schema.sql`: `tienda_id` pasa a `text` |
 | D-06 | Carritos en espera en `localStorage` en la Semana 8 y en el servidor después | La spec permite ambos | Ninguno para la Semana 8 |
 | D-07 | Los estados del turno son `ABIERTA`, `CERRADA` y `OBSERVADA` | Coincide con `schema.sql` | Specs F5 y F8 usan `ABIERTO`; deben corregirse |
@@ -794,11 +815,11 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 |---|---|---|
 | Firmas de Ventas `api-ventas.md` 1.4 y Postventa | Payloads de §4.3 | Pedir el contrato a G5 |
 | OpenAPI de Seguridad (MFA y `/usuarios/*`) | Payloads de §4.1 | Pedir el contrato a G7 |
-| Dueño del Pickup (decisión #9) | §5.7 y §5.11 | Retail + Ventas + Despacho |
+| ~~Dueño del Pickup (decisión #9)~~ ✅ Resuelta en S11: Ventas (§5.7) | §5.11 | Retail + Ventas |
 | Señal de "apto para pagar" (X-P0-02) | Paso 4 del flujo de §5.5 | Ventas + Productos + canales |
 | Validar N unidades sin exponer saldos (X-P0-03) | `stockTienda` y stock crítico | Productos |
 | Prorrateo de descuentos (X-P0-13) | `montoAcreditado` de §5.9 | Postventa + Productos + Retail |
-| Plazo de cambio: 30 o 7 días (G4-P1-03) | `plazoDias` de §5.9 | Retail + Postventa |
+| Política intermodular de cambios y garantía (G4-P1-03) | Semana 11 fija 7 días para el cambio comercial de mostrador; la garantía se deriva a Postventa | Retail + Postventa |
 
 ---
 
@@ -814,14 +835,14 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 | `GET /retail/catalogo/codigo-barras/{codigo}` | F2 | 🟢 | PROPUESTO | Cristhian |
 | `GET` / `POST /retail/clientes` | F3 | 🟢 | PROPUESTO | Según la matriz de RF |
 | `POST /retail/carritos/calcular` | F4 | 🟢 | PROPUESTO | Según la matriz de RF |
-| `POST /retail/ventas` | F5 | 🟢 | PROPUESTO | Miguel |
+| `POST /retail/ventas` | F5 | 🟢 | APROBADO para Semana 11 (PO) | Retail |
 | `GET /retail/ventas/{id}/comprobante` | F5 | 🟢 | PROPUESTO | Miguel |
 | `POST /retail/caja/turnos` · `GET …/actual` | F8 | 🟢 | PROPUESTO | Según la matriz de RF |
 | `POST …/turnos/{id}/movimientos` · `…/cierre` | F8 | — | PROPUESTO | Según la matriz de RF |
 | `/retail/carritos-espera/*` | F4 | — | PROPUESTO | Según la matriz de RF |
 | `/retail/pedidos/*` | F6 | — | BLOQUEADO (G5) | Según la matriz de RF |
-| `/retail/pickup/*` | F7 | — | BLOQUEADO (#9) | Según la matriz de RF |
-| `/retail/cambios/*` | F9 | — | BLOQUEADO (G5) | Según la matriz de RF |
+| `/retail/pickup/*` | F7 | — | PROPUESTO (integrado con G5 en S11) | Maylle |
+| `GET /retail/cambios/validar/{boletaNumero}` · `POST /retail/cambios` | F9 | — | APROBADO para Semana 11 (PO). La disponibilidad depende del despliegue y sus migraciones | Cristhian |
 | `POST /retail/contingencia/sincronizar` | F10 | — | PROPUESTO | Según la matriz de RF |
 | `/retail/control/*` | F11 | — | BLOQUEADO (#9, X-P0-03) | Según la matriz de RF |
 | `/retail/inventario/*` | F12 | — | PROPUESTO | Según la matriz de RF |
@@ -834,12 +855,12 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 |---|---|
 | G4-P0-01 | Se elimina `/inventario/consumir`; la venta crea el pedido en Ventas (§5.5) y Ventas orquesta el stock |
 | G4-P0-02 | La sincronización offline envía cada `ventaLocalUuid` a Ventas, con resultado por venta y `REQUIERE_REVISION` (§5.10) |
-| G4-P0-03 | Los cambios solo envían evidencia; Postventa decide y pide el reintegro (§5.9). Se elimina `/inventario/incrementar-stock` |
+| G4-P0-03 | Retail registra la inspección y emite el vale comercial en mostrador (§5.9). El reintegro corresponde al flujo de Postventa e Inventory. Se elimina `/inventario/incrementar-stock` |
 | G4-P0-04 | Las integraciones referencian solo rutas oficiales y no redefinen payloads (§4) |
 | G4-P0-05 | Las incidencias se reportan a Inventory; la cuarentena local es una proyección (§5.12). Se elimina `/ajuste-discrepancia` |
 | G4-P1-01 | Clientes vía `/usuarios/busqueda-documento` y `/usuarios/clientes` (§4.1, §5.3) |
 | G4-P1-02 | Login con challenge MFA directo contra Seguridad (§4.1) |
-| G4-P1-03 | `plazoDias` parametrizado y pendiente de unificar (§5.9) |
+| G4-P1-03 | `plazoDias` de 7 días para el cambio comercial de mostrador en Semana 11 (§5.9) |
 | X-P0-04 | `tiendaId` = `store_code` en texto (§2.2) |
 | X-P0-08 | La venta de mostrador es un pedido con modalidad `IN_STORE`; los estados se separan por dimensión (§5.5, §5.6) |
 | G5-P0-01 | `Idempotency-Key` obligatorio en la venta y en los comandos críticos (§2.3) |
@@ -853,7 +874,7 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 | `diseño/schema.sql` y `modelo-datos.md` | `tienda_id`, `variante_sku_id`, `producto_id` y `pedido_id_origen` pasan a `text`; nueva tabla de cobros por turno; enums `INGRESO_SENCILLO`, `BAJA_DEFINITIVA`, `PENDIENTE_REPORTE` y `REQUIERE_REVISION`; `perfil_tienda` solo admite `VENDEDOR` y `SUPERVISOR` (D-08) |
 | Spec y plan F1 | Login contra Seguridad (sin HMAC ni `/auth/login` propio); perfiles `VENDEDOR` y `SUPERVISOR` (sin `CAJERO` ni `SUPERVISOR_TIENDA`, D-08) |
 | Spec F8 | La caja la abre, opera y cierra el `VENDEDOR` (sin `CAJERO`, D-08) |
-| Specs F2 a F12 | Rutas de esta versión; quitar `RET_STOCK_TIENDA`, `RET_ORDENES`, `RET_PAGOS`, `RET_COMPROBANTES`, `RET_CLIENTES`, `RET_VARIANTES_PRODUCTO` y `RET_VALES_COMPRA` |
+| Specs F2 a F12 | Rutas de esta versión; quitar `RET_STOCK_TIENDA`, `RET_ORDENES`, `RET_PAGOS`, `RET_COMPROBANTES`, `RET_CLIENTES`, `RET_VARIANTES_PRODUCTO` y el nombre anterior `RET_VALES_COMPRA`; F9 usa `RET_VALE_COMPRA` |
 | `AGENTS.md` y `overview.md` | Formato de error `problem+json` (D-01) |
 | `specs/api-contracts.md` | Era un duplicado de v0.2; ahora solo apunta a este archivo |
 

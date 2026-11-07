@@ -36,6 +36,6 @@
 
 ### [ ] Tarea F3 (RF-19): Modal `DeliveryModal` con Selector de Titular / Tercero
 - **Archivos:** `components/organisms/DeliveryModal.tsx`.
-- **Qué hace:** Formulario con autocompletado de titular o captura de tercero, checkbox legal y confirmación.
-- **Criterios que verifica:** "Retiro por titular autocompleta datos" y "Checkbox obligatorio para habilitar botón" (RF-19).
+- **Qué hace:** Formulario con nombre del titular autocompletado y DNI digitado del documento (bloquea si no coincide o si el pedido no tiene DNI), captura de tercero con carta poder, checkbox legal y confirmación.
+- **Criterios que verifica:** "Retiro por titular exige digitar el DNI del documento", "Pedido sin DNI no se confirma como titular" y "Checkbox obligatorio para habilitar botón" (RF-19).
 - **Test:** `DeliveryModal.test.tsx` — Valida activación del botón solo con checkbox marcado y DNI válido.
