@@ -514,15 +514,19 @@ Reimpresión del ticket. **Roles:** VENDEDOR, SUPERVISOR. **200** con la misma e
 
 ### 5.6. F6 — Consulta de pedidos
 
+**Corte de alcance del PO (06/11/2026):** Hito 4 / Semana 11 incluye consulta por código y trazabilidad. La búsqueda histórica por DNI/RUC se difiere al siguiente hito como **RF-16-DOC**, con seguimiento en [la spec de F6](../f06-trazabilidad-pedidos/f06-trazabilidad.md#31-pendiente-para-la-planificación-del-siguiente-hito--rf-16-doc) y sus tareas B4/F4. Las firmas siguientes conservan el objetivo completo; `documentoCliente` no está habilitado para la integración de este hito.
+
+**Restricción A10 confirmada por G5 al PO:** `GET /api/v1/pedidos?buscar={DNI_o_RUC}` busca pedidos de cualquier canal y estado, pero solo admite `ADMIN_VENTAS`. El cliente de servicio `modulo-retail` no tiene acceso a ese listado. Para retomarlo, acordar primero con G5 datos visibles, límites y autorización; coordinar con G7 únicamente si el acuerdo exige un permiso nuevo. No asignar `ADMIN_VENTAS` a Retail.
+
 #### `GET /api/v1/retail/pedidos`
-Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
+Ejemplo del hito actual: `GET /api/v1/retail/pedidos?codigoPedido=PED-2026-00981&page=0&size=20`
 - **Roles:** VENDEDOR, SUPERVISOR. Exige al menos un filtro (`400 PARAMETRO_OBLIGATORIO` si no llega ninguno).
 - **Parámetros:**
 
 | Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
 |---|---|---|:---:|---|---|
 | `codigoPedido` | query | `string` | Condicional | — | Identificador opaco de Ventas. Ej. `PED-2026-00981` |
-| `documentoCliente` | query | `string` | Condicional | — | DNI de 8 dígitos o RUC de 11 (`^(\d{8}\|\d{11})$`) |
+| `documentoCliente` | query | `string` | Condicional | — | **Siguiente hito (RF-16-DOC), pendiente de acuerdo A10.** DNI de 8 dígitos o RUC de 11 (`^(\d{8}\|\d{11})$`) |
 | `page` | query | `integer` | No | `0` | Ver §2.7 |
 | `size` | query | `integer` | No | `20` | Ver §2.7 |
 
@@ -539,7 +543,7 @@ Ejemplo: `GET /api/v1/retail/pedidos?documentoCliente=72345678&page=0&size=20`
 
 - **200 OK:** cabecera, líneas (`sku`, nombre, talla, color, cantidad, precio) e `historialEstados` en orden cronológico ascendente.
 - Los estados se separan por dimensión (X-P0-08): `estadoComercial`, `estadoPago`, `modalidad` (`DELIVERY` · `PICKUP` · `IN_STORE`) y `estadoFulfillment`. Los valores exactos son los que publique Ventas.
-- **Integración:** consulta de pedidos de Ventas (🟡).
+- **Integración por código:** `GET /api/v1/pedidos/{pedidoId}` de G5 con `ventas:pedidos:consultar`; G5 confirmó el acceso al detalle y su historial. El filtro local por DNI de la bandeja Pickup (§5.7) solo cubre recojos pendientes de la tienda y no sustituye RF-16-DOC. Esta definición de contrato no acredita por sí sola una integración desplegada de F6.
 
 ### 5.7. F7 — Retiro en tienda (pickup) · 🟢 integrado con Ventas (G5) en la Semana 11
 
