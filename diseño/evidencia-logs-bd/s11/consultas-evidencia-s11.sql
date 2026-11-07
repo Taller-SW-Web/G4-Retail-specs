@@ -84,19 +84,19 @@ SELECT c.id_sesion, c.estado, c.saldo_final_declarado, c.saldo_final_sistema, c.
  ORDER BY a.fecha_hora DESC
  LIMIT 20;
 
--- [05b-cambios-y-vales]  (solo si F9 ya emitió un vale)
+-- [05b-cambios-y-vales]  (vales emitidos por F9)
 SELECT s.boleta_numero, s.estado_aprobacion, s.monto_acreditado,
-       v.codigo_vale, v.monto_a_favor, v.saldo_disponible, v.estado AS estado_vale,
+       v.codigo_vale, v.monto, v.estado AS estado_vale,
        v.fecha_emision, v.fecha_vencimiento,
        (v.fecha_vencimiento::date - v.fecha_emision::date) AS dias_de_vigencia
   FROM RET_SOLICITUD_CAMBIO_MOSTRADOR s
-  JOIN RET_VALE_COMPRA v ON v.solicitud_cambio_id = s.id_solicitud
+  JOIN RET_VALE_COMPRA v ON v.solicitud_id = s.id_solicitud
  ORDER BY v.fecha_emision DESC
  LIMIT 20;
 -- Esperado: dias_de_vigencia = 30.
 
--- [07-cobros-del-turno]  (después de cobrar ventas desde el POS; requiere que VentaService registre el cobro)
-SELECT c.id_sesion, c.estado AS estado_turno,
+-- [07-cobros-del-turno]  (cobros de ventas registrados en el turno; incluye ventas reales del POS y seed)
+SELECT c.id_sesion, c.tienda_id, c.terminal_pos_codigo, c.estado AS estado_turno,
        k.idempotency_key, k.pedido_id,
        k.comprobante_serie || '-' || k.comprobante_numero AS comprobante,
        k.medio_pago, k.monto_total, k.monto_recibido, k.vuelto,
@@ -106,6 +106,15 @@ SELECT c.id_sesion, c.estado AS estado_turno,
  ORDER BY k.created_at DESC
  LIMIT 20;
 -- Esperado: cada cobro enlazado a su turno, con el pedido de G5 (PED-AAAA-NNNNN) y el comprobante.
+
+-- [07b-venta-pos-real]  (evidencia de operacion real del POS con RET_VENTA y/o cobro/turno)
+SELECT v.id_venta, v.tienda_id, v.pedido_id, v.serie || '-' || lpad(v.correlativo::text, 8, '0') AS comprobante_pos,
+       v.total, v.fecha_emision, v.estado_pedido,
+       c.id_sesion AS turno_id, c.terminal_pos_codigo, c.estado AS estado_turno
+  FROM RET_VENTA v
+  JOIN RET_CAJA_SESION c ON c.id_sesion = v.caja_sesion_id
+ ORDER BY v.fecha_emision DESC
+ LIMIT 10;
 
 -- [06-prueba-integridad]  (ejecutar TODO el bloque junto; no deja datos)
 BEGIN;
@@ -123,16 +132,16 @@ VALUES ('bbbbbbbb-0000-0000-0000-000000000011', 'aaaaaaaa-0000-0000-0000-0000000
         'CAMBIO_TALLA', TRUE, TRUE, TRUE, 'APROBADO_EN_TIENDA', 116.91,
         'B001-00000045', 'TIENDA-MIRAFLORES');
 
-INSERT INTO RET_VALE_COMPRA (solicitud_cambio_id, boleta_numero, cliente_id, tienda_id, monto_a_favor, saldo_disponible)
-SELECT id_solicitud, boleta_numero, cliente_id, tienda_id, 116.91, 116.91
+INSERT INTO RET_VALE_COMPRA (solicitud_id, boleta_numero, cliente_id, tienda_id, monto)
+SELECT id_solicitud, boleta_numero, cliente_id, tienda_id, 116.91
   FROM RET_SOLICITUD_CAMBIO_MOSTRADOR
  WHERE id_solicitud = 'bbbbbbbb-0000-0000-0000-000000000011';
 
 -- El vale nace EMITIDO, con código VALE-AAAA-NNNNN y vigencia de 30 días
-SELECT codigo_vale, estado, monto_a_favor, saldo_disponible,
+SELECT codigo_vale, estado, monto,
        (fecha_vencimiento::date - fecha_emision::date) AS dias_de_vigencia
   FROM RET_VALE_COMPRA
- WHERE solicitud_cambio_id = 'bbbbbbbb-0000-0000-0000-000000000011';
+ WHERE solicitud_id = 'bbbbbbbb-0000-0000-0000-000000000011';
 
 -- 6.1b Cobro en efectivo asociado al turno (nace PENDIENTE_CONFIRMACION; el vuelto cuadra)
 INSERT INTO RET_COBRO_TURNO
@@ -149,19 +158,19 @@ SELECT c.id_sesion, c.saldo_inicial_efectivo AS fondo_fijo,
 
 -- 6.2 Debe FALLAR: vale con solicitud inexistente (clave foránea)
 SAVEPOINT p1;
-INSERT INTO RET_VALE_COMPRA (solicitud_cambio_id, boleta_numero, cliente_id, tienda_id, monto_a_favor, saldo_disponible)
-VALUES (gen_random_uuid(), 'B001-00000046', gen_random_uuid(), 'TIENDA-MIRAFLORES', 10.00, 10.00);
+INSERT INTO RET_VALE_COMPRA (solicitud_id, boleta_numero, cliente_id, tienda_id, monto)
+VALUES (gen_random_uuid(), 'B001-00000046', gen_random_uuid(), 'TIENDA-MIRAFLORES', 10.00);
 ROLLBACK TO SAVEPOINT p1;
 
 -- 6.3 Debe FALLAR: segundo vale para la misma solicitud (evita el doble canje)
 SAVEPOINT p2;
-INSERT INTO RET_VALE_COMPRA (solicitud_cambio_id, boleta_numero, cliente_id, tienda_id, monto_a_favor, saldo_disponible)
-VALUES ('bbbbbbbb-0000-0000-0000-000000000011', 'B001-00000045', gen_random_uuid(), 'TIENDA-MIRAFLORES', 10.00, 10.00);
+INSERT INTO RET_VALE_COMPRA (solicitud_id, boleta_numero, cliente_id, tienda_id, monto)
+VALUES ('bbbbbbbb-0000-0000-0000-000000000011', 'B001-00000045', gen_random_uuid(), 'TIENDA-MIRAFLORES', 10.00);
 ROLLBACK TO SAVEPOINT p2;
 
 -- 6.4 Debe FALLAR: boleta con formato inválido
 SAVEPOINT p3;
-UPDATE RET_VALE_COMPRA SET boleta_numero = 'XYZ-1' WHERE solicitud_cambio_id = 'bbbbbbbb-0000-0000-0000-000000000011';
+UPDATE RET_VALE_COMPRA SET boleta_numero = 'XYZ-1' WHERE solicitud_id = 'bbbbbbbb-0000-0000-0000-000000000011';
 ROLLBACK TO SAVEPOINT p3;
 
 -- 6.5 Debe FALLAR: egreso de caja con monto negativo

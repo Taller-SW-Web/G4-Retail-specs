@@ -208,6 +208,22 @@ Gestiona la apertura, turnos, fondo fijo inicial y el **arqueo ciego de caja (Ci
 
 ---
 
+### Registro de ventas confirmadas de mostrador (F5, Semana 11)
+
+En `G4-Retail-backend`, `src/main/resources/db/registro-venta.sql` y `diseño_bd/migracion-f9-vales.sql` se ejecutan juntos, en ese orden y dentro de una transacción, después del esquema base. Agregan el registro que F9 consulta por tienda, serie y correlativo.
+
+| Tabla | Datos y restricciones |
+|-------|-----------------------|
+| `RET_VENTA` | Identificador local, turno (`RET_CAJA_SESION`), tienda, `pedido_id` de G5 como texto opaco y único, estado confirmado, serie, correlativo, fecha de emisión y total. El par serie y correlativo es único. |
+| `RET_VENTA_ITEM` | Una fila por línea, con número de línea, SKU, cantidad y precio unitario efectivamente pagado. La clave es `(venta_id, numero_linea)`. |
+| `RET_VENTA_OPERACION` | Clave de idempotencia, vendedor, huella de la solicitud, fecha, precios congelados y respuesta confirmada. Permite reintentar el mismo pedido de G5 tras un corte. |
+
+Cada serie (`B001`, `F001`) tiene una secuencia durable. El POS representa el correlativo con ocho dígitos. El registro solo admite ventas confirmadas y la cabecera y sus líneas se escriben en la misma transacción. El pedido central sigue en G5.
+
+Para F9, la migración agrega a `RET_SOLICITUD_CAMBIO_MOSTRADOR` la venta local, número de boleta, vendedor, cantidad y clave de idempotencia. Conserva las filas anteriores y convierte las referencias externas a texto. `RET_VALE_COMPRA` vincula un vale con una única solicitud e incluye código, monto, tienda, fechas y estado. La API Retail controla el acceso a los registros nuevos.
+
+---
+
 ### Tabla 2: `RET_MOVIMIENTO_CAJA`
 Registra movimientos menores de efectivo durante el turno (compras de insumos urgentes, ingreso de sencillo auxiliar).
 
@@ -280,18 +296,17 @@ Gobierna la recepción física e inspección de prendas para cambio en tienda pr
 ---
 
 ### Tabla 5b: `RET_VALE_COMPRA` (S11)
-Vale de compra / nota de crédito térmica que Retail emite tras un cambio aprobado (RF-25). Por el acuerdo R6 con Ventas (G5), los vales son responsabilidad exclusiva de Retail: G5 no los guarda. Se crea con `diseño/schema-s11.sql`.
+Vale de compra / nota de crédito térmica que Retail emite tras un cambio aprobado (RF-25). Por el acuerdo R6 con Ventas (G5), los vales son responsabilidad exclusiva de Retail: G5 no los guarda. Alineada con la especificación y migración de F9. Se crea con `diseño/schema-s11.sql`.
 
 | Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
 | :--- | :--- | :---: | :--- | :--- |
 | `id_vale` | `UUID` | No | `PRIMARY KEY` | Identificador del vale |
 | `codigo_vale` | `VARCHAR(20)` | No | `UNIQUE`, `CHECK ~ '^VALE-[0-9]{4}-[0-9]{5,}$'` | Código `VALE-2026-XXXXX` generado por `fn_generar_codigo_vale()` |
-| `solicitud_cambio_id` | `UUID` | No | `FOREIGN KEY (RET_SOLICITUD_CAMBIO_MOSTRADOR)`, índice único | Solicitud que origina el vale; una solicitud emite un solo vale |
+| `solicitud_id` | `UUID` | No | `FOREIGN KEY (RET_SOLICITUD_CAMBIO_MOSTRADOR)`, índice único | Solicitud que origina el vale; una solicitud emite un solo vale |
 | `boleta_numero` | `VARCHAR(20)` | No | `CHECK ~ '^[BF][0-9]{3}-[0-9]{8}$'` | Boleta de origen |
-| `cliente_id` | `UUID` | No | Ref. externa Seguridad | Cliente beneficiario |
+| `cliente_id` | `UUID` | Sí | Ref. externa Seguridad | Cliente beneficiario (opcional en mostrador) |
 | `tienda_id` | `TEXT` | No | — | Sucursal que emite el vale |
-| `monto_a_favor` | `DECIMAL(12,2)` | No | `CHECK (monto_a_favor > 0)` | Monto emitido |
-| `saldo_disponible` | `DECIMAL(12,2)` | No | `CHECK (>= 0 AND <= monto_a_favor)` | Saldo aún no canjeado |
+| `monto` | `DECIMAL(12,2)` | No | `CHECK (monto >= 0)` | Monto a favor emitido |
 | `fecha_emision` | `TIMESTAMPTZ` | No | `DEFAULT CURRENT_TIMESTAMP` | Momento de emisión |
 | `fecha_vencimiento` | `TIMESTAMPTZ` | No | `DEFAULT emisión + 30 días`, `CHECK > fecha_emision` | Vencimiento del vale |
 | `estado` | `VARCHAR(20)` | No | `CHECK IN ('EMITIDO', 'CANJEADO', 'ANULADO')`, `DEFAULT 'EMITIDO'` | Ciclo de vida del vale |
