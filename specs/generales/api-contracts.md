@@ -343,10 +343,11 @@ Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678
 
 | Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
 |---|---|---|:---:|---|---|
-| `tipoDocumento` | query | `enum` | Sí | — | Solo `DNI` |
-| `numeroDocumento` | query | `string` | Sí | — | Exactamente 8 dígitos (`^\d{8}$`) |
+| `tipoDocumento` | query | `enum` | Sí | — | `DNI`, `CE` o `PASAPORTE` |
+| `numeroDocumento` | query | `string` | Sí | — | Según el tipo (RF-09): DNI `^\d{8}$`; CE 9 a 12 y pasaporte 6 a 16 caracteres alfanuméricos |
 
-- **Validación (RF-09):** DNI de exactamente 8 dígitos. La búsqueda **solo admite DNI** (ver §4.1).
+- **Validación (RF-09, Semana 11):** DNI `^\d{8}$`, CE `^[A-Za-z0-9]{9,12}$`, pasaporte `^[A-Za-z0-9]{6,16}$`.
+- **RUC excluido de la búsqueda:** `tipoDocumento=RUC` responde `400 DATO_INVALIDO` con el campo `tipoDocumento`, aunque ese RUC se haya registrado con el `POST`. El RUC identifica a una persona jurídica: no se busca en el padrón, se captura con la razón social para la factura.
 - **200 OK:**
 ```json
 {
@@ -356,7 +357,7 @@ Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678
   "documentoEnmascarado": "72****78"
 }
 ```
-- **Errores:** `400 DOCUMENTO_INVALIDO`; `404 CLIENTE_NO_ENCONTRADO` (la SPA abre el alta rápida); `429 LIMITE_CONSULTAS`.
+- **Errores:** `400 DATO_INVALIDO` (formato inválido, tipo no admitido o `RUC`; código homologado con G5, el campo va en `errores[]`); `404 CLIENTE_NO_ENCONTRADO` (la SPA abre el alta rápida); `429 LIMITE_CONSULTAS`.
 - **Integración:** `/usuarios/busqueda-documento` (Seguridad).
 
 #### `POST /api/v1/retail/clientes` 🟢
@@ -372,9 +373,10 @@ Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678
   "telefono": "987654321"
 }
 ```
-- `email` y `telefono` son opcionales; si llega `email`, se valida su formato. El backend agrega `canalOrigen = RETAIL`.
+- `tipoDocumento` admite `DNI`, `RUC`, `CE` o `PASAPORTE`, con las reglas de RF-09 (RUC `^(10|20)\d{9}$`). A diferencia del `GET`, el alta sí admite RUC.
+- `email` y `telefono` son opcionales; si llega `email`, se valida su formato según RF-09 (dominio con etiquetas separadas por un único punto y TLD de al menos 2 letras; `rosa@correo..com` responde `400 PARAMETRO_INVALIDO`). El backend agrega `canalOrigen = RETAIL`.
 - **201 Created:** `{ "clienteId": "…", "nombreCompleto": "Juan Pérez Torres", "estado": "PENDIENTE_ACTIVACION" }`
-- **Errores:** `400 DOCUMENTO_INVALIDO`; `409 DOCUMENTO_DUPLICADO`.
+- **Errores:** `400 DATO_INVALIDO`; `409 DOCUMENTO_DUPLICADO`.
 - **Integración:** `/usuarios/clientes` (Seguridad).
 
 ### 5.4. F4 — Carrito, totales y carritos en espera
@@ -468,7 +470,7 @@ Cierra la venta en mostrador: registra el pedido y el pago en Ventas y devuelve 
   - `TARJETA_POS`: `referenciaOperacion` obligatoria, de al menos 4 caracteres; `vuelto = 0`.
   - `MIXTO`: `montoRecibidoEfectivo + montoTarjeta ≥ totalPagar` y referencia obligatoria.
   - `BOLETA` con total ≥ S/ 700.00: exige DNI y nombre del cliente (sin cliente anónimo).
-  - `FACTURA`: exige RUC de 11 dígitos que empiece con 10, 15, 17 o 20, más la razón social.
+  - `FACTURA`: exige RUC de 11 dígitos que empiece con 10 o 20 (`^(10|20)\d{9}$`, RF-09), más la razón social.
   - Sin `clienteId` y total < S/ 700.00: boleta a "Clientes varios".
 - **Flujo en el backend:**
   1. Valida el turno y recalcula los totales.
