@@ -1,4 +1,4 @@
-# Contrato de API — Módulo Retail (G4) · v0.5.7
+# Contrato de API — Módulo Retail (G4) · v0.5.8
 
 | Campo | Valor |
 |---|---|
@@ -668,7 +668,8 @@ Body de la entrega:
   - `422 DNI_NO_COINCIDE_CON_TITULAR`: recoge el titular pero el DNI no es el del pedido.
   - `422 DNI_TITULAR_NO_REGISTRADO`: recoge el titular pero el pedido llegó sin DNI (`clienteDni: null`); no hay identidad que verificar, así que solo puede recoger un tercero con carta poder.
   - `422 CARTA_PODER_REQUERIDA`: recoge un tercero sin carta poder verificada.
-  - `503 VENTAS_NO_DISPONIBLE` · `503 VENTAS_CREDENCIAL_RECHAZADA` · `503 SEGURIDAD_NO_DISPONIBLE`: Ventas o Seguridad no responden; se puede reintentar.
+  - `503 SEGURIDAD_NO_CONFIGURADA` (bandeja y entrega) cuando el modo `g5` está activo y falta `G7_CLIENT_SECRET`.
+  - `503 VENTAS_NO_DISPONIBLE` · `503 VENTAS_CREDENCIAL_RECHAZADA` · `503 SEGURIDAD_NO_DISPONIBLE` cuando Ventas o Seguridad no responden o rechazan las credenciales de servicio.
 - Se retiran `422 PEDIDO_DE_OTRA_TIENDA` (Ventas filtra por tienda; se responde 404) y `422 CODIGO_RETIRO_INVALIDO` (Ventas no emite códigos de retiro).
 - La entrega se informa **solo a Ventas**; Despacho no participa (§4.4).
 
@@ -680,7 +681,8 @@ Body de la entrega:
 | `POST /retail/pickup/{id}/entrega` | `POST /api/v1/pedidos/{pedidoId}/entrega-pickup` | `ventas:pedidos:estado` |
 
 - Ambas llamadas llevan `Authorization: Bearer <token de servicio>`. El token lo emite Seguridad (G7) con `client_credentials` (`client_id=modulo-retail`, `audience=api-ventas`) y Retail lo reutiliza hasta un minuto antes de vencer.
-- El secreto del cliente solo se configura por la variable de entorno `G7_CLIENT_SECRET`. Sin ella, `ms-retail` usa pedidos de ejemplo en memoria (`retail.integracion.ventas.pickup.modo=auto`).
+- `G7_CLIENT_SECRET` contiene el secreto de cliente que G7 asigna a `modulo-retail`. El backend lo usa para obtener y renovar el token de servicio.
+- El perfil `supabase` usa Ventas real por defecto (`RETAIL_PICKUP_MODO=g5`). En local, el modo `auto` usa pedidos en memoria cuando falta el secreto.
 - A Ventas se le envían solo `dniRecoge`, `nombreRecoge`, `esTerceroAutorizado` y `codigoRetiro`; la carta poder se verifica en Retail.
 
 ### 5.8. F8 — Turnos de caja y arqueo ciego
@@ -1121,6 +1123,10 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 ---
 
 ## 11. Cambios respecto de v0.4
+
+**v0.5.8 (27/11, pickup con Ventas real en la nube):**
+
+- **F7 (§5.7):** con el perfil `supabase` el pickup va siempre contra Ventas (`RETAIL_PICKUP_MODO=g5`) y, si falta `G7_CLIENT_SECRET`, la bandeja y la entrega responden `503 SEGURIDAD_NO_CONFIGURADA` en vez de mostrar pedidos de ejemplo. El modo `auto` con pedidos en memoria queda solo para local.
 
 **v0.5.7 (27/11, G6 detrás de APIM):**
 
