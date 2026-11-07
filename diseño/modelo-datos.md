@@ -450,3 +450,7 @@ CREATE INDEX idx_cobro_pedido         ON RET_COBRO_TURNO(pedido_id) WHERE pedido
    - `trg_ret_auditoria_inmutable` y `trg_ret_auditoria_no_truncate` bloquean `UPDATE`, `DELETE` y `TRUNCATE` sobre `RET_AUDITORIA_OPERACIONES` (solo inserción). La FK hacia `RET_CAJA_SESION` es `ON DELETE RESTRICT`, por lo que un turno con rastro de auditoría no se puede borrar.
 4. **Row Level Security (RLS)**:
    - Todas las tablas (incluidas `RET_VALE_COMPRA` y `RET_COBRO_TURNO`) tienen RLS habilitado (`ENABLE ROW LEVEL SECURITY`); `RET_AUDITORIA_OPERACIONES` solo admite `SELECT` e `INSERT`.
+
+### F10: reserva durable de conciliación
+
+`RET_CONTINGENCIA_OFFLINE_LOG` conserva su UUID y `venta_local_uuid` único. La migración `migracion-f10-contingencia.sql` añade `turno_id`, `vendedor_id`, `numero_comprobante` (único, secuencia `ret_contingencia_comprobante_seq`, serie B010) y `pedido_id`. El payload y hash permanecen inmutables. PENDIENTE permite reintentar fallos externos; RESINCRONIZADO conserva resultado; CONFLICTO representa revisión. La reserva se confirma antes de contactar a G5; log y cobro F8 se confirman juntos al conciliar. No altera tablas ni saldos de G6.

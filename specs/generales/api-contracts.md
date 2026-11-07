@@ -699,7 +699,7 @@ Cierre con arqueo ciego (RF-22).
 ### 5.10. F10 — Contingencia offline
 
 #### `POST /api/v1/retail/contingencia/sincronizar` 🔁 (cada venta es idempotente por `ventaLocalUuid`)
-- **Roles:** VENDEDOR, SUPERVISOR. Lote máximo propuesto: 50 ventas.
+- **Roles:** VENDEDOR, SUPERVISOR. Lote máximo: 50 ventas.
 - **Body:**
 ```json
 {
@@ -732,6 +732,8 @@ Cierre con arqueo ciego (RF-22).
 ```
 - `estado` por venta: `RESINCRONIZADO` · `DUPLICADO` (ya se había procesado; devuelve el resultado original) · `REQUIERE_REVISION` (conciliación parcial; queda visible para el supervisor) · `RECHAZADO` (hash inválido).
 - **Flujo:** Retail registra el log y envía cada venta a Ventas de forma idempotente; Ventas concilia el inventario. **Retail no descuenta stock** (G4-P0-02).
+
+Detalles de implementación F10 S11: el hash canónico, la reserva de comprobante B010 y los casos de revisión se especifican en [F10 §7](../f10-contingencia-offline/f10-contingencia-offline.md#7-criterios-de-integración-de-semana-11). Se conserva la firma del lote. `DUPLICADO` devuelve el pedido y comprobante originales incluso tras reiniciar Retail. Un UUID con cuerpo diferente devuelve `RECHAZADO` con motivo `IDEMPOTENCY_CONFLICT`; sin respuesta verificable de G5 devuelve `REQUIERE_REVISION`, nunca un pedido ficticio. La tienda procede del perfil; se verifica terminal y turno. Los errores de cada venta no abortan las restantes.
 
 ### 5.11. F11 — Torre de control (alertas)
 
