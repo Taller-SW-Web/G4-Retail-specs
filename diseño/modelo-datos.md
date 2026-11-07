@@ -29,6 +29,8 @@ erDiagram
     RET_CAJA_SESION ||--o{ RET_MOVIMIENTO_CAJA : "1:N registra movimientos"
     RET_CARRITO_ESPERA ||--|{ RET_CARRITO_ESPERA_ITEM : "1:N contiene articulos"
     RET_CAJA_SESION ||--o{ RET_SOLICITUD_CAMBIO_MOSTRADOR : "1:N autoriza tramites"
+    RET_SOLICITUD_CAMBIO_MOSTRADOR ||--o| RET_VALE_COMPRA : "1:0..1 emite vale (S11)"
+    RET_CAJA_SESION ||--o{ RET_COBRO_TURNO : "1:N registra cobros (S11)"
 
     RET_CAJA_SESION {
         uuid id_sesion PK "Identificador unico de la sesion de caja"
@@ -94,6 +96,36 @@ erDiagram
         string vale_temporal_codigo "Codigo del vale/nota de credito para canje inmediato"
         decimal monto_acreditado "Saldo a favor para seleccion de nueva prenda"
         timestamp fecha_inspeccion "Momento en que el vendedor valida la prenda"
+        string boleta_numero "Boleta de origen B001-00000045 (S11)"
+        text tienda_id "Codigo de sucursal (S11)"
+    }
+
+    RET_VALE_COMPRA {
+        uuid id_vale PK "Identificador del vale"
+        string codigo_vale UK "VALE-2026-XXXXX, generado por secuencia"
+        uuid solicitud_id FK "Solicitud que origina el vale (unico por solicitud)"
+        string boleta_numero "Boleta de origen del cambio"
+        uuid cliente_id "ID logico opcional del cliente beneficiario (Seguridad)"
+        text tienda_id "Codigo de sucursal"
+        decimal monto "Saldo a favor emitido"
+        timestamp fecha_emision "Momento de emision"
+        timestamp fecha_vencimiento "Emision + 30 dias"
+        string estado "EMITIDO, CANJEADO, ANULADO"
+        timestamp fecha_canje "Momento del canje, si aplica"
+    }
+
+    RET_COBRO_TURNO {
+        uuid id_cobro PK "Identificador del cobro"
+        uuid caja_sesion_id FK "Turno en el que se cobro"
+        string idempotency_key UK "Misma llave que viaja a Ventas (G5)"
+        string pedido_id "Pedido de G5 (referencia logica, sin FK)"
+        string comprobante_serie "Serie de la boleta o factura"
+        string comprobante_numero "Correlativo del comprobante"
+        string medio_pago "EFECTIVO, TARJETA_POS"
+        decimal monto_total "Total de la venta"
+        decimal monto_recibido "Monto entregado por el cliente"
+        decimal vuelto "monto_recibido - monto_total"
+        string estado "PENDIENTE_CONFIRMACION, CONFIRMADO, EN_REVISION_SUPERVISOR, ANULADO"
     }
 
     RET_INCIDENCIA_INVENTARIO {
@@ -189,6 +221,8 @@ Cada serie (`B001`, `F001`) tiene una secuencia durable. El POS representa el co
 
 Para F9, la migración agrega a `RET_SOLICITUD_CAMBIO_MOSTRADOR` la venta local, número de boleta, vendedor, cantidad y clave de idempotencia. Conserva las filas anteriores y convierte las referencias externas a texto. `RET_VALE_COMPRA` vincula un vale con una única solicitud e incluye código, monto, tienda, fechas y estado. La API Retail controla el acceso a los registros nuevos.
 
+---
+
 ### Tabla 2: `RET_MOVIMIENTO_CAJA`
 Registra movimientos menores de efectivo durante el turno (compras de insumos urgentes, ingreso de sencillo auxiliar).
 
@@ -238,7 +272,7 @@ Detalle de artículos contenidos dentro de un carrito puesto en espera.
 ---
 
 ### Tabla 5: `RET_SOLICITUD_CAMBIO_MOSTRADOR`
-Gobierna la recepción física e inspección de prendas para cambio en tienda presencial dentro de los 30 días reglamentarios.
+Gobierna la recepción física e inspección de prendas para cambio en tienda presencial. El plazo del cambio (7 días naturales desde la compra según la guía S11) lo valida el servicio, no el esquema.
 
 | Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
 | :--- | :--- | :---: | :--- | :--- |
@@ -255,6 +289,47 @@ Gobierna la recepción física e inspección de prendas para cambio en tienda pr
 | `vale_temporal_codigo` | `VARCHAR(50)` | Sí | — | Código generado para canje inmediato |
 | `monto_acreditado` | `DECIMAL(12,2)` | No | `CHECK (monto_acreditado >= 0)` | Monto a favor para elegir nueva prenda |
 | `fecha_inspeccion` | `TIMESTAMP` | No | `DEFAULT CURRENT_TIMESTAMP` | Momento de la inspección técnica |
+| `boleta_numero` | `VARCHAR(20)` | Sí | `CHECK ~ '^[BF][0-9]{3}-[0-9]{8}$'` | Boleta de origen (agregada en S11, `schema-s11.sql`) |
+| `tienda_id` | `TEXT` | Sí | — | Sucursal del trámite (agregada en S11, `schema-s11.sql`) |
+
+---
+
+### Tabla 5b: `RET_VALE_COMPRA` (S11)
+Vale de compra / nota de crédito térmica que Retail emite tras un cambio aprobado (RF-25). Por el acuerdo R6 con Ventas (G5), los vales son responsabilidad exclusiva de Retail: G5 no los guarda. Alineada con la especificación y migración de F9. Se crea con `diseño/schema-s11.sql`.
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `id_vale` | `UUID` | No | `PRIMARY KEY` | Identificador del vale |
+| `codigo_vale` | `VARCHAR(20)` | No | `UNIQUE`, `CHECK ~ '^VALE-[0-9]{4}-[0-9]{5,}$'` | Código `VALE-2026-XXXXX` generado por `fn_generar_codigo_vale()` |
+| `solicitud_id` | `UUID` | No | `FOREIGN KEY (RET_SOLICITUD_CAMBIO_MOSTRADOR)`, índice único | Solicitud que origina el vale; una solicitud emite un solo vale |
+| `boleta_numero` | `VARCHAR(20)` | No | `CHECK ~ '^[BF][0-9]{3}-[0-9]{8}$'` | Boleta de origen |
+| `cliente_id` | `UUID` | Sí | Ref. externa Seguridad | Cliente beneficiario (opcional en mostrador) |
+| `tienda_id` | `TEXT` | No | — | Sucursal que emite el vale |
+| `monto` | `DECIMAL(12,2)` | No | `CHECK (monto >= 0)` | Monto a favor emitido |
+| `fecha_emision` | `TIMESTAMPTZ` | No | `DEFAULT CURRENT_TIMESTAMP` | Momento de emisión |
+| `fecha_vencimiento` | `TIMESTAMPTZ` | No | `DEFAULT emisión + 30 días`, `CHECK > fecha_emision` | Vencimiento del vale |
+| `estado` | `VARCHAR(20)` | No | `CHECK IN ('EMITIDO', 'CANJEADO', 'ANULADO')`, `DEFAULT 'EMITIDO'` | Ciclo de vida del vale |
+| `fecha_canje` | `TIMESTAMPTZ` | Sí | Obligatoria si `CANJEADO`, nula en otro caso | Momento del canje |
+
+---
+
+### Tabla 5c: `RET_COBRO_TURNO` (S11)
+Cobro de una venta asociado al turno de caja, para que el efectivo cuente en el arqueo ciego y en el Reporte Z (F8 + F5). Es un **registro de caja, no la venta**: Retail no guarda pedidos ni pagos (viven en Ventas, G5); aquí solo queda cuánto entró a la gaveta en el turno, con el pedido de G5 como referencia lógica. El efectivo esperado suma `monto_total` (el vuelto ya salió) de los cobros en `EFECTIVO` cuyo estado no sea `ANULADO`. Se crea con `diseño/schema-s11.sql`.
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `id_cobro` | `UUID` | No | `PRIMARY KEY` | Identificador del cobro |
+| `caja_sesion_id` | `UUID` | No | `FOREIGN KEY (RET_CAJA_SESION)` `ON DELETE RESTRICT` | Turno en el que se cobró |
+| `idempotency_key` | `VARCHAR(64)` | No | `UNIQUE` | Misma `Idempotency-Key` que viaja a G5; un reintento no crea otro cobro |
+| `pedido_id` | `VARCHAR(40)` | Sí | — | `PED-AAAA-NNNNN` de G5 (o el de contingencia local); vacío mientras está pendiente |
+| `comprobante_serie` | `VARCHAR(4)` | Sí | — | Serie de la boleta/factura (`B001`, `F001`) |
+| `comprobante_numero` | `VARCHAR(20)` | Sí | — | Correlativo del comprobante |
+| `medio_pago` | `VARCHAR(20)` | No | `CHECK IN ('EFECTIVO', 'TARJETA_POS')` | Medio de pago |
+| `monto_total` | `DECIMAL(12,2)` | No | `CHECK (monto_total > 0)` | Total de la venta |
+| `monto_recibido` | `DECIMAL(12,2)` | No | `CHECK (monto_recibido >= monto_total)` | Monto entregado por el cliente |
+| `vuelto` | `DECIMAL(12,2)` | No | `CHECK (>= 0 AND = monto_recibido - monto_total)` | Vuelto entregado |
+| `estado` | `VARCHAR(30)` | No | `CHECK IN ('PENDIENTE_CONFIRMACION', 'CONFIRMADO', 'EN_REVISION_SUPERVISOR', 'ANULADO')`, `DEFAULT 'PENDIENTE_CONFIRMACION'` | Estado frente a Ventas: pendiente si G5 no respondió, en revisión si la rechazó |
+| `created_at` / `updated_at` | `TIMESTAMPTZ` | No | `DEFAULT CURRENT_TIMESTAMP` | Auditoría de la fila |
 
 ---
 
@@ -351,6 +426,16 @@ CREATE INDEX idx_personal_tienda_usuario ON RET_PERSONAL_TIENDA(usuario_id, tien
 CREATE INDEX idx_auditoria_tienda_fecha ON RET_AUDITORIA_OPERACIONES(tienda_id, fecha_hora DESC);
 CREATE INDEX idx_auditoria_usuario_accion ON RET_AUDITORIA_OPERACIONES(usuario_id, accion);
 CREATE INDEX idx_auditoria_caja_sesion ON RET_AUDITORIA_OPERACIONES(caja_sesion_id);
+
+-- S11 (schema-s11.sql): cambios y vales por boleta, cliente y tienda
+CREATE INDEX idx_cambio_boleta_numero ON RET_SOLICITUD_CAMBIO_MOSTRADOR(boleta_numero);
+CREATE INDEX idx_cambio_cliente       ON RET_SOLICITUD_CAMBIO_MOSTRADOR(cliente_id);
+CREATE INDEX idx_cambio_tienda_fecha  ON RET_SOLICITUD_CAMBIO_MOSTRADOR(tienda_id, fecha_inspeccion DESC);
+CREATE INDEX idx_vale_boleta_numero   ON RET_VALE_COMPRA(boleta_numero);
+CREATE INDEX idx_vale_cliente_estado  ON RET_VALE_COMPRA(cliente_id, estado);
+CREATE INDEX idx_vale_tienda_estado   ON RET_VALE_COMPRA(tienda_id, estado);
+CREATE INDEX idx_cobro_turno_estado   ON RET_COBRO_TURNO(caja_sesion_id, estado);
+CREATE INDEX idx_cobro_pedido         ON RET_COBRO_TURNO(pedido_id) WHERE pedido_id IS NOT NULL;
 ```
 
 ---
@@ -364,4 +449,4 @@ CREATE INDEX idx_auditoria_caja_sesion ON RET_AUDITORIA_OPERACIONES(caja_sesion_
 3. **Auditoría inmutable** (`fn_auditoria_inmutable`):
    - `trg_ret_auditoria_inmutable` y `trg_ret_auditoria_no_truncate` bloquean `UPDATE`, `DELETE` y `TRUNCATE` sobre `RET_AUDITORIA_OPERACIONES` (solo inserción). La FK hacia `RET_CAJA_SESION` es `ON DELETE RESTRICT`, por lo que un turno con rastro de auditoría no se puede borrar.
 4. **Row Level Security (RLS)**:
-   - Todas las 9 tablas tienen RLS habilitado (`ENABLE ROW LEVEL SECURITY`); `RET_AUDITORIA_OPERACIONES` solo admite `SELECT` e `INSERT`.
+   - Todas las tablas (incluidas `RET_VALE_COMPRA` y `RET_COBRO_TURNO`) tienen RLS habilitado (`ENABLE ROW LEVEL SECURITY`); `RET_AUDITORIA_OPERACIONES` solo admite `SELECT` e `INSERT`.
