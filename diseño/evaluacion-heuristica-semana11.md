@@ -78,7 +78,7 @@ H1 Visibilidad del estado del sistema · H2 Relación con el mundo real · H3 Co
 
 | # | Heurística | Hallazgo | Sev. | Recomendación |
 |---|---|---|:---:|---|
-| 7.1 | H5, H2 | `DeliveryModal` solo acepta DNI de 8 dígitos (`esDniValido`). Un cliente extranjero con CE o pasaporte (documentos que F3 ya admite desde RF-09) no puede retirar su pedido. | 3 | Reutilizar el selector y las reglas de `src/lib/documento.ts` (DNI/CE/Pasaporte) en «Documento de quien recoge». |
+| 7.1 | H5, H2 | `DeliveryModal` solo acepta DNI de 8 dígitos (`esDniValido`). Un cliente extranjero con CE o pasaporte (documentos que RF-09 incorpora en la Semana 11) no puede retirar su pedido. | 3 | Cuando se integre el PR de F3 (`feat/f3-cliente-ui-regex`), reutilizar su selector y sus reglas (`src/lib/documento.ts`: DNI/CE/Pasaporte) en «Documento de quien recoge». |
 | 7.2 | H3 | Si se cierra la constancia sin imprimirla, el pedido sale de la bandeja y no hay forma de reimprimirla. | 2 | Guardar la última constancia o permitir consultarla por número de pedido (puede integrarse con F6). |
 | 7.3 | H1, H9 | El aviso «El pedido se encuentra en camino o asignado a otra sede…» no dice en qué estado está realmente el pedido. El vendedor no puede darle al cliente una respuesta concreta. | 2 | Mostrar el estado y la sede reales del pedido encontrado (por ejemplo «EN_CAMINO · llega a esta tienda el 08/11»). |
 | 7.4 | H3 | Pulsar Escape o hacer clic fuera del modal lo cierra y borra el DNI, el nombre y los checks que ya se capturaron. | 1 | Pedir confirmación antes de cerrar si hay datos capturados. |
@@ -98,7 +98,7 @@ H1 Visibilidad del estado del sistema · H2 Relación con el mundo real · H3 Co
 |---|---|---|:---:|---|
 | 6.1 | H5, H7 | El atajo previsto es la tecla **F6**, que en Chrome y Edge mueve el foco a la barra de direcciones. Si no se intercepta, el vendedor sale del POS en plena demo. | 3 | Capturar `keydown` de `F6` con `preventDefault()` y probarlo en el navegador del mostrador. Como alternativa, usar `Alt+H`. |
 | 6.2 | H4 | La UI spec define colores solo para `ENTREGADO`, `LISTO_PICKUP` y `ANULADO`, pero la guía exige mostrar `PAGADO` y `EN_PREPARACION`. Sin una tabla completa, cada pantalla elegirá colores distintos. | 2 | Completar el mapeo estado → color/ícono en `f06-trazabilidad.ui.md` y usar el mismo `Badge` en F6, F7 y F9. |
-| 6.3 | H7, H2 | La búsqueda solo contempla DNI de 8 dígitos o `PED-YYYY-NNNNN`. Los clientes con CE o pasaporte, o con RUC (factura), no se pueden buscar. | 2 | Reutilizar el selector de documento de F3 y detectar el tipo de código automáticamente (un `PED-` va por pedido, 8 dígitos por DNI, etc.). |
+| 6.3 | H7, H2 | La búsqueda solo contempla DNI de 8 dígitos o `PED-YYYY-NNNNN`. Los clientes con CE o pasaporte, o con RUC (factura), no se pueden buscar. | 2 | Reutilizar el selector de documento de F3 (PR `feat/f3-cliente-ui-regex`, pendiente de integración) y detectar el tipo de código automáticamente (un `PED-` va por pedido, 8 dígitos por DNI, etc.). |
 | 6.4 | H6 | «Ver en Historial» desde el comprobante debe llevar el `pedidoId` y abrir el detalle directamente. Si solo abre la pantalla vacía, el vendedor tiene que volver a tipear `PED-2026-00412`. | 2 | Navegar a `/pedidos?pedidoId=PED-2026-00412` y abrir el detalle al cargar. |
 | 6.5 | H7 | El paso «Solicitar Cambio» desde el detalle no está especificado. Sin él, se rompe el recorrido de la demo y hay que copiar la boleta a mano. | 2 | Botón «Solicitar cambio» en el detalle que navegue a `/cambios?boleta=B001-…` (F9 ya lee ese parámetro). |
 | 6.6 | H1 | La spec define bien los estados vacío, sin resultados y cargando (skeletons), pero no el error de red o de G5 caído. | 1 | Agregar el estado de error con «Reintentar», igual que la bandeja de F7. |
@@ -123,11 +123,11 @@ No hubo hallazgos de severidad 4: ninguna de las tres interfaces impide completa
 1. **6.1 — Interceptar la tecla F6** (Kevin): sin `preventDefault()`, el atajo saca al vendedor de la aplicación durante la demo.
 2. **9.1 — Confirmar la emisión del vale** (Cristhian): es una acción con valor monetario que hoy es irreversible desde la interfaz.
 3. **9.2 — Boleta vs. factura en F9** (Cristhian): alinear la etiqueta con lo que la validación acepta.
-4. **7.1 — Documentos de extranjeros en el retiro** (Maylle): reutilizar `src/lib/documento.ts` de F3 (RF-09).
+4. **7.1 — Documentos de extranjeros en el retiro** (Maylle): aceptar CE y pasaporte, reutilizando `src/lib/documento.ts` de F3 cuando su PR se integre a `develop`.
 
 ### Mejoras transversales
 
-- **Una sola regla de documentos.** F3 publica las reglas de RF-09 en `src/lib/documento.ts` (frontend) y `ValidadorDocumento.java` (backend). F6, F7 y F9 deberían reutilizarlas en vez de repetir `/^\d{8}$/` en cada pantalla (hallazgos 7.1 y 6.3).
+- **Una sola regla de documentos.** F3 concentra las reglas de RF-09 en `ValidadorDocumento.java` (backend, rama `feat/f3-cliente-validaciones-regex`) y en `src/lib/documento.ts` (frontend, rama `feat/f3-cliente-ui-regex`). A la fecha de corte ninguno de los dos está integrado a `develop`, donde el frontend aún valida solo DNI y RUC. Una vez integrados, F6, F7 y F9 deberían reutilizarlos en vez de repetir `/^\d{8}$/` en cada pantalla (hallazgos 7.1 y 6.3).
 - **Un solo mapeo de estados a colores** para los badges de pedido (hallazgo 6.2).
 - **Navegación encadenada para la demo:** comprobante → «Ver en Historial» (`?pedidoId=`) → «Solicitar Cambio» (`?boleta=`). Así el recorrido completo de la sección 4 de la guía toma menos de 60 segundos sin tipear de nuevo (hallazgos 6.4, 6.5 y 9.7).
 

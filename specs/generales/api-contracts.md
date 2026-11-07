@@ -346,7 +346,8 @@ Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678
 | `tipoDocumento` | query | `enum` | Sí | — | `DNI`, `CE` o `PASAPORTE` |
 | `numeroDocumento` | query | `string` | Sí | — | Según el tipo (RF-09): DNI `^\d{8}$`; CE 9 a 12 y pasaporte 6 a 16 caracteres alfanuméricos |
 
-- **Validación (RF-09, Semana 11):** DNI `^\d{8}$`, RUC `^(10|20)\d{9}$`, CE `^[A-Za-z0-9]{9,12}$`, pasaporte `^[A-Za-z0-9]{6,16}$`. El RUC no se busca en el padrón: se captura con la razón social para la factura.
+- **Validación (RF-09, Semana 11):** DNI `^\d{8}$`, CE `^[A-Za-z0-9]{9,12}$`, pasaporte `^[A-Za-z0-9]{6,16}$`.
+- **RUC excluido de la búsqueda:** `tipoDocumento=RUC` responde `400 DATO_INVALIDO` con el campo `tipoDocumento`, aunque ese RUC se haya registrado con el `POST`. El RUC identifica a una persona jurídica: no se busca en el padrón, se captura con la razón social para la factura.
 - **200 OK:**
 ```json
 {
@@ -356,7 +357,7 @@ Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678
   "documentoEnmascarado": "72****78"
 }
 ```
-- **Errores:** `400 DATO_INVALIDO` (formato o tipo de documento inválido; código homologado con G5, el campo va en `errores[]`); `404 CLIENTE_NO_ENCONTRADO` (la SPA abre el alta rápida); `429 LIMITE_CONSULTAS`.
+- **Errores:** `400 DATO_INVALIDO` (formato inválido, tipo no admitido o `RUC`; código homologado con G5, el campo va en `errores[]`); `404 CLIENTE_NO_ENCONTRADO` (la SPA abre el alta rápida); `429 LIMITE_CONSULTAS`.
 - **Integración:** `/usuarios/busqueda-documento` (Seguridad).
 
 #### `POST /api/v1/retail/clientes` 🟢
@@ -372,7 +373,7 @@ Ejemplo: `GET /api/v1/retail/clientes?tipoDocumento=DNI&numeroDocumento=72345678
   "telefono": "987654321"
 }
 ```
-- `tipoDocumento` admite `DNI`, `RUC`, `CE` o `PASAPORTE`, con las reglas de RF-09.
+- `tipoDocumento` admite `DNI`, `RUC`, `CE` o `PASAPORTE`, con las reglas de RF-09 (RUC `^(10|20)\d{9}$`). A diferencia del `GET`, el alta sí admite RUC.
 - `email` y `telefono` son opcionales; si llega `email`, se valida su formato según RF-09 (dominio con etiquetas separadas por un único punto y TLD de al menos 2 letras; `rosa@correo..com` responde `400 PARAMETRO_INVALIDO`). El backend agrega `canalOrigen = RETAIL`.
 - **201 Created:** `{ "clienteId": "…", "nombreCompleto": "Juan Pérez Torres", "estado": "PENDIENTE_ACTIVACION" }`
 - **Errores:** `400 DATO_INVALIDO`; `409 DOCUMENTO_DUPLICADO`.

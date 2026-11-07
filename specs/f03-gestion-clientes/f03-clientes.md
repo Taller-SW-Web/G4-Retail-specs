@@ -94,11 +94,13 @@ Permitir al personal de mostrador buscar a un cliente en 1 segundo ingresando su
 
 * **Backend:**
   1. `ValidadorDocumento` aplica la regla del tipo en `GET` y `POST /api/v1/retail/clientes`, antes de consultar o modificar el padrón.
-  2. Un formato inválido o un tipo no admitido responde `400 Bad Request` con `code: "DATO_INVALIDO"` (estándar homologado con G5) y el campo rechazado en `errores[]`.
-  3. No se recorta ni se limpia el valor: espacios, guiones, puntos, letras con tilde o dígitos que no sean ASCII 0-9 se rechazan.
-  4. CE y pasaporte se normalizan a mayúsculas; el padrón distingue el tipo (un pasaporte puede coincidir en dígitos con un DNI).
-  5. Si viene `email`: valida su sintaxis con `^[^\s@.]+(\.[^\s@.]+)*@([A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,}$`. La parte local no admite puntos consecutivos ni en los extremos. El dominio son etiquetas alfanuméricas (guion solo interno) separadas por un único punto, con TLD de al menos 2 letras. Rechaza `rosa@correo..com`, `rosa@.correo.com` o `rosa@correo.c` con `400 PARAMETRO_INVALIDO`.
+  2. **Búsqueda (`GET`) solo para DNI, CE y PASAPORTE** (contrato §5.3). Un `tipoDocumento=RUC` responde `400 DATO_INVALIDO` con el campo `tipoDocumento`, aunque ese RUC se haya registrado con el alta: el RUC identifica a una persona jurídica y se captura con la razón social para la factura. El alta (`POST`) sí admite RUC.
+  3. Un formato inválido o un tipo no admitido responde `400 Bad Request` con `code: "DATO_INVALIDO"` (estándar homologado con G5) y el campo rechazado en `errores[]`.
+  4. No se recorta ni se limpia el valor: espacios, guiones, puntos, letras con tilde o dígitos que no sean ASCII 0-9 se rechazan.
+  5. CE y pasaporte se normalizan a mayúsculas; el padrón distingue el tipo (un pasaporte puede coincidir en dígitos con un DNI).
+  6. Si viene `email`: valida su sintaxis con `^[^\s@.]+(\.[^\s@.]+)*@([A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,}$`. La parte local no admite puntos consecutivos ni en los extremos. El dominio son etiquetas alfanuméricas (guion solo interno) separadas por un único punto, con TLD de al menos 2 letras. Rechaza `rosa@correo..com`, `rosa@.correo.com` o `rosa@correo.c` con `400 PARAMETRO_INVALIDO`.
 * **Frontend:**
+  > **Estado:** implementado en `G4-Retail-frontend`, rama `feat/f3-cliente-ui-regex` (PR pendiente de integrar a `develop`), con pruebas en `src/lib/documento.test.ts` y `CustomerSection.test.tsx`. Mientras no se integre, `develop` mantiene la versión anterior: solo DNI y RUC, sin validar el prefijo del RUC, sin `src/lib/documento.ts`, y el patrón de correo del modal acepta `rosa@correo..com`.
   1. Selector de tipo `DNI | RUC | CE | Pasaporte`. Las reglas viven en `src/lib/documento.ts`, espejo del backend.
   2. Máscara de caracteres: DNI y RUC solo admiten dígitos 0-9; CE y pasaporte, letras y dígitos (en mayúsculas).
   3. Límites de longitud: `maxlength` 8 (DNI), 11 (RUC), 12 (CE) y 16 (pasaporte).
@@ -110,12 +112,18 @@ Permitir al personal de mostrador buscar a un cliente en 1 segundo ingresando su
   6. Botones de búsqueda y guardado permanecen deshabilitados ante cualquier error de validación.
   7. Si el backend responde `400 DATO_INVALIDO`, se muestra el motivo de `errores[0]`.
 * **Criterios de Aceptación (RF-09):**
-  - [x] Intentar escribir letras en el campo de DNI o RUC no produce ningún caracter.
-  - [x] DNI de 7 dígitos mantiene el botón inhabilitado con advertencia de longitud insuficiente.
-  - [x] RUC que inicia con "30" (o "15", "17") muestra error inmediato de prefijo no autorizado.
-  - [x] CE y pasaporte aceptan letras y respetan sus rangos de longitud.
-  - [x] Correo electrónico sin formato válido (por ejemplo `rosa@correo..com`) bloquea el guardado en el modal y el backend lo rechaza con `400`.
-  - [x] El backend rechaza cualquier formato inválido con `400 DATO_INVALIDO` (`ClienteValidationTest.java`).
+  * **Backend** — cumplidos y probados en `ClienteValidationTest.java` (`G4-Retail-backend`, rama `feat/f3-cliente-validaciones-regex`):
+    - [x] Un formato de documento inválido responde `400 DATO_INVALIDO` con el campo rechazado en `errores[]`.
+    - [x] Un RUC que inicia con "15", "17" o "30" se rechaza; solo se admiten "10" y "20".
+    - [x] CE y pasaporte aceptan letras y respetan sus rangos de longitud.
+    - [x] Buscar por RUC responde `400 DATO_INVALIDO` aunque ese RUC esté registrado; el alta sí lo admite.
+    - [x] Un correo sin formato válido (por ejemplo `rosa@correo..com`) responde `400`.
+  * **Frontend** — pendientes hasta integrar el PR de `feat/f3-cliente-ui-regex` a `develop`:
+    - [ ] Intentar escribir letras en el campo de DNI o RUC no produce ningún caracter.
+    - [ ] DNI de 7 dígitos mantiene el botón inhabilitado con advertencia de longitud insuficiente.
+    - [ ] RUC que inicia con "30" (o "15", "17") muestra error inmediato de prefijo no autorizado.
+    - [ ] El selector ofrece CE y pasaporte, que aceptan letras y respetan sus rangos de longitud.
+    - [ ] Un correo sin formato válido (por ejemplo `rosa@correo..com`) bloquea el guardado en el modal.
 
 ---
 
