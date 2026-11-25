@@ -3,7 +3,7 @@
 **Responsable:** Guillermo Ramos — QA y Control de Calidad.  
 **Revisor:** Miguel — Tech Lead / DevOps.  
 **Actualización:** 25/11/2026, America/Lima.  
-**Estado:** evidencia técnica local preparada; pendiente de revisión de Miguel y de CI/PR. No constituye certificación de producción.
+**Estado:** evidencia técnica local y PR borrador preparadas; pendiente de revisión de Miguel y resolución de SonarCloud. No constituye certificación de producción.
 
 ## 1. Resumen ejecutivo
 
@@ -308,7 +308,9 @@ Conteos obtenidos de los casos ejecutados de Surefire, incluyendo expansiones pa
 
 ## 10. Revisión y entrega
 
-PR borrador hacia develop: [backend #53](https://github.com/Taller-SW-Web/G4-Retail-backend/pull/53) y [frontend #47](https://github.com/Taller-SW-Web/G4-Retail-frontend/pull/47). Ambas pendientes de revisión; no se han fusionado.
+PR borrador hacia develop: [backend #53](https://github.com/Taller-SW-Web/G4-Retail-backend/pull/53), [frontend #47](https://github.com/Taller-SW-Web/G4-Retail-frontend/pull/47) e [informe #30](https://github.com/Taller-SW-Web/G4-Retail-specs/pull/30). Pendientes de revisión; no se han fusionado.
+
+**Seguimiento de CI (25/11):** las primeras ejecuciones aprobaron Build and Unit Tests, CodeQL y Dependency Review en ambos repositorios. SonarCloud frontend falló al consultar metadatos JRE con HTTP 403 y señaló SONAR_TOKEN; requiere revisión de credenciales por DevOps. El backend falló en el job de Sonar por cargar simultáneamente los agentes JaCoCo 0.8.13 (plantilla CI) y 0.8.14 (POM). El commit `c22a8c8` alinea el POM a 0.8.13. Los porcentajes y capturas locales anteriores corresponden a 0.8.14 y no se atribuyen a una nueva medición con 0.8.13.
 
 - [x] Inventario y ejecución de backend y frontend.
 - [x] Separación de unitarias, componentes e integración.
@@ -316,7 +318,10 @@ PR borrador hacia develop: [backend #53](https://github.com/Taller-SW-Web/G4-Ret
 - [x] Matriz RF-01 a RF-28 y pendientes explícitos.
 - [x] 12 casos agregados, corrección de RF-22 y verificación local.
 - [x] Evidencias estructuradas y capturas de resultados/cobertura.
-- [ ] PR hacia develop y CI revisados por el equipo.
+- [x] Tres PR borrador hacia develop creadas y resultados de CI inspeccionados.
+- [ ] Resolver acceso a SonarCloud (HTTP 403 / SONAR_TOKEN) y completar revisión del equipo.
 - [ ] Recepción y aprobación de Miguel.
 
 La revisión de Miguel y las verificaciones remotas pendientes impiden afirmar “entregado y aprobado al 100%”. La evidencia local del alcance ejecutado está disponible para revisión.
+
+**Verificación del ajuste JaCoCo:** en la [ejecución CI del backend con c22a8c8](https://github.com/Taller-SW-Web/G4-Retail-backend/actions/runs/45553340039/job/138999485122), Maven registró `Tests run: 390, Failures: 0, Errors: 0, Skipped: 0` y `BUILD SUCCESS`. La doble instrumentación quedó resuelta. El paso posterior de SonarCloud falló con el mismo HTTP 403 sobre metadatos JRE y referencia a SONAR_TOKEN que el frontend. No se desactivó el análisis ni se alteraron credenciales; el responsable de DevOps debe validar el token/permisos y repetir el análisis.
