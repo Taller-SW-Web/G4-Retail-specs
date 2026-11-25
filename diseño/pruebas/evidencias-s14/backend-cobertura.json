@@ -1,0 +1,552 @@
+﻿{
+    "metricas":  [
+                     {
+                         "tipo":  "INSTRUCTION",
+                         "cubiertos":  10339,
+                         "noCubiertos":  1042
+                     },
+                     {
+                         "tipo":  "BRANCH",
+                         "cubiertos":  506,
+                         "noCubiertos":  223
+                     },
+                     {
+                         "tipo":  "LINE",
+                         "cubiertos":  1756,
+                         "noCubiertos":  174
+                     },
+                     {
+                         "tipo":  "COMPLEXITY",
+                         "cubiertos":  634,
+                         "noCubiertos":  233
+                     },
+                     {
+                         "tipo":  "METHOD",
+                         "cubiertos":  470,
+                         "noCubiertos":  29
+                     },
+                     {
+                         "tipo":  "CLASS",
+                         "cubiertos":  161,
+                         "noCubiertos":  2
+                     }
+                 ],
+    "paquetes":  [
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/model",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  215,
+                                              "noCubiertos":  16
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  6,
+                                              "noCubiertos":  4
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  54,
+                                              "noCubiertos":  6
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  18,
+                                              "noCubiertos":  5
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  17,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  14,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/integracion/seguridad",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  191,
+                                              "noCubiertos":  9
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  13,
+                                              "noCubiertos":  5
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  44,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  11,
+                                              "noCubiertos":  5
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  7,
+                                              "noCubiertos":  0
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  2,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/repository",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  350,
+                                              "noCubiertos":  10
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  5,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  38,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  15,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  13,
+                                              "noCubiertos":  0
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  4,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/service",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  5103,
+                                              "noCubiertos":  392
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  377,
+                                              "noCubiertos":  129
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  970,
+                                              "noCubiertos":  55
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  309,
+                                              "noCubiertos":  138
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  181,
+                                              "noCubiertos":  12
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  23,
+                                              "noCubiertos":  1
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/integracion/boletas",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  207,
+                                              "noCubiertos":  2
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  1,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  23,
+                                              "noCubiertos":  0
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  11,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  11,
+                                              "noCubiertos":  0
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  4,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/controller",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  207,
+                                              "noCubiertos":  35
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  36,
+                                              "noCubiertos":  10
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  27,
+                                              "noCubiertos":  0
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  27,
+                                              "noCubiertos":  0
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  11,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/integracion/productos",
+                         "metricas":  [
+
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  3,
+                                              "noCubiertos":  5
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  1,
+                                              "noCubiertos":  2
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  1,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  1,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  1,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/dto",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  1140,
+                                              "noCubiertos":  22
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  6,
+                                              "noCubiertos":  10
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  99,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  63,
+                                              "noCubiertos":  8
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  62,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  52,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/client/dto",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  161,
+                                              "noCubiertos":  12
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  8,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  7,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  7,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  6,
+                                              "noCubiertos":  1
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/integracion/productos/mock",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  415,
+                                              "noCubiertos":  34
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  20,
+                                              "noCubiertos":  12
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  67,
+                                              "noCubiertos":  5
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  29,
+                                              "noCubiertos":  13
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  24,
+                                              "noCubiertos":  2
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  4,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/config",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  422,
+                                              "noCubiertos":  32
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  7,
+                                              "noCubiertos":  5
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  99,
+                                              "noCubiertos":  2
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  28,
+                                              "noCubiertos":  5
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  26,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  5,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/integracion/productos/dto",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  236,
+                                              "noCubiertos":  29
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  13,
+                                              "noCubiertos":  9
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  31,
+                                              "noCubiertos":  3
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  16,
+                                              "noCubiertos":  10
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  14,
+                                              "noCubiertos":  1
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  8,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/integracion/ventas",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  1178,
+                                              "noCubiertos":  360
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  44,
+                                              "noCubiertos":  37
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  169,
+                                              "noCubiertos":  75
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  61,
+                                              "noCubiertos":  33
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  46,
+                                              "noCubiertos":  5
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  17,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/client",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  149,
+                                              "noCubiertos":  16
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  7,
+                                              "noCubiertos":  7
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  40,
+                                              "noCubiertos":  3
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  6,
+                                              "noCubiertos":  6
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  5,
+                                              "noCubiertos":  0
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  1,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     },
+                     {
+                         "paquete":  "pe/edu/unmsm/fisi/retail/exception",
+                         "metricas":  [
+                                          {
+                                              "tipo":  "INSTRUCTION",
+                                              "cubiertos":  362,
+                                              "noCubiertos":  68
+                                          },
+                                          {
+                                              "tipo":  "BRANCH",
+                                              "cubiertos":  7,
+                                              "noCubiertos":  3
+                                          },
+                                          {
+                                              "tipo":  "LINE",
+                                              "cubiertos":  77,
+                                              "noCubiertos":  9
+                                          },
+                                          {
+                                              "tipo":  "COMPLEXITY",
+                                              "cubiertos":  32,
+                                              "noCubiertos":  6
+                                          },
+                                          {
+                                              "tipo":  "METHOD",
+                                              "cubiertos":  29,
+                                              "noCubiertos":  4
+                                          },
+                                          {
+                                              "tipo":  "CLASS",
+                                              "cubiertos":  9,
+                                              "noCubiertos":  0
+                                          }
+                                      ]
+                     }
+                 ]
+}
