@@ -112,6 +112,14 @@ Permitir al cajero registrar el pago de la orden en mostrador calculando automá
 
 ---
 
+### Registro local para F9 (Semana 11)
+
+- F5 conserva la venta confirmada, con su tienda, turno, identificador del pedido central, serie, correlativo, fecha de emisión, líneas, cantidades e importes pagados. El correlativo por serie es durable y se imprime con ocho dígitos.
+- La venta queda consultable por la boleta que imprime el POS. El POS usa el comprobante de la respuesta de F5.
+- Una respuesta de contingencia sin confirmación de G5 queda fuera de las compras elegibles para cambio.
+
+**Criterio de aceptación:** Tras reiniciar la aplicación, el número impreso sigue recuperando la misma venta confirmada con sus líneas y el siguiente comprobante de la serie usa un número diferente.
+
 ## 6. Precondiciones y Dependencias
 * Turno de caja abierto para el cajero y terminal (F8).
 * Existencia de series fiscales configuradas en la base de datos de Retail.

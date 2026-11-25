@@ -1,4 +1,4 @@
-# Spec — F6: Consulta y Seguimiento Histórico de Pedidos (v1.0)
+# Spec — F6: Consulta y Seguimiento Histórico de Pedidos (v1.1)
 
 ### Responsable: Maylle (Arquitectura de Software) & Kevin (Frontend Lead)
 ### Requerimientos Funcionales Incluidos: RF-16, RF-17
@@ -20,8 +20,7 @@ Permitir al personal de mostrador buscar y listar órdenes de compra realizadas 
 
 ## 3. ¿Hasta dónde? (Alcance)
 * **Incluido:**
-  * Búsqueda por código de orden o documento de identidad (`GET /api/v1/pedidos`).
-  * Lista cronológica descendente de órdenes históricas del cliente.
+  * **Hito 4 / Semana 11:** búsqueda por código de orden, delegada a G5 mediante `GET /api/v1/pedidos/{pedidoId}` con `ventas:pedidos:consultar`.
   * Vista profunda de orden con prendas adquiridas, fotos, tallas y comprobantes asociados.
   * Línea de tiempo gráfica de estados con fechas/horas exactas (UTC-5 Lima).
   * Badges semánticos de estado (verde: entregado, azul: despachado / en camino, ámbar: en preparación, rojo: anulado).
@@ -29,12 +28,27 @@ Permitir al personal de mostrador buscar y listar órdenes de compra realizadas 
   * Entrega física en tienda con firma o código PIN (cubierto en F7 / Pickup con Despacho G2).
   * Anulaciones y devoluciones (cubierto en Postventa G5).
 
+### 3.1. Pendiente para la planificación del siguiente hito — RF-16-DOC
+
+**Decisión del PO (06/11/2026):** diferir la búsqueda histórica por DNI/RUC y su lista cronológica de pedidos al siguiente hito. RF-16 conserva este requisito pendiente; entregar la consulta por código no completa la búsqueda por documento.
+
+**Motivo y fuente:** G5 confirmó al PO que `GET /api/v1/pedidos?buscar={DNI_o_RUC}` encuentra pedidos de cualquier canal y estado, incluido `ENTREGADO`, pero el acuerdo de privacidad A10 con Seguridad restringe ese listado a `ADMIN_VENTAS`. Los tokens de servicio de canal, incluido `modulo-retail`, no tienen acceso. El scope `ventas:pedidos:consultar` permite consultar un pedido por código y la bandeja Pickup, pero no habilita ese listado general.
+
+**Alcance vigente:** consulta por código y trazabilidad (RF-17). El filtro local por DNI de F7 solo busca dentro de los recojos pendientes de la tienda y no sustituye el historial multicanal del cliente.
+
+**Responsable de retomar:** Mihael (PO), con G5 y el equipo de F6. Antes de implementar RF-16-DOC:
+
+- [ ] Incluir RF-16-DOC expresamente en la planificación del siguiente hito.
+- [ ] Acordar con G5 el acceso permitido para Retail bajo A10: canales y estados visibles, datos devueltos y límites de consulta.
+- [ ] Registrar la ruta, parámetros, respuestas y autorización acordados en [§5.6 del contrato de API](../generales/api-contracts.md#56-f6--consulta-de-pedidos). Si el acuerdo requiere un permiso nuevo, coordinar su emisión con G7; no solicitar `ADMIN_VENTAS` para el cliente de Retail.
+- [ ] Implementar y probar los criterios de búsqueda por documento de RF-16, junto con los casos de autorización y límites que se acuerden. No usar el listado general restringido mientras no exista ese acuerdo.
+
 ---
 
 ## 4. Referencias y Contratos
-* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `GET /api/v1/pedidos`, `GET /api/v1/pedidos/{id}`
+* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md#56-f6--consulta-de-pedidos) → rutas propias `/api/v1/retail/pedidos` y `/api/v1/retail/pedidos/{pedidoId}`; alcance por hito según §3.1.
 * **Design System:** [`specs/generales/design-system.md`](../generales/design-system.md)
-* **Modelo de Base de Datos:** Consulta delegada al Módulo de Ventas y Postventa (G5) (`GET /api/v1/pedidos`)
+* **Modelo de Base de Datos:** consulta delegada a G5; en el hito actual se usa `GET /api/v1/pedidos/{pedidoId}`.
 
 ---
 
@@ -42,19 +56,19 @@ Permitir al personal de mostrador buscar y listar órdenes de compra realizadas 
 
 ### <a id="rf-16"></a>RF-16: Búsqueda Histórica de Órdenes de Clientes
 * **Backend:**
-  1. Expone `GET /api/v1/pedidos?codigoPedido=&documentoCliente=`:
-     * Valida que al menos uno de los dos filtros esté presente.
-     * Consume el servicio de *Ventas y Postventa (G5)* para buscar pedidos omnicanal.
-     * Retorna órdenes ordenadas de la más reciente a la más antigua.
+  1. Expone `GET /api/v1/retail/pedidos?codigoPedido=` y `GET /api/v1/retail/pedidos/{pedidoId}` en el hito actual. El filtro `documentoCliente` queda pendiente para RF-16-DOC (§3.1):
+     * Exige `codigoPedido` en la consulta del hito actual; la consulta directa recibe `pedidoId` en la ruta.
+     * Consume el detalle de *Ventas y Postventa (G5)* por código, sin llamar al listado general restringido por A10.
+     * **Siguiente hito (RF-16-DOC):** retorna las órdenes permitidas por documento, de la más reciente a la más antigua.
      * Si no existen registros, responde `404 Not Found` (`PEDIDO_NO_ENCONTRADO`).
 * **Frontend:**
-  1. Vista en `/pedidos` con buscador superior y selector de criterio: *"Por Código de Pedido"* / *"Por DNI/RUC"*.
+  1. Vista en `/pedidos` con buscador por código. El selector *"Por DNI/RUC"* queda para RF-16-DOC (§3.1).
   2. Si busca por código exacto y existe: abre de inmediato el detalle de la orden.
-  3. Si busca por DNI: muestra tabla de compras históricas del cliente con N° Pedido, Fecha, Canal, Total y Estado.
+  3. **Siguiente hito (RF-16-DOC):** si busca por DNI/RUC, muestra tabla de compras históricas del cliente con N° Pedido, Fecha, Canal, Total y Estado, dentro del acceso que se acuerde con G5.
   4. Botón *"Ver Detalle"* en cada fila para cargar la trazabilidad profunda.
 * **Criterios de Aceptación (RF-16):**
   - [ ] Búsqueda por código existente retorna 200 OK y carga la orden en < 1 segundo.
-  - [ ] Búsqueda por DNI de cliente con múltiples pedidos lista las órdenes ordenadas cronológicamente.
+  - [ ] **Siguiente hito (RF-16-DOC):** búsqueda por DNI/RUC de cliente con múltiples pedidos lista las órdenes ordenadas cronológicamente, dentro del acceso acordado con G5.
   - [ ] Búsqueda de código erróneo responde 404 y muestra `EmptyState` sin romper la pantalla.
 
 ---

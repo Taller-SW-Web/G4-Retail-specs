@@ -14,7 +14,7 @@
 
 ### [ ] Tarea B2 (RF-28): Endpoint de Sincronización por Lote e Idempotencia
 - **Archivos:** `model/ContingenciaLog.java`, `service/SincronizacionOfflineService.java`, `controller/ContingenciaController.java`.
-- **Qué hace:** Procesa lotes de ventas offline, valida unicidad por `venta_local_uuid`, decrementa stock central y asigna serie oficial.
+- **Qué hace:** Procesa lotes de ventas offline, valida unicidad por `venta_local_uuid`, delega conciliación a G5 y asigna serie oficial.
 - **Criterio que verifica:** "Reintentos de red no duplican órdenes (idempotencia por UUID)" (RF-28).
 - **Test:** `SincronizacionBatchTest.java` — Comprueba que enviar dos veces la misma venta no duplique registros.
 
@@ -28,7 +28,7 @@
 - **Criterios que verifica:** "Desconexión activa contingencia en < 2 segundos" y "Bloqueo de tarjetas" (RF-26).
 - **Test:** `useNetworkStatus.test.ts` — Simula evento de desconexión y valida cambio de estado.
 
-### [ ] Tarea F2 (RF-27): Base de Datos Local en IndexedDB y Cifrado Hash
+### [ ] Tarea F2 (RF-27): Base de Datos Local en IndexedDB y Verificación Hash
 - **Archivos:** `lib/offlineStorage.ts`, `lib/hash.ts`.
 - **Qué hace:** Inicializa `RetailOfflineDB`, almacena ventas con UUID y genera tickets de contingencia.
 - **Criterios que verifica:** "Ventas se guardan en IndexedDB con estado PENDIENTE" y "Persistencia tras cerrar ventana" (RF-27).
@@ -39,3 +39,12 @@
 - **Qué hace:** Lee ventas pendientes al volver internet, las envía al backend en lote y las marca como `RESINCRONIZADO`.
 - **Criterio que verifica:** "Conectar la red envía ventas y actualiza registros a RESINCRONIZADO" (RF-28).
 - **Test:** `syncQueue.test.ts` — Simula resincronización de lote de 2 ventas.
+
+
+## Secuencia de cierre S11 (CA-10-01 a CA-10-07)
+
+1. B2: prueba de lote idempotente persistente, corrupción, aislamiento de filas, fallo remoto y caja; implementar log, reserva duradera, procesador y controlador; ejecutar pruebas y commit.
+2. F2: pruebas IndexedDB de persistencia, atomicidad y reserva de stock; implementar almacenamiento y hash; ejecutar pruebas y commit.
+3. F1/F3: pruebas de envío FIFO, reconexión, respuestas parciales, revisión y clave estable; implementar proveedor y cola; ejecutar pruebas y commit.
+4. Integración POS: pruebas de efectivo offline, fallo de almacenamiento y ticket; conectar pago, catálogo y caja existente; ejecutar suite/build y commit.
+5. Consolidar evidencias y PR por repositorio hacia develop. No modificar workflows ni desplegar/migrar producción en esta tarea.

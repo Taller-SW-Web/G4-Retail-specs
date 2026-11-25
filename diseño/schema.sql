@@ -156,7 +156,11 @@ CREATE TABLE IF NOT EXISTS RET_CONTINGENCIA_OFFLINE_LOG (
                             CHECK (estado_sincronizacion IN ('PENDIENTE', 'RESINCRONIZADO', 'CONFLICTO')),
     fecha_emision_offline   TIMESTAMPTZ NOT NULL,
     fecha_sincronizacion    TIMESTAMPTZ NULL,
-    error_detalle           TEXT NULL
+    error_detalle           TEXT NULL,
+    turno_id                UUID,
+    vendedor_id             UUID,
+    numero_comprobante      BIGINT UNIQUE,
+    pedido_id               VARCHAR(100)
 );
 
 -- -----------------------------------------------------------------------------
@@ -342,3 +346,5 @@ BEGIN
     END IF;
 
 END $$;
+-- Secuencia reservada a comprobantes de contingencia B010 (F10).
+CREATE SEQUENCE IF NOT EXISTS ret_contingencia_comprobante_seq START WITH 1 INCREMENT BY 1;

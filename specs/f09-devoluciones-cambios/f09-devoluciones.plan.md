@@ -1,12 +1,7 @@
-# Plan de Implementación — F9: Solicitud de Cambio de Prenda y Emisión de Vales
+# Plan de implementación — F9 (Semana 11)
 
-> Documento de regularización y decisiones de arquitectura para devoluciones y vales.
+1. **Consulta de compra (RF-23).** Consumir el registro local de ventas confirmadas de F5 por número de boleta y tienda. Validar el límite de siete días calendario.
+2. **Inspección (RF-24).** Aplicar las reglas del cambio de talla, registrar empaque y vendedor y derivar los casos de garantía a Postventa.
+3. **Vale comercial (RF-25).** Guardar la solicitud y el vale en una transacción, con vigencia de 30 días y reintentos idempotentes. Presentar el ticket imprimible.
 
----
-
-## 1. Decisiones Técnicas Confirmadas
-1. **Canje de Vales:** Los vales se registran en `RET_VALES_COMPRA` con fecha de caducidad (90 días) y se pueden usar como medio de pago `VALE` en el endpoint `POST /api/v1/ordenes` de F5.
-2. **Reversión de Stock:** Si la prenda pasa la inspección física como apta, se incrementa automáticamente el stock en `RET_STOCK_TIENDA`.
-
-## 2. Registro de Incidencias y Regularizaciones
-- *(Pendiente de registro durante la ejecución del sprint)*.
+La integración requiere el registro persistente de F5 y la migración de Cambios y Vales. Las firmas se mantienen en el [contrato de API](../generales/api-contracts.md#59-f9--cambios-de-prenda-en-mostrador-semana-11).
