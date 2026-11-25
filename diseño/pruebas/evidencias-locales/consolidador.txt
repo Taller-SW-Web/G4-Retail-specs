@@ -1,0 +1,10 @@
+test_cuenta_fallos_errores_y_omitidos_sin_confiar_en_totales_declarados (test_consolidar.PruebasConsolidacion.test_cuenta_fallos_errores_y_omitidos_sin_confiar_en_totales_declarados) ... ok
+test_error_de_arranque_de_suite_no_se_presenta_como_aprobacion (test_consolidar.PruebasConsolidacion.test_error_de_arranque_de_suite_no_se_presenta_como_aprobacion) ... ok
+test_no_duplica_mismo_caso_de_dos_ejecuciones (test_consolidar.PruebasConsolidacion.test_no_duplica_mismo_caso_de_dos_ejecuciones) ... ok
+test_reporte_vacio_no_se_aprueba (test_consolidar.PruebasConsolidacion.test_reporte_vacio_no_se_aprueba) ... ok
+test_todos_omitidos_no_se_aprueba (test_consolidar.PruebasConsolidacion.test_todos_omitidos_no_se_aprueba) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.015s
+
+OK

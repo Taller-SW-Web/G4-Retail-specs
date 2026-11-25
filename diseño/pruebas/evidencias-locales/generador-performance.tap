@@ -1,0 +1,117 @@
+TAP version 13
+
+# Etapa 1 usuarios: APROBADA
+
+# Subtest: el generador guarda muestras, etapas e interpretación sin guardar tokens
+
+ok 1 - el generador guarda muestras, etapas e interpretación sin guardar tokens
+
+  ---
+
+  duration_ms: 2068.2233
+
+  type: 'test'
+
+  ...
+
+# Subtest: un servidor que responde 401 no genera una medición aprobada
+
+ok 2 - un servidor que responde 401 no genera una medición aprobada
+
+  ---
+
+  duration_ms: 4.8507
+
+  type: 'test'
+
+  ...
+
+# Subtest: no presenta una ejecución vacía ni insuficiente como aprobada
+
+ok 3 - no presenta una ejecución vacía ni insuficiente como aprobada
+
+  ---
+
+  duration_ms: 0.6455
+
+  type: 'test'
+
+  ...
+
+# Subtest: percentiles por rango cercano, sin modificar la muestra
+
+ok 4 - percentiles por rango cercano, sin modificar la muestra
+
+  ---
+
+  duration_ms: 0.4979
+
+  type: 'test'
+
+  ...
+
+# Subtest: latencia lenta y errores HTTP impiden pasar el gate
+
+ok 5 - latencia lenta y errores HTTP impiden pasar el gate
+
+  ---
+
+  duration_ms: 0.3723
+
+  type: 'test'
+
+  ...
+
+# Subtest: un 200 con importes o IGV incorrectos no es una respuesta válida
+
+ok 6 - un 200 con importes o IGV incorrectos no es una respuesta válida
+
+  ---
+
+  duration_ms: 0.6781
+
+  type: 'test'
+
+  ...
+
+# Subtest: el token de desarrollo no puede enviarse a un servidor externo
+
+ok 7 - el token de desarrollo no puede enviarse a un servidor externo
+
+  ---
+
+  duration_ms: 0.5736
+
+  type: 'test'
+
+  ...
+
+# Subtest: valida duración, concurrencia y URLs sin credenciales
+
+ok 8 - valida duración, concurrencia y URLs sin credenciales
+
+  ---
+
+  duration_ms: 0.4019
+
+  type: 'test'
+
+  ...
+
+1..8
+
+# tests 8
+
+# suites 0
+
+# pass 8
+
+# fail 0
+
+# cancelled 0
+
+# skipped 0
+
+# todo 0
+
+# duration_ms 2129.7047
