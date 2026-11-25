@@ -107,28 +107,32 @@ Permitir al jefe de tienda consolidar las prendas en cuarentena al cierre de tur
 
 ## 3. Modelo de Datos y Entidades Involucradas
 
-* **`RET_INCIDENCIA_INVENTARIO`**:
-  * `id` (PK, UUID/Long)
-  * `tienda_id` (FK a tienda)
-  * `variante_sku_id` (FK a SKU de prenda)
+> Actualizado en S14 (Hito 5) según el contrato §5.12. El DDL vigente está en `diseño/schema-s14-f12.sql` y el diccionario completo en `diseño/modelo-datos.md` (Tablas 6 y 6b). Los IDs de otros módulos son referencias lógicas, sin FK física.
+
+* **`RET_INCIDENCIA_INVENTARIO`** (proyección local de la incidencia reportada a Inventory):
+  * `id_incidencia` (PK, UUID)
+  * `tienda_id` (TEXT, `store_code`)
+  * `variante_sku_id` (TEXT, SKU opaco de Productos) y `nombre_producto`
   * `codigo_barras` (VARCHAR)
-  * `vendedor_id` (FK a usuario)
+  * `vendedor_reporta_id` (UUID, Seguridad)
   * `tipo_falla` (`MANCHADO_PROBADOR`, `COSTURA_ROTA`, `EXTRAVIO_NO_UBICADO`, `DEFECTO_FABRICA`)
-  * `detalle_observacion` (TEXT)
-  * `foto_url` (VARCHAR, opcional)
-  * `estado_cuarentena` (`EN_CUARENTENA`, `DERIVADO_ALMACEN`, `BAJA_DEFINITIVA`)
-  * `fecha_reporte` (TIMESTAMP)
+  * `detalle_observacion` (TEXT, mínimo 5 caracteres)
+  * `evidencia_foto_url` (VARCHAR, opcional)
+  * `estado_cuarentena` (`EN_CUARENTENA`, `PENDIENTE_REPORTE`, `DERIVADO_ALMACEN`, `BAJA_DEFINITIVA`). La cuarentena activa es `EN_CUARENTENA` o `PENDIENTE_REPORTE`
+  * `idempotency_key` (único), `incidencia_inventory_id` (ID en Inventory), `intentos_reporte` y `ultimo_error_reporte` (reenvío desde el outbox)
+  * `acta_id` (FK a `RET_ACTA_DISCREPANCIA`, al liquidarse)
+  * `fecha_reporte`, `updated_at` (TIMESTAMPTZ)
 
 * **`RET_ACTA_DISCREPANCIA`**:
-  * `id` (PK, UUID/Long)
-  * `numero_acta` (VARCHAR, único, ej. `ACTA-MERMA-2026-0012`)
-  * `tienda_id` (FK)
-  * `responsable_id` (FK al supervisor/jefe)
+  * `id_acta` (PK, UUID)
+  * `numero_acta` (VARCHAR, único, `ACTA-MERMA-AAAA-NNNN`, ej. `ACTA-MERMA-2026-0012`; lo arma la API con `ret_acta_merma_seq`)
+  * `tienda_id` (TEXT)
+  * `supervisor_id` (UUID, supervisor que emite)
   * `tipo_destino` (`DEVOLUCION_CENTRAL`, `BAJA_DEFINITIVA`, `AJUSTE_PERDIDA`)
-  * `total_prendas` (INT)
+  * `total_prendas` (INT, mayor que 0)
   * `observaciones` (TEXT)
-  * `estado_notificacion_productos` (`PENDIENTE`, `ENVIADO`, `FALLIDO`)
-  * `fecha_emision` (TIMESTAMP)
+  * `fecha_emision` (TIMESTAMPTZ)
+  * Sin `estado_notificacion_productos`: el reporte a Inventory viaja por incidencia y se eliminó `/ajuste-discrepancia` (G4-P0-05).
 
 ---
 
