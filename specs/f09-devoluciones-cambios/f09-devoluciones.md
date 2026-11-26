@@ -1,4 +1,4 @@
-# Spec — F9: Cambios de mostrador y vales de compra (Semana 11)
+# Spec — F9: Cambio directo de prenda en mostrador (Semana 14)
 
 **Responsables:** Cristhian (desarrollo) y Guillermo (QA).
 **Requisitos:** RF-23, RF-24 y RF-25.
@@ -6,9 +6,13 @@
 
 ## 1. Objetivo y alcance
 
-Validar una boleta emitida por el POS, inspeccionar las prendas seleccionadas y emitir un vale comercial térmico. El hito excluye el reintegro de stock por Retail, el canje en el POS, las notas de crédito fiscales y la búsqueda por factura, DNI o ticket de regalo. Los casos de falla de fábrica se derivan a Postventa para revisión de garantía.
+Validar una boleta emitida por el POS, inspeccionar la prenda que el cliente devuelve y entregarle en el mismo momento otra prenda a cambio. Si la nueva cuesta más, el cliente paga la diferencia. Es un **cambio directo**: Retail ya no emite vales de compra.
 
-**Referencias:** [Contrato §5.9](../generales/api-contracts.md#59-f9--cambios-de-prenda-en-mostrador-semana-11), [UI de F9](f09-devoluciones.ui.md) y [emisión de comprobante de F5](../f05-orden-cobro/f05-orden-cobro.md#rf-15).
+Fuera del alcance: el cambio por una prenda de menor valor, la devolución de dinero (es la devolución de Postventa, F3 de G5), las notas de crédito fiscales, el cambio en modo offline (F10) y la búsqueda por factura, DNI o ticket de regalo. Las fallas de fábrica se derivan a Postventa para revisión de garantía.
+
+**Referencias:** [Contrato §5.9](../generales/api-contracts.md#59-f9--cambio-directo-de-prenda-en-mostrador-semana-14), [UI de F9](f09-devoluciones.ui.md), [emisión de comprobante de F5](../f05-orden-cobro/f05-orden-cobro.md#rf-15) y el acuerdo R6 con Ventas (G5): los cambios de mostrador son responsabilidad exclusiva de Retail.
+
+> **Cambio respecto de la Semana 11.** El vale comercial (`RET_VALE_COMPRA`) se reemplaza por el cambio directo (decisión del PO, 25/11/2026). La tabla queda en desuso sin borrarse y el POS deja de emitir vales.
 
 ## 2. Requerimientos funcionales
 
@@ -34,17 +38,30 @@ Validar una boleta emitida por el POS, inspeccionar las prendas seleccionadas y 
 - [ ] La interfaz y la API bloquean un cambio de talla sin etiquetas intactas o con signos de uso.
 - [ ] La inspección registra el estado del empaque y el identificador del vendedor autenticado.
 
-### <a id="rf-25"></a>RF-25: Emisión de vale comercial
+### <a id="rf-25"></a>RF-25: Cambio directo de prenda
 
-- Retail revalida la compra, el plazo y las unidades disponibles. Registra la solicitud y el vale en una sola transacción.
-- El vale tiene código único `VALE-AAAA-NNNNN`, código de barras, importe y vigencia de 30 días desde la emisión. El importe corresponde al monto efectivamente pagado por las unidades cambiadas. Los casos que requieran un prorrateo sin resolver quedan fuera de la emisión automática.
-- El POS presenta el vale en formato imprimible. La misma operación repetida con la misma clave devuelve el vale original.
+- **Crédito del cambio.** El valor de la prenda devuelta es lo que el cliente pagó por esas unidades según `RET_VENTA`. Si el descuento de la compra no puede atribuirse a las unidades (X-P0-13), el cambio se rechaza con `MONTO_NO_DETERMINABLE`.
+- **Prendas nuevas.** Retail calcula su total con el precio vigente, igual que el carrito de F4 y sin cupones. Las prendas nuevas deben estar disponibles en el catálogo (F2) y no estar en cuarentena (F12).
+- **Mismo valor.** Si el total nuevo es igual al crédito (por ejemplo, la misma prenda en otra talla), el cambio se registra sin cobro, sin boleta nueva y sin pedido nuevo en Ventas. El POS imprime una constancia de cambio que referencia la boleta original.
+- **Mayor valor.** Si el total nuevo supera al crédito, el cliente paga la diferencia en efectivo, con tarjeta o de forma mixta, con las reglas de cobro de F5. Retail emite una boleta por las prendas nuevas con su total completo. El crédito y la diferencia figuran como medios de pago. Ventas registra un pedido nuevo con la misma `Idempotency-Key` del cambio.
+- **Menor valor.** Si el total nuevo es menor que el crédito, el cambio se rechaza. La regla es cambiar solo por igual o mayor valor. No se emite vale ni se devuelve dinero en mostrador.
+- **Caja.** El cambio exige un turno de caja `ABIERTA`. Solo la diferencia cobrada entra al arqueo (F8). El crédito no es efectivo.
+- **Inventario.** Retail registra dos movimientos de stock: el reintegro de la prenda devuelta y el consumo de las nuevas. Los envía a Inventory a través de un puerto propio (`InventarioPort`). Mientras G6 no autorice a Retail, el puerto funciona con un mock. Un fallo de Inventory no revierte el cambio: el movimiento queda `PENDIENTE` y se reintenta.
+- **Idempotencia y concurrencia.** La misma operación con la misma clave devuelve el resultado original y no consume unidades adicionales. Dos cambios simultáneos sobre la misma boleta no pueden superar las unidades compradas.
 
 **Criterios de aceptación**
 
-- [ ] Un cambio aprobado crea un vale con el importe de las unidades elegidas, código de barras y vigencia de 30 días.
-- [ ] Un reintento idempotente devuelve el vale original y no consume unidades adicionales. Dos solicitudes concurrentes no pueden superar las unidades compradas.
+- [ ] Un cambio de talla del mismo valor se registra sin cobro, sin boleta y sin pedido nuevo, y la constancia referencia la boleta original.
+- [ ] Un cambio de mayor valor cobra exactamente la diferencia, emite una boleta por el total nuevo y crea el pedido en Ventas con la misma clave.
+- [ ] Un cambio de menor valor se rechaza con `CAMBIO_MENOR_VALOR` y no registra nada.
+- [ ] El arqueo del turno suma solo la diferencia cobrada.
+- [ ] El cambio registra el reintegro de la prenda devuelta y el consumo de las nuevas en el puerto de inventario. Si el puerto falla, el cambio se confirma igual y los movimientos quedan `PENDIENTE`.
+- [ ] Un reintento con la misma clave devuelve el cambio original. Dos solicitudes concurrentes no superan las unidades compradas.
 
 ## 3. Dependencias
 
-F5 debe persistir la venta confirmada antes de emitir el comprobante que consume F9. El registro de cambios usa `RET_SOLICITUD_CAMBIO_MOSTRADOR` y el vale usa `RET_VALE_COMPRA`. G5 conserva el pedido central.
+- **F5:** la venta confirmada persistida en `RET_VENTA` y las reglas de cobro y comprobante.
+- **F8:** el turno abierto y el arqueo.
+- **Ventas (G5):** un valor de `metodoPago` para el crédito del cambio en el pedido de mayor valor. Hoy su enum solo admite `EFECTIVO`, `TARJETA_POS` y `MIXTO` (R3). Pendiente con G5 (§7.1 del contrato).
+- **Productos (G6):** la autorización de `modulo-retail` para reintegrar y consumir stock. Pendiente con G6 (§7.1 del contrato).
+- **Datos:** `RET_SOLICITUD_CAMBIO_MOSTRADOR` registra el cambio. La migración para guardar las prendas nuevas, la diferencia, la venta generada y el estado de los movimientos de stock la publica el DBA.
