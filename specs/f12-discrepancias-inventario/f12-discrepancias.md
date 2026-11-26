@@ -94,11 +94,13 @@ Permitir al jefe de tienda consolidar las prendas en cuarentena al cierre de tur
    * Recibe la lista de incidencias en cuarentena a liquidar.
    * Genera el correlativo oficial del acta (`ACTA-MERMA-YYYY-XXXX`, por año y único en el módulo).
    * No llama a *Productos y Ofertas*: las incidencias ya se reportaron a Inventory al crearlas (RF-32) y el ajuste de discrepancia está prohibido para Retail (G4-P0-05).
-   * Actualiza el estado de las incidencias en `RET_INCIDENCIA_INVENTARIO` a `DERIVADO_ALMACEN` y guarda el número de acta en cada una.
+   * Solo admite incidencias en `EN_CUARENTENA` (ya aceptadas por Inventory); si alguna está en `PENDIENTE_REPORTE`, ya liquidada o es de otra tienda, responde `409 INCIDENCIA_NO_EN_CUARENTENA` y no emite el acta.
+   * Actualiza cada incidencia según `tipoDestino` (`DEVOLUCION_CENTRAL` → `DERIVADO_ALMACEN`; `BAJA_DEFINITIVA` y `AJUSTE_PERDIDA` → `BAJA_DEFINITIVA`) y guarda el número de acta en cada una (contrato §5.12).
 2. Retorna `201 Created` con los datos del acta para imprimirla desde el POS.
 
 #### Criterios de Aceptación (RF-34)
-- [ ] **CA-RF34-01:** Selección de prendas en cuarentena y emisión del acta cambia su estado a `DERIVADO_ALMACEN`, retirándolas de la bandeja activa de cuarentena.
+- [ ] **CA-RF34-01:** Selección de prendas en cuarentena y emisión del acta cambia su estado según el destino (`DEVOLUCION_CENTRAL` → `DERIVADO_ALMACEN`; `BAJA_DEFINITIVA` y `AJUSTE_PERDIDA` → `BAJA_DEFINITIVA`), retirándolas de la bandeja activa de cuarentena.
+- [ ] **CA-RF34-05:** Incluir una incidencia en `PENDIENTE_REPORTE` (aún no aceptada por Inventory) responde `409 INCIDENCIA_NO_EN_CUARENTENA` y no emite el acta.
 - [ ] **CA-RF34-02:** El sistema invoca exitosamente la API de Productos y Ofertas reportando el ajuste de inventario.
 - [ ] **CA-RF34-03:** El acta generada cuenta con número correlativo inmutable, marca de tiempo y desglose detallado apto para impresión.
 - [ ] **CA-RF34-04:** Intentar generar un acta sin seleccionar ninguna prenda muestra validación de lista vacía.
