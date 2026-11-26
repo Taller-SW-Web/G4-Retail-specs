@@ -1,8 +1,8 @@
-# Contrato de API — Módulo Retail (G4) · v0.5.1
+# Contrato de API — Módulo Retail (G4) · v0.5.2
 
 | Campo | Valor |
 |---|---|
-| Versión | **0.5.1 — integraciones reales, API Management y mecanismo asíncrono**, con las respuestas de G5 y G6 del 26/11 (reemplaza a v0.4) |
+| Versión | **0.5.1 — integraciones reales, API Management y mecanismo asíncrono**, con el cierre de las coordinaciones con G5, G6 y G7 del 26/11 (reemplaza a v0.4) |
 | Estado | Aprobado por el PO (Mihael) para el Hito 5; las filas 🟡 siguen pendientes de los módulos dueños |
 | Responsable | Arquitectura de Software (Maylle) · v0.5: PO e integración (Mihael) |
 | Fecha | 26/11/2026 (v0.5) · 11/10/2026 (v0.4) |
@@ -247,7 +247,7 @@ Notas:
 
 - Ambas exigen un **token de usuario** con el permiso del rol `VENDEDOR` de G7 (`cliente.buscar` y `cliente.registrar`). `ms-retail` reenvía el `Authorization` del vendedor; **no** usa el token de servicio (G7 responde `403`).
 - `ms-retail` traduce el `429` de G7 a su propio `429 DEMASIADAS_SOLICITUDES` y conserva el `Retry-After` (§2.8).
-- Pendiente de G7: confirmar que el JWT del vendedor de Retail trae el rol `VENDEDOR` con esos permisos.
+- **G7 (26/11):** el rol `VENDEDOR` ya tiene `cliente.buscar` y `cliente.registrar` en su catálogo. 🟡 Falta que G7 confirme que las dos rutas están disponibles en Render para probarlas con el token del vendedor.
 
 ### 4.2. Productos y Ofertas (G6)
 
@@ -265,7 +265,7 @@ Notas:
 | Promociones vigentes del canal (F11) | `GET /api/v1/promociones?canal=RETAIL&vigentes=true` (scope `promociones:leer`) | ✅ OpenAPI de G6 |
 | Stock crítico por tienda (F11, X-P0-03) | Se deriva de `STOCK_BAJO` y `AGOTADO` de la disponibilidad comercial. `GET /inventario/alertas` sigue siendo administrativo (JWT de usuario) y G6 no lo abre en M2M | ✅ Decisión con G6 (26/11): se usan los estados comerciales. El umbral de `STOCK_BAJO` lo define G6 y no necesariamente es ≤ 2 unidades |
 
-Permisos de `modulo-retail` en `api-productos` (JWT de servicio, `client_credentials`), aprobados por G6 el 26/11: `catalogo:leer`, `precios:leer`, `inventario:disponibilidad:leer`, `promociones:leer`, `promociones:evaluar`, `cupones:validar`, `inventario:incidencias:reportar` e `inventario:incidencias:resolver` (estos dos, exclusivos de `modulo-retail`). `combos:leer` y `recomendaciones:leer` quedan disponibles si Retail llega a usarlos. G6 delega en Retail el trámite con G7: 🟡 falta que Seguridad (G7) los registre y asigne a `modulo-retail`.
+Permisos de `modulo-retail` en `api-productos` (JWT de servicio, `client_credentials`), aprobados por G6 el 26/11: `catalogo:leer`, `precios:leer`, `inventario:disponibilidad:leer`, `promociones:leer`, `promociones:evaluar`, `cupones:validar`, `inventario:incidencias:reportar` e `inventario:incidencias:resolver` (estos dos, exclusivos de `modulo-retail`). `combos:leer` y `recomendaciones:leer` quedan disponibles si Retail llega a usarlos. G6 delegó el trámite en Retail. **G7 los asignó a `modulo-retail` el 26/11.** 🟡 Falta verificar un token nuevo con audiencia `api-productos` y esos scopes.
 
 | ⛔ Prohibido para Retail | Motivo |
 |---|---|
@@ -285,6 +285,10 @@ Permisos de `modulo-retail` en `api-productos` (JWT de servicio, `client_credent
 | Registrar el pago aprobado del pedido | Incluido en `POST /api/v1/pedidos` (`canal: RETAIL`, nace `PAGADO`) | ✅ Acordado (14-Oct) |
 | Consultar pedido y su historial | `GET /api/v1/pedidos/{id}` | ✅ Acordado (14-Oct) |
 | Registrar venta offline | `POST /api/v1/pedidos` (uno a uno con `Idempotency-Key: <ventaLocalUuid>`) | ✅ Acordado (14-Oct) |
+| Buscar pedidos por DNI, RUC o código (RF-16-DOC) | `GET /api/v1/pedidos?buscar={DNI, RUC o PED-…}` (scope `ventas:pedidos:buscar-documento`). Solo devuelve pedidos `RETAIL` y de recojo en tienda. Cada resultado trae `pedidoId`, `canal`, `estado`, `total`, `moneda`, `fechaCreacion` y `nombreCliente` | ✅ Acordado con G5 (26/11) · 🟡 G7 asigna el scope cuando G5 publique la ruta |
+| Pedido de un cambio de prenda (F9) | `POST /api/v1/pedidos` con `metodoPago: CREDITO_CAMBIO` (§5.9) | ✅ Acordado con G5 (26/11) · 🟡 G5 lo publica tras su revisión |
+
+**Stock de los pedidos `RETAIL` (26/11, reemplaza el acuerdo R9):** Ventas reserva y confirma el consumo en Productos para todos los pedidos `RETAIL`, incluidos los offline. El pedido sigue naciendo `PAGADO`. Si Productos no recibe la reserva, Ventas responde `503` y Retail reintenta con la **misma** `Idempotency-Key` (como en §5.5 y §5.10).
 
 **Evidencia externa de Pickup (Semana 11):** se reportó un `200 OK` al consultar directamente `GET /api/v1/pedidos/pickup?tiendaId={tiendaId}` en G5 con un token de servicio emitido por G7. La prueba cubrió la emisión del token y la lectura de la bandeja. La entrega, el flujo desde Retail y el cierre formal de la decisión #9 se verifican por separado.
 
@@ -584,7 +588,10 @@ Reimpresión del ticket. **Roles:** VENDEDOR, SUPERVISOR. **200** con la misma e
 
 **Restricción A10 confirmada por G5 al PO:** `GET /api/v1/pedidos?buscar={DNI_o_RUC}` busca pedidos de cualquier canal y estado, pero solo admite `ADMIN_VENTAS`. El cliente de servicio `modulo-retail` no tiene acceso a ese listado. No asignar `ADMIN_VENTAS` a Retail.
 
-**Acuerdo con G5 (26/11, RF-16-DOC):** G5 habilita un scope propio para `modulo-retail` (nombre propuesto `ventas:pedidos:buscar-documento`), limitado a pedidos del canal `RETAIL` y de recojo en tienda. Devuelve los campos de la bandeja de pedidos: código, fecha, canal, estado, total, nombre del cliente y tipo y número de documento. 🟡 Falta que G5 publique la ruta y los campos exactos en su contrato y que G7 cree el scope y lo asigne a `modulo-retail`. El adaptador se implementa cuando estén las dos cosas.
+**Acuerdo con G5 (26/11, RF-16-DOC):** G5 habilita `GET /api/v1/pedidos?buscar={documento}` con el scope `ventas:pedidos:buscar-documento`, limitado a pedidos `RETAIL` y de recojo en tienda (§4.3). Retail le pasa el `documentoCliente` tal cual y toma de cada resultado `pedidoId`, `canal`, `fechaCreacion`, `estado` (→ `estadoComercial`) y `total`. El detalle sigue saliendo de `GET /api/v1/pedidos/{id}`.
+
+- **Activación por configuración:** `RETAIL_PEDIDOS_BUSQUEDA_DOCUMENTO=g5`. Mientras G7 no asigne el scope, el valor por defecto `registro` sigue buscando solo en las ventas de este mostrador (comportamiento del Hito 4).
+- Con `g5`: si G5 responde `401` o `403`, se responde `503 VENTAS_CREDENCIAL_RECHAZADA`; una caída o un `5xx`, `503 VENTAS_NO_DISPONIBLE`; sin resultados, `404 PEDIDO_NO_ENCONTRADO`.
 
 #### `GET /api/v1/retail/pedidos`
 Ejemplo del hito actual: `GET /api/v1/retail/pedidos?codigoPedido=PED-2026-00981&page=0&size=20`
@@ -594,7 +601,7 @@ Ejemplo del hito actual: `GET /api/v1/retail/pedidos?codigoPedido=PED-2026-00981
 | Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
 |---|---|---|:---:|---|---|
 | `codigoPedido` | query | `string` | Condicional | — | Identificador opaco de Ventas. Ej. `PED-2026-00981` |
-| `documentoCliente` | query | `string` | Condicional | — | **Siguiente hito (RF-16-DOC), pendiente de acuerdo A10.** DNI de 8 dígitos o RUC de 11 (`^(\d{8}\|\d{11})$`) |
+| `documentoCliente` | query | `string` | Condicional | — | RF-16-DOC (v0.5.2). DNI de 8 dígitos o RUC de 11 (`^(\d{8}\|\d{11})$`) |
 | `page` | query | `integer` | No | `0` | Ver §2.7 |
 | `size` | query | `integer` | No | `20` | Ver §2.7 |
 
@@ -769,22 +776,23 @@ Cierre con arqueo ciego (RF-22).
 - **Total nuevo:** Retail lo recalcula con el precio vigente, como `POST /carritos/calcular` y sin cupón. Las prendas nuevas no pueden estar en cuarentena (F12).
 - **Mismo modelo:** si las prendas nuevas son el mismo producto que la devuelta (mismo `productoId` del catálogo, otra talla o color) y en la misma cantidad, el cambio es `MISMO_VALOR` sin comparar precios, aunque el precio vigente haya subido o bajado desde la compra.
 - **Según el valor** (en cualquier otro caso):
-  - `MISMO_VALOR` (total nuevo = crédito): `pagoDiferencia` y `comprobante` van en `null`. Se registra el cambio sin cobro, sin boleta y sin pedido nuevo en Ventas.
+  - `MISMO_VALOR` (total nuevo = crédito): `pagoDiferencia` y `comprobante` van en `null`. Se registra el cambio sin cobro y sin boleta, pero **sí** se crea el pedido en Ventas, pagado por completo con `CREDITO_CAMBIO` (acuerdo con G5 del 26/11), para que la prenda nueva reserve y consuma stock.
   - `MAYOR_VALOR` (total nuevo > crédito): `pagoDiferencia` es obligatorio, con la forma y las reglas de `pago` de §5.5 aplicadas a la diferencia. `comprobante` sigue las reglas de §5.5. Retail emite la boleta por el total nuevo, con el crédito y la diferencia como medios de pago, y crea el pedido en Ventas con la **misma** `Idempotency-Key`. El pago del pedido sigue la propuesta de G5 (abajo).
   - Total nuevo < crédito: se rechaza con `CAMBIO_MENOR_VALOR`. No se emiten vales ni se devuelve dinero en mostrador.
 - Registra el cambio en `RET_SOLICITUD_CAMBIO_MOSTRADOR` en una sola transacción. Solo la diferencia cobrada entra al cobro del turno (F8).
-- **Crédito en Ventas (propuesta de G5 del 26/11, aceptada por Retail):** en `MAYOR_VALOR`, el pedido viaja con estos campos de pago:
+- **Pedido en Ventas (acuerdo con G5 del 26/11):** en los dos tipos de cambio, el pedido viaja con estos campos dentro de `pago`:
 
   | Campo | Valor |
   |---|---|
   | `metodoPago` | `CREDITO_CAMBIO` (`retail.ventas.metodo-pago-credito`) |
   | `montoCreditoCambio` | `montoCredito` del cambio |
-  | `pedidoOrigenId` | `pedidoId` de la boleta de origen |
-  | `montoEfectivo` o `montoTarjeta` | La diferencia, según `pagoDiferencia.medioPago`. Con tarjeta, también `referenciaOperacion` |
+  | `pedidoOrigenId` | `pedidoId` de la boleta de origen. G5 exige que esté `ENTREGADO` |
+  | `itemsDevueltos` | `[{ "sku", "cantidad" }]` con la prenda devuelta (`devuelto` del body). G5 lo usa para saber qué reintegrar |
+  | `montoEfectivo` o `montoTarjeta` | La diferencia, según `pagoDiferencia.medioPago`. Con tarjeta, también `referenciaOperacion`. En `MISMO_VALOR` no van |
   | Regla | `montoCreditoCambio + montoEfectivo + montoTarjeta = total` |
 
-  🟡 G5 lo agrega a su contrato (sección 1.1) y lo programa. Mientras tanto, se prueba contra el mock de Ventas.
-- **Inventario:** G6 no autoriza a `modulo-retail` en `/inventario/reintegros` ni en el consumo (26/11). El stock del cambio se mueve por Ventas y Postventa (G5): la prenda nueva se consume por la reserva y confirmación del pedido de Ventas, y la devuelta la reintegra Postventa. 🟡 Falta acordar con G5 cómo Retail pide el reintegro de la prenda devuelta y cómo se consume la nueva en `MISMO_VALOR`, que hoy no crea pedido (§7.1). Mientras tanto, `InventarioPort` sigue con el mock de §6. Un fallo no revierte el cambio: `estadoInventario` queda `PENDIENTE` y un job de Retail lo reintenta cada 5 minutos hasta pasar a `CONFIRMADO`.
+  Errores nuevos de G5 (`422`): `PEDIDO_ORIGEN_NO_ENCONTRADO`, `PEDIDO_ORIGEN_NO_ENTREGADO` e `ITEM_DEVUELTO_INVALIDO` se responden como `422 PEDIDO_NO_APTO`, con el motivo en `detail`. 🟡 G5 lo publica tras su revisión; mientras tanto, se prueba contra el mock de Ventas. 🟡 Falta confirmar con G5 si un pedido `RETAIL`, que nace `PAGADO`, pasa a `ENTREGADO`; si no, todo cambio fallaría con `PEDIDO_ORIGEN_NO_ENTREGADO`.
+- **Inventario (cerrado con G5 y G6 el 26/11):** Retail no llama a Inventory. La prenda nueva se reserva y consume por el pedido de Ventas, y la devuelta la reintegra Postventa sola al recibir el pedido con `CREDITO_CAMBIO`, `pedidoOrigenId` e `itemsDevueltos`. `InventarioPort` se reemplaza por el envío del pedido a Ventas. `estadoInventario` pasa a `CONFIRMADO` cuando Ventas acepta el pedido. Si Ventas responde `503`, el cambio no se revierte: queda `PENDIENTE` y el job de Retail reintenta el pedido cada 5 minutos con la misma `Idempotency-Key`.
 - **201 Created:**
 
 ```json
@@ -804,7 +812,7 @@ Cierre con arqueo ciego (RF-22).
 }
 ```
 
-  En `MISMO_VALOR`: `diferencia` es `0` y `pago`, `comprobante` y `pedidoId` van en `null`. El POS imprime la constancia de cambio con `numeroConstancia`, `boletaOrigen`, las prendas y `fechaCambio`. `numeroConstancia` es un correlativo `CAMB-YYYY-XXXXXX` por año y tienda, y se asigna en los dos tipos de cambio. `estadoInventario`: `CONFIRMADO` · `PENDIENTE`.
+  En `MISMO_VALOR`: `diferencia` es `0`, `pago` y `comprobante` van en `null` y `pedidoId` trae el pedido creado en Ventas (`null` mientras `estadoInventario` sea `PENDIENTE`). El POS imprime la constancia de cambio con `numeroConstancia`, `boletaOrigen`, las prendas y `fechaCambio`. `numeroConstancia` es un correlativo `CAMB-YYYY-XXXXXX` por año y tienda, y se asigna en los dos tipos de cambio. `estadoInventario`: `CONFIRMADO` · `PENDIENTE`.
 - Aplica la semántica de `Idempotency-Key` de §2.3. Reintentar la misma operación devuelve el cambio original y no consume unidades adicionales.
 - **Errores:** `400 PARAMETRO_INVALIDO`, `400 MONTO_INSUFICIENTE`, `400 REFERENCIA_VOUCHER_INVALIDA`, `404 COMPROBANTE_NO_ENCONTRADO`, `409 TURNO_NO_ABIERTO`, `409 IDEMPOTENCY_CONFLICT`, `422 INSPECCION_NO_APTA`, `422 PLAZO_VENCIDO`, `422 PEDIDO_NO_APTO`, `422 CANTIDAD_NO_DISPONIBLE`, `422 MONTO_NO_DETERMINABLE`, `422 GARANTIA_REQUIERE_POSTVENTA`, `422 CAMBIO_MENOR_VALOR`, `422 SKU_EN_CUARENTENA`, `503 VENTAS_NO_DISPONIBLE` (solo en `MAYOR_VALOR`; como en §5.5, se conserva la clave para reintentar).
 
@@ -933,7 +941,7 @@ X-Correlation-Id: <uuid>
   "external_incident_id": "5b0e3f0a-6c1d-4d3e-9a2b-1f0c7e8d9a10",
   "sku": "CAM-PERU-M-BLA",
   "quantity": 1,
-  "location_id": "TIENDA-MIRAFLORES",
+  "location_id": "aea2f0d8-e8c6-b09c-8e7a-b4a3630bc485",
   "type": "DANIO",
   "occurred_at": "2026-11-26T15:30:00Z",
   "actor_ref": "bbbbbbbb-0000-0000-0000-000000000001"
@@ -944,7 +952,7 @@ X-Correlation-Id: <uuid>
 |---|---|
 | `operation_id`, `external_incident_id` | `incidenciaId` de Retail |
 | `quantity` | `1`: en el mostrador se reporta prenda por prenda |
-| `location_id` | El `location_id` de G6 que corresponda a la tienda del perfil. 🟡 G6 lo confirma con la lista de códigos de tienda de Retail; no se asume que sea el `store_code` |
+| `location_id` | UUID de ubicación de G6 que corresponde a la tienda del perfil, según `RETAIL_INVENTARIO_UBICACIONES` (`store_code=uuid`). `TIENDA-MIRAFLORES` → `aea2f0d8-e8c6-b09c-8e7a-b4a3630bc485` (confirmado por G6 el 26/11; en G6 es `TDA-MIRAFLORES`). El adaptador lo reemplaza al enviar |
 | `type` | `MANCHADO_PROBADOR`, `COSTURA_ROTA` y `DEFECTO_FABRICA` → `DANIO`; `EXTRAVIO_NO_UBICADO` → `NO_UBICADA` (aprobado por G6 el 26/11). Retail conserva internamente su `tipoFalla` detallado |
 | `actor_ref` | `usuarioId` del vendedor |
 
@@ -1025,11 +1033,12 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 | Señal de "apto para pagar" (X-P0-02) | Paso 4 del flujo de §5.5 | Ventas + Productos + canales |
 | ~~Validar N unidades sin exponer saldos (X-P0-03)~~ ✅ G6 (26/11): solo estados comerciales; `/inventario/alertas` no se abre en M2M | `stockTienda` y stock crítico | Productos |
 | Prorrateo de descuentos (X-P0-13) | `montoCredito` de §5.9 | Postventa + Productos + Retail |
-| **Descuento de stock de las ventas Retail.** G6 confirmó el 26/11 el flujo Retail → Ventas → reserva en G6 → confirmación → consumo, coherente con G4-P0-01. Esto reemplaza el acuerdo R9 (Retail descontaba directo). G5 puede reservar y confirmar para `RETAIL` como en los otros canales, pero esperaba el OK de G6. 🟡 Falta que G5 lo implemente para los pedidos `RETAIL`, incluida la venta offline | §5.5, §5.9, §5.10 | Ventas (+ Retail para avisar del OK de G6) |
-| **Stock del cambio directo.** G6 no autoriza a `modulo-retail` en reintegro ni consumo y lo deriva a Ventas y Postventa | `InventarioPort` de §5.9 | Retail (Mihael) + Ventas/Postventa |
-| ~~Valor de `metodoPago` para el crédito de un cambio de mayor valor~~ ✅ G5 propone `CREDITO_CAMBIO` con `montoCreditoCambio` y `pedidoOrigenId` (§5.9). 🟡 Falta que lo publique en su contrato | `MAYOR_VALOR` de §5.9 | Ventas |
-| `location_id` de cada tienda para `POST /inventario/incidencias` (G6 lo confirma con la lista de tiendas de Retail) y registro en G7 de los scopes de `modulo-retail` en `api-productos` (G6 delegó el trámite en Retail) | Adaptador real del outbox de F12 (§2.9) y adaptadores de §4.2 | Retail (Mihael) + Productos + Seguridad |
-| Búsqueda de pedidos por DNI/RUC para `modulo-retail` (A10). G5 acepta un scope propio limitado a `RETAIL` y recojo en tienda | RF-16-DOC (§5.6) | Ventas (ruta y campos) + Seguridad (scope) |
+| ~~Descuento de stock de las ventas Retail~~ ✅ G5 ya lo programó: reserva y confirmación en G6 para todo pedido `RETAIL`, también offline (reemplaza R9). 🟡 Lo publica tras su revisión y se prueba en conjunto | §5.5, §5.9, §5.10 | Ventas |
+| ~~Stock del cambio directo~~ ✅ Va por el pedido de Ventas con `CREDITO_CAMBIO`; Postventa reintegra sola (§5.9) | §5.9 | Ventas/Postventa |
+| ~~`metodoPago` del cambio~~ ✅ `CREDITO_CAMBIO` + `montoCreditoCambio` + `pedidoOrigenId` + `itemsDevueltos` (§5.9). 🟡 Publicación de G5 y si los pedidos `RETAIL` llegan a `ENTREGADO` | §5.9 | Ventas |
+| ~~`location_id` y scopes de `api-productos`~~ ✅ `location_id` de Miraflores dado por G6; scopes asignados por G7 (26/11). 🟡 Verificar el token nuevo | Outbox de F12 (§2.9) y §4.2 | Retail (Mihael) |
+| Búsqueda de pedidos por documento (RF-16-DOC). Ruta y campos acordados con G5 (§4.3) | §5.6 | Seguridad asigna `ventas:pedidos:buscar-documento` cuando G5 publique |
+| Rutas `/usuarios/*` de G7 disponibles en Render | F3 real (§4.1) | Seguridad |
 | Política intermodular de cambios y garantía (G4-P1-03) | Semana 11 fija 7 días para el cambio comercial de mostrador; la garantía se deriva a Postventa | Retail + Postventa |
 
 ---
@@ -1051,12 +1060,12 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 | `POST /retail/caja/turnos` · `GET …/actual` | F8 | 🟢 | PROPUESTO | Según la matriz de RF |
 | `POST …/turnos/{id}/movimientos` · `…/cierre` | F8 | — | PROPUESTO | Según la matriz de RF |
 | `/retail/carritos-espera/*` | F4 | — | PROPUESTO | Según la matriz de RF |
-| `/retail/pedidos/*` | F6 | — | BLOQUEADO (G5) | Según la matriz de RF |
+| `/retail/pedidos/*` | F6 | — | APROBADO (v0.5.2). La búsqueda por documento en G5 se activa al asignar el scope | Mihael (backend) · Kevin (SPA) |
 | `/retail/pickup/*` | F7 | — | PROPUESTO (integrado con G5 en S11) | Maylle |
 | `GET /retail/cambios/validar/{boletaNumero}` | F9 | — | APROBADO para Semana 11 (PO) | Cristhian |
 | `POST /retail/cambios` (cambio directo) | F9 | — | PROPUESTO para Semana 14 (PO). `MAYOR_VALOR` depende de G5 y el inventario real de G6 (§7.1); se programa con mocks | Cristhian |
 | `POST /retail/contingencia/sincronizar` | F10 | — | PROPUESTO | Según la matriz de RF |
-| `/retail/control/*` | F11 | — | APROBADO (v0.5). Fuentes de G6 confirmadas (v0.5.1); `stock-critico` y `campanas-vigentes` usan mocks hasta que G7 registre los scopes | Mihael (backend) · Kevin (SPA) |
+| `/retail/control/*` | F11 | — | APROBADO (v0.5). Fuentes de G6 confirmadas (v0.5.1) y scopes asignados por G7 (v0.5.2); se pasa a real quitando el perfil `mock` | Mihael (backend) · Kevin (SPA) |
 | `/retail/inventario/*` | F12 | — | APROBADO (v0.5) | Angie (RF-32, RF-33) · Cristhian (RF-34) · Mihael (outbox hacia G6) |
 
 ---
@@ -1093,6 +1102,13 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 ---
 
 ## 11. Cambios respecto de v0.4
+
+**v0.5.2 (26/11, cierre con G5, G6 y G7):**
+
+- **Ventas (§4.3, §5.6):** ruta y campos de la búsqueda por documento; stock de `RETAIL` reservado y confirmado por Ventas, con reintento ante `503` con la misma `Idempotency-Key`.
+- **F9 (§5.9):** el cambio de igual valor también crea pedido en Ventas; se agrega `itemsDevueltos`; `pedidoOrigenId` debe estar `ENTREGADO`; errores nuevos de G5; Retail ya no llama a Inventory.
+- **F12 (§5.12):** `location_id` de Miraflores y mapeo por `RETAIL_INVENTARIO_UBICACIONES`.
+- **Seguridad (§4.1, §4.2):** permisos del `VENDEDOR` y scopes de `api-productos` asignados por G7.
 
 **v0.5.1 (26/11, respuestas de G5 y G6):**
 
