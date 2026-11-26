@@ -156,7 +156,7 @@ Retail aplica la capa de API Management en dos sentidos:
 | **Enrutamiento y versionado** | `ms-retail` | Toda la API propia vive bajo `/api/v1/retail/*`. Una versión incompatible se publica como `/api/v2/retail/*` y convive con la anterior. Cada respuesta lleva `X-Api-Version: v1` |
 | **Autenticación** | `ms-retail` | JWT de Seguridad (G7) validado localmente con su JWKS (§2.4). Solo `GET /health`, `/v3/api-docs` y `/swagger-ui` quedan públicos |
 | **Límite de peticiones** | `ms-retail` | Ventana por minuto **por vendedor** (el `sub` del JWT) o **por IP** si la petición no trae token. Valor por defecto: `120` peticiones por minuto (`RETAIL_LIMITE_PETICIONES_POR_MINUTO`). Al excederlo responde `429 DEMASIADAS_SOLICITUDES` en el formato de §2.5, con `Retry-After` (segundos). Toda respuesta lleva `X-RateLimit-Limit` y `X-RateLimit-Remaining`. `GET /health` no cuenta |
-| **Trazabilidad** | `ms-retail` → G5, G6 y G7 | Se acepta `X-Correlation-Id` o se genera uno. Se devuelve en la respuesta, se escribe en cada línea de log (MDC `correlationId`) y se propaga en cada llamada saliente a otro módulo |
+| **Trazabilidad** | `ms-retail` → G5, G6 y G7 | Se acepta `X-Correlation-Id` **solo si es un UUID** (el gateway de G6 responde `400 VALIDACION` a cualquier otro valor, verificado el 26/11); si no llega o no es UUID, se genera uno. Se devuelve en la respuesta, se escribe en cada línea de log (MDC `correlationId`) y se propaga en cada llamada saliente a otro módulo |
 | **Catálogo de la API** | `ms-retail` | OpenAPI publicado en `/v3/api-docs` y Swagger UI en `/swagger-ui.html` |
 | **Consumo de Ventas** | API Gateway de G5 | `RETAIL_VENTAS_URL=https://g5-api-gateway.onrender.com`. Las rutas y el token de servicio de §4.3 no cambian. Límite del gateway (confirmado por G5 el 26/11): **300 por minuto por cliente** con el token de `modulo-retail`, sumando todas las cajas; 60 por minuto por IP sin token. Al pasarlo responde `429` con `Retry-After` |
 | **Consumo de Productos** | API Gateway de G6 (sin APIM) | `RETAIL_PRODUCTOS_URL=https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1` (entorno compartido entre módulos, confirmado por G6 el 26/11) |
@@ -588,7 +588,7 @@ Reimpresión del ticket. **Roles:** VENDEDOR, SUPERVISOR. **200** con la misma e
 
 **Restricción A10 confirmada por G5 al PO:** `GET /api/v1/pedidos?buscar={DNI_o_RUC}` busca pedidos de cualquier canal y estado, pero solo admite `ADMIN_VENTAS`. El cliente de servicio `modulo-retail` no tiene acceso a ese listado. No asignar `ADMIN_VENTAS` a Retail.
 
-**Acuerdo con G5 (26/11, RF-16-DOC):** G5 habilita `GET /api/v1/pedidos?buscar={documento}` con el scope `ventas:pedidos:buscar-documento`, limitado a pedidos `RETAIL` y de recojo en tienda (§4.3). Retail le pasa el `documentoCliente` tal cual y toma de cada resultado `pedidoId`, `canal`, `fechaCreacion`, `estado` (→ `estadoComercial`) y `total`. El detalle sigue saliendo de `GET /api/v1/pedidos/{id}`.
+**Acuerdo con G5 (26/11, RF-16-DOC):** G5 habilita `GET /api/v1/pedidos?buscar={documento}` con el scope `ventas:pedidos:buscar-documento`, limitado a pedidos `RETAIL` y de recojo en tienda (§4.3). Es la sección 1.4c del [contrato de Ventas de G5](https://github.com/Taller-SW-Web/G5-Ventas-Postventas/blob/main/specs/api/api-ventas.md). Retail le pasa el `documentoCliente` en `buscar`, pide páginas de 50 (`pagina`, `tamano`, el máximo de G5) hasta `totalPaginas` (tope de 10 páginas) y toma de cada elemento de `contenido` `pedidoId`, `canal`, `fechaCreacion`, `estado` (→ `estadoComercial`) y `total`. El detalle sigue saliendo de `GET /api/v1/pedidos/{id}`.
 
 - **Activación por configuración:** `RETAIL_PEDIDOS_BUSQUEDA_DOCUMENTO=g5`. Mientras G7 no asigne el scope, el valor por defecto `registro` sigue buscando solo en las ventas de este mostrador (comportamiento del Hito 4).
 - Con `g5`: si G5 responde `401` o `403`, se responde `503 VENTAS_CREDENCIAL_RECHAZADA`; una caída o un `5xx`, `503 VENTAS_NO_DISPONIBLE`; sin resultados, `404 PEDIDO_NO_ENCONTRADO`.
@@ -791,7 +791,7 @@ Cierre con arqueo ciego (RF-22).
   | `montoEfectivo` o `montoTarjeta` | La diferencia, según `pagoDiferencia.medioPago`. Con tarjeta, también `referenciaOperacion`. En `MISMO_VALOR` no van |
   | Regla | `montoCreditoCambio + montoEfectivo + montoTarjeta = total` |
 
-  Errores nuevos de G5 (`422`): `PEDIDO_ORIGEN_NO_ENCONTRADO`, `PEDIDO_ORIGEN_NO_ENTREGADO` e `ITEM_DEVUELTO_INVALIDO` se responden como `422 PEDIDO_NO_APTO`, con el motivo en `detail`. 🟡 G5 lo publica tras su revisión; mientras tanto, se prueba contra el mock de Ventas. 🟡 Falta confirmar con G5 si un pedido `RETAIL`, que nace `PAGADO`, pasa a `ENTREGADO`; si no, todo cambio fallaría con `PEDIDO_ORIGEN_NO_ENTREGADO`.
+  Errores nuevos de G5 (`422`): `PEDIDO_ORIGEN_NO_ENCONTRADO`, `PEDIDO_ORIGEN_NO_ENTREGADO` e `ITEM_DEVUELTO_INVALIDO` se responden como `422 PEDIDO_NO_APTO`, con el motivo en `detail`. 🟡 G5 lo publica tras su revisión; mientras tanto, se prueba contra el mock de Ventas. El contrato de G5 (1.1) confirma que todo pedido `RETAIL` queda `PAGADO` y `ENTREGADO` en la misma operación, así que una boleta de mostrador siempre es un origen válido.
 - **Inventario (cerrado con G5 y G6 el 26/11):** Retail no llama a Inventory. La prenda nueva se reserva y consume por el pedido de Ventas, y la devuelta la reintegra Postventa sola al recibir el pedido con `CREDITO_CAMBIO`, `pedidoOrigenId` e `itemsDevueltos`. `InventarioPort` se reemplaza por el envío del pedido a Ventas. `estadoInventario` pasa a `CONFIRMADO` cuando Ventas acepta el pedido. Si Ventas responde `503`, el cambio no se revierte: queda `PENDIENTE` y el job de Retail reintenta el pedido cada 5 minutos con la misma `Idempotency-Key`.
 - **201 Created:**
 
@@ -1035,7 +1035,7 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 | Prorrateo de descuentos (X-P0-13) | `montoCredito` de §5.9 | Postventa + Productos + Retail |
 | ~~Descuento de stock de las ventas Retail~~ ✅ G5 ya lo programó: reserva y confirmación en G6 para todo pedido `RETAIL`, también offline (reemplaza R9). 🟡 Lo publica tras su revisión y se prueba en conjunto | §5.5, §5.9, §5.10 | Ventas |
 | ~~Stock del cambio directo~~ ✅ Va por el pedido de Ventas con `CREDITO_CAMBIO`; Postventa reintegra sola (§5.9) | §5.9 | Ventas/Postventa |
-| ~~`metodoPago` del cambio~~ ✅ `CREDITO_CAMBIO` + `montoCreditoCambio` + `pedidoOrigenId` + `itemsDevueltos` (§5.9). 🟡 Publicación de G5 y si los pedidos `RETAIL` llegan a `ENTREGADO` | §5.9 | Ventas |
+| ~~`metodoPago` del cambio~~ ✅ `CREDITO_CAMBIO` + `montoCreditoCambio` + `pedidoOrigenId` + `itemsDevueltos` (§5.9). Ya está en el contrato de G5 v1.12.0. 🟡 Falta que publiquen el código | §5.9 | Ventas |
 | ~~`location_id` y scopes de `api-productos`~~ ✅ `location_id` de Miraflores dado por G6; scopes asignados por G7 (26/11). 🟡 Verificar el token nuevo | Outbox de F12 (§2.9) y §4.2 | Retail (Mihael) |
 | Búsqueda de pedidos por documento (RF-16-DOC). Ruta y campos acordados con G5 (§4.3) | §5.6 | Seguridad asigna `ventas:pedidos:buscar-documento` cuando G5 publique |
 | Rutas `/usuarios/*` de G7 disponibles en Render | F3 real (§4.1) | Seguridad |
@@ -1105,8 +1105,9 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 
 **v0.5.2 (26/11, cierre con G5, G6 y G7):**
 
-- **Ventas (§4.3, §5.6):** ruta y campos de la búsqueda por documento; stock de `RETAIL` reservado y confirmado por Ventas, con reintento ante `503` con la misma `Idempotency-Key`.
-- **F9 (§5.9):** el cambio de igual valor también crea pedido en Ventas; se agrega `itemsDevueltos`; `pedidoOrigenId` debe estar `ENTREGADO`; errores nuevos de G5; Retail ya no llama a Inventory.
+- **API Management (§2.8):** `X-Correlation-Id` solo se reutiliza si es UUID.
+- **Ventas (§4.3, §5.6):** ruta, formato (`contenido`, paginado) y campos de la búsqueda por documento, según la 1.4c del contrato de G5; stock de `RETAIL` reservado y confirmado por Ventas, con reintento ante `503` con la misma `Idempotency-Key`.
+- **F9 (§5.9):** el cambio de igual valor también crea pedido en Ventas; se agrega `itemsDevueltos`; `pedidoOrigenId` debe estar `ENTREGADO` (los pedidos `RETAIL` ya lo están); errores nuevos de G5; Retail ya no llama a Inventory.
 - **F12 (§5.12):** `location_id` de Miraflores y mapeo por `RETAIL_INVENTARIO_UBICACIONES`.
 - **Seguridad (§4.1, §4.2):** permisos del `VENDEDOR` y scopes de `api-productos` asignados por G7.
 

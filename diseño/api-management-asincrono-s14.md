@@ -43,7 +43,7 @@ Retail aplica la capa en los dos sentidos:
 | Enrutamiento y versionado | Prefijo único `/api/v1/retail/*`; cada respuesta lleva `X-Api-Version: v1` | — |
 | Autenticación | JWT de Seguridad (G7) validado con su JWKS (`SeguridadConfig`) | `RETAIL_SEGURIDAD_JWKS_URI` |
 | Límite de peticiones | Ventana por minuto por vendedor (`sub`) o por IP (`LimitePeticionesFilter`). Responde `X-RateLimit-Limit`, `X-RateLimit-Remaining` y `429 DEMASIADAS_SOLICITUDES` con `Retry-After` | `RETAIL_LIMITE_PETICIONES_POR_MINUTO` (120 en la nube) |
-| Trazabilidad | `X-Correlation-Id` recibido o generado, devuelto en la respuesta y en el cuerpo de los errores, escrito en el MDC y propagado a G5, G6 y G7 (`TrazabilidadFilter`, `CorrelacionSaliente`) | — |
+| Trazabilidad | `X-Correlation-Id` recibido (solo si es UUID: G6 rechaza otros valores) o generado, devuelto en la respuesta y en el cuerpo de los errores, escrito en el MDC y propagado a G5, G6 y G7 (`TrazabilidadFilter`, `CorrelacionSaliente`) | — |
 | Catálogo de la API | OpenAPI en `/v3/api-docs` y Swagger UI en `/swagger-ui.html` | — |
 | Consumo de Ventas por gateway | `RETAIL_VENTAS_URL=https://g5-api-gateway.onrender.com`. El gateway de G5 aplica autenticación (`401 TOKEN_INVALIDO` sin token), límite (300 por minuto por cliente con token; 60 por IP sin token) y su propio `x-correlation-id` | `RETAIL_VENTAS_URL` |
 | Consumo de Productos por gateway | `RETAIL_PRODUCTOS_URL=https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1`. El gateway de G6 responde `401 TOKEN_INVALIDO` sin token y devuelve su `x-correlation-id` (verificado el 26/11) | `RETAIL_PRODUCTOS_URL` |
@@ -58,11 +58,11 @@ HTTP/1.1 200
 X-Correlation-Id: 8130082d-3292-44ac-92f8-63f345895f17
 X-Api-Version: v1
 
-$ curl -i -H "X-Correlation-Id: demo-hito5-001" http://localhost:8091/api/v1/retail/control/resumen   (sin token)
+$ curl -i -H "X-Correlation-Id: 6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b" http://localhost:8091/api/v1/retail/control/resumen   (sin token)
 HTTP/1.1 401
-X-Correlation-Id: demo-hito5-001
+X-Correlation-Id: 6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b
 {"type":"https://retail.g4/problemas/token-invalido","title":"No autenticado","status":401,
- "code":"TOKEN_INVALIDO","correlationId":"demo-hito5-001", ...}
+ "code":"TOKEN_INVALIDO","correlationId":"6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b", ...}
 
 $ curl -i -H "Authorization: Bearer <jwt vendedor>" .../control/resumen     # peticiones 1 a 5
 HTTP/1.1 200
