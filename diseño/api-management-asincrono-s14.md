@@ -12,7 +12,7 @@ Código: `G4-Retail-backend`, paquetes `config.gestionapi`, `service.outbox` e `
 flowchart LR
     SPA["SPA del POS (Vercel)"] -->|"JWT G7 · X-Correlation-Id"| F
 
-    subgraph MS["ms-retail (Render)"]
+    subgraph MS["ms-retail (Railway)"]
         F["Políticas de API Management<br/>TrazabilidadFilter · Seguridad JWT · LimitePeticionesFilter"]
         C["Controladores /api/v1/retail/*"]
         N["Servicios de negocio"]
@@ -129,7 +129,7 @@ Consultas de evidencia en Supabase: `G4-Retail-backend/diseño_bd/migracion-s14-
 
 ---
 
-## 4. Variables de entorno en Render (para Miguel)
+## 4. Variables de entorno en Railway (para Miguel)
 
 | Variable | Valor | Para qué |
 |---|---|---|
