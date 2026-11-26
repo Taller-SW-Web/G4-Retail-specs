@@ -85,17 +85,17 @@ Las prendas retenidas en cuarentena no pueden permanecer indefinidamente en el l
 Permitir al jefe de tienda consolidar las prendas en cuarentena al cierre de turno o semana, emitir un **Acta Digital de Discrepancia / Merma de Tienda** con código correlativo e imprimirla para adjuntarla al bulto físico, enviando simultáneamente una notificación vía API a *Productos y Ofertas* (`POST /api/v1/productos/inventario/ajuste-discrepancia`) para regularizar el stock contable de la tienda.
 
 #### Alcance
-* **Incluido:** Selección de artículos en cuarentena para inclusión en el acta; opciones de destino (*"Devolución a Almacén Central por Garantía"*, *"Baja por Deterioro / Merma Irrecuperable"*, *"Ajuste por Faltante / Pérdida"*); generación de acta con correlativo oficial (ej. `ACTA-MERMA-2026-0012`); formato imprimible con casillas de firma del jefe de tienda; notificación vía API REST a *Productos y Ofertas* para el decremento contable definitivo.
+* **Incluido:** Selección de artículos en cuarentena para inclusión en el acta; opciones de destino (*"Devolución a Almacén Central por Garantía"*, *"Baja por Deterioro / Merma Irrecuperable"*, *"Ajuste por Faltante / Pérdida"*); generación de acta con correlativo oficial (ej. `ACTA-MERMA-2026-0012`); formato imprimible con casillas de firma del jefe de tienda. El acta documenta la salida pero no cierra el caso: Inventory resuelve cada incidencia (§5.12 del contrato).
 * **Excluido:** Deducciones contables del balance corporativo o liquidaciones de seguros (módulo de Finanzas).
 
 #### Comportamiento Técnico y de Flujo
 1. Expone `POST /api/v1/retail/inventario/actas-merma`:
    * Verifica permisos de supervisor o jefe de tienda.
    * Recibe la lista de incidencias en cuarentena a liquidar.
-   * Genera el correlativo oficial del acta (`ACTA-MERMA-TIENDA-YYYY-XXXX`).
-   * Envía petición al microservicio de *Productos y Ofertas*: `POST /api/v1/inventario/ajuste-discrepancia` solicitando el decremento del stock patrimonial por merma/devolución.
-   * Actualiza el estado de las incidencias en `RET_INCIDENCIA_INVENTARIO` a `DERIVADO_ALMACEN` o `BAJA_DEFINITIVA`.
-2. Retorna `201 Created` con el acta digital y la constancia de ajuste de inventario.
+   * Genera el correlativo oficial del acta (`ACTA-MERMA-YYYY-XXXX`, por año y único en el módulo).
+   * No llama a *Productos y Ofertas*: las incidencias ya se reportaron a Inventory al crearlas (RF-32) y el ajuste de discrepancia está prohibido para Retail (G4-P0-05).
+   * Actualiza el estado de las incidencias en `RET_INCIDENCIA_INVENTARIO` a `DERIVADO_ALMACEN` y guarda el número de acta en cada una.
+2. Retorna `201 Created` con los datos del acta para imprimirla desde el POS.
 
 #### Criterios de Aceptación (RF-34)
 - [ ] **CA-RF34-01:** Selección de prendas en cuarentena y emisión del acta cambia su estado a `DERIVADO_ALMACEN`, retirándolas de la bandeja activa de cuarentena.
@@ -138,4 +138,4 @@ Permitir al jefe de tienda consolidar las prendas en cuarentena al cierre de tur
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/v1/retail/inventario/incidencias` | RF-32 | Registra reporte de prenda rota, manchada o no ubicada |
 | `GET` | `/api/v1/retail/inventario/cuarentena` | RF-33 | Consulta artículos actualmente en cuarentena en la tienda |
-| `POST` | `/api/v1/retail/inventario/actas-merma` | RF-34 | Genera acta formal de merma y notifica a Productos y Ofertas |
+| `POST` | `/api/v1/retail/inventario/actas-merma` | RF-34 | Genera el acta formal de merma (sin llamar a Productos y Ofertas) |
