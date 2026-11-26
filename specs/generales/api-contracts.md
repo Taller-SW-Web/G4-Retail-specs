@@ -31,7 +31,7 @@ SPA (navegador del POS) ──► ms-retail  /api/v1/retail/*  ──► Segurid
 | **Retail (G4)** | Turnos de caja, movimientos y arqueo, cobros por turno, comprobantes de mostrador y registro local de ventas confirmadas, carritos en espera, inspección y vales comerciales de mostrador, proyección de incidencias, log offline, perfil local del personal | — | — |
 | **Seguridad (G7)** | Usuarios, clientes, credenciales, JWT, roles globales | Login, claves públicas (JWKS), búsqueda y alta de clientes | Emitir tokens propios ni guardar contraseñas |
 | **Productos y Ofertas (G6)** | Catálogo, precios, promociones, stock (Inventory) | Lecturas comerciales e incidencias de inventario | Consumir, reintegrar o ajustar stock (G4-P0-01, 03, 05) |
-| **Ventas y Postventa (G5)** | Pedido central, pago del pedido, garantía y devoluciones con Inventario | Crear pedidos `IN_STORE` con pago, consultar el pedido, sincronizar ventas offline | Crear pedidos centrales paralelos |
+| **Ventas y Postventa (G5)** | Pedido central, pago del pedido, garantía y devoluciones con Inventario. **No** emite comprobantes fiscales (R6) | Crear pedidos `canal: RETAIL` con pago, consultar el pedido, sincronizar ventas offline | Crear pedidos centrales paralelos |
 | **Despacho (G2)** | Envíos a domicilio | — | Retail no se integra con Despacho (ver §4.4) |
 
 ---
@@ -199,7 +199,7 @@ Las notificaciones que no deben bloquear al vendedor viajan de forma asíncrona 
 | F2 | Catálogo y lector | §5.2 | Productos: catálogo, código de barras, disponibilidad |
 | F3 | Clientes | §5.3 | Seguridad: `/usuarios/*` |
 | F4 | Carrito y totales | §5.4 | Productos: evaluación de promociones |
-| F5 | Venta y cobro | §5.5 | Ventas: pedido `IN_STORE`, cobro, comprobante |
+| F5 | Venta y cobro | §5.5 | Ventas: pedido `canal: RETAIL` con el pago incluido. El comprobante lo emite Retail (R6) |
 | F6 | Pedidos | §5.6 | Ventas |
 | F7 | Pickup | §5.7 | Ventas: bandeja pickup y entrega (decisión #9 resuelta) |
 | F8 | Caja | §5.8 | — (datos propios) |
@@ -295,8 +295,8 @@ Permisos de `modulo-retail` en `api-productos` (JWT de servicio, `client_credent
 
 * **Detalles del Acuerdo de Integración (G4 ↔ G5 — Octubre 2026):**
   1. **Nacimiento de la orden:** En canal `RETAIL`, al realizarse el cobro físico previo en mostrador, el pedido se registra directamente en estado `PAGADO` (no `CREADO`).
-  2. **Comprobante de mostrador:** Retail gestiona el correlativo (`B001`/`F001`), el cálculo del IGV (18%) y la generación del ticket térmico de 80 mm. El vínculo comprobante–pedido se guarda en Retail. El DTO de creación publicado por G5 todavía carece de `comprobanteReferencia`.
-  3. **Identificadores estándar:** `vendedorId`, `clienteId` y `tiendaId` se manejan como `UUID` v4 canónicos (claims del JWT de Seguridad G7). Identificador oficial de pedido: `PED-YYYY-NNNNN`.
+  2. **Comprobante de mostrador:** Retail gestiona el correlativo (`B001`/`F001`), el cálculo del IGV (18%) y la generación del ticket térmico de 80 mm. El vínculo comprobante–pedido se guarda en Retail. La boleta, la factura y las notas de crédito o vales son **solo de Retail**; Ventas no emite ni guarda comprobantes (acuerdo R6 de G5). El número de comprobante puede viajar en `pago.comprobanteReferencia` solo como dato de consulta (R11).
+  3. **Identificadores estándar:** `vendedorId` y `clienteId` se manejan como `UUID` v4 canónicos (`sub` del JWT de Seguridad G7). `tiendaId` es el código de sucursal en texto (`TIENDA-MIRAFLORES`, D-05). Identificador oficial de pedido: `PED-YYYY-NNNNN`.
   4. **Idempotencia obligatoria:** Envío permanente del header `Idempotency-Key: <UUID>` en cada creación de pedido.
   5. **Estados oficiales de pedido:** Enum cerrado de Ventas: `CREADO`, `PAGADO`, `EN_PREPARACION`, `DESPACHADO`, `ENTREGADO`, `ANULADO`.
   6. **Autonomía en cambios:** Retail valida la boleta de mostrador en su registro local de ventas confirmadas y resuelve el cambio directo según §5.9 (R6). G5 conserva la orden central y atiende la revisión de garantía. En un cambio de mayor valor, Retail crea un pedido nuevo con las prendas nuevas.
@@ -664,7 +664,7 @@ Body de la entrega:
 - Se retiran `422 PEDIDO_DE_OTRA_TIENDA` (Ventas filtra por tienda; se responde 404) y `422 CODIGO_RETIRO_INVALIDO` (Ventas no emite códigos de retiro).
 - La entrega se informa **solo a Ventas**; Despacho no participa (§4.4).
 
-**Integración consumida (Ventas G5, `https://g5-servicio-ventas.onrender.com`):**
+**Integración consumida (Ventas G5, por su API Gateway `https://g5-api-gateway.onrender.com`; antes `g5-servicio-ventas.onrender.com`):**
 
 | Retail | Ventas (G5) | Scope del token de servicio |
 |---|---|---|

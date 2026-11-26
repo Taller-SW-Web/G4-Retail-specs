@@ -1,0 +1,3060 @@
+﻿[
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.client.VentasClientTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/client/VentasClientTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "VentasClient — Pruebas de Integración HTTP con Módulo de Ventas G5",
+                          "nombre":  "crearPedidoExitoso",
+                          "segundos":  0.525,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "VentasClient — Pruebas de Integración HTTP con Módulo de Ventas G5",
+                          "nombre":  "crearPedidoRetailConComprobante",
+                          "segundos":  0.058,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "VentasClient — Pruebas de Integración HTTP con Módulo de Ventas G5",
+                          "nombre":  "crearPedidoFallaServidorRetornaEmpty",
+                          "segundos":  0.023,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "VentasClient — Pruebas de Integración HTTP con Módulo de Ventas G5",
+                          "nombre":  "crearPedidoDeshabilitadoRetornaEmpty",
+                          "segundos":  0.005,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  4,
+        "segundos":  0.999
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.config.DocumentacionApiTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/config/DocumentacionApiTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.DocumentacionApiTest",
+                          "nombre":  "openApiPublicoConRutasYSeguridad",
+                          "segundos":  1.06,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.DocumentacionApiTest",
+                          "nombre":  "negocioSigueProtegido",
+                          "segundos":  0.014,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.DocumentacionApiTest",
+                          "nombre":  "swaggerUiPublico",
+                          "segundos":  0.036,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.DocumentacionApiTest",
+                          "nombre":  "servidorRelativo",
+                          "segundos":  0.02,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  4,
+        "segundos":  8.43
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.config.PersonalTiendaInitializerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/config/PersonalTiendaInitializerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.PersonalTiendaInitializerTest",
+                          "nombre":  "insertaPersonalSiNoExiste",
+                          "segundos":  0.439,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.PersonalTiendaInitializerTest",
+                          "nombre":  "noInsertaSiYaExiste",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  2,
+        "segundos":  0.441
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.config.SeguridadConfigTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/config/SeguridadConfigTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.SeguridadConfigTest",
+                          "nombre":  "decodificaTokenRs256G7",
+                          "segundos":  0.115,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.SeguridadConfigTest",
+                          "nombre":  "rechazaFirmaRs256Invalida",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.SeguridadConfigTest",
+                          "nombre":  "rechazaTokenInvalido",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.SeguridadConfigTest",
+                          "nombre":  "decodificaTokenHmac",
+                          "segundos":  0.004,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.config.SeguridadConfigTest",
+                          "nombre":  "rechazaTokenRs256Vencido",
+                          "segundos":  0.003,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  5,
+        "segundos":  0.651
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.AuthControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/AuthControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.AuthControllerTest",
+                          "nombre":  "distingueAlSupervisor",
+                          "segundos":  0.062,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.AuthControllerTest",
+                          "nombre":  "usuarioSinPerfilEnLaTiendaRecibe403",
+                          "segundos":  0.024,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.AuthControllerTest",
+                          "nombre":  "devuelveElPerfilDelVendedor",
+                          "segundos":  0.012,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.AuthControllerTest",
+                          "nombre":  "tokenConSubInvalidoSeRechaza",
+                          "segundos":  0.008,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.AuthControllerTest",
+                          "nombre":  "sinTokenResponde401",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.AuthControllerTest",
+                          "nombre":  "devuelvePerfilDeVendedorIntegracionG7",
+                          "segundos":  0.014,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  6,
+        "segundos":  0.193
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/CajaControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "noAbreDosVecesLaMismaTerminal",
+                          "segundos":  0.183,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "elTurnoAbiertoSeVeEnLaConsulta",
+                          "segundos":  0.029,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "elIngresoMenorSumaAlSistema",
+                          "segundos":  0.104,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "abreElTurno",
+                          "segundos":  0.013,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "rechazaEgresoSinRespaldo",
+                          "segundos":  0.029,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "cierraLaCajaCuadrada",
+                          "segundos":  0.018,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "turnoInexistenteResponde404",
+                          "segundos":  0.013,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "sinTokenResponde401",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "sinTurnoRespondeCerrada",
+                          "segundos":  0.015,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "unFaltanteDejaLaSesionObservada",
+                          "segundos":  0.024,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "noCierraDosVecesElMismoTurno",
+                          "segundos":  0.029,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CajaControllerTest",
+                          "nombre":  "rechazaFondoNegativo",
+                          "segundos":  0.02,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  12,
+        "segundos":  0.512
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/CambioControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "formatoInvalido",
+                          "segundos":  0.02,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "guardaElValeSegunElEsquemaDeLaBase",
+                          "segundos":  0.156,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "motivoInexistente",
+                          "segundos":  0.009,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "plazoVencido",
+                          "segundos":  0.028,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "sinCajaAbierta",
+                          "segundos":  0.015,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "emiteElVale",
+                          "segundos":  0.031,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "idempotencia",
+                          "segundos":  0.037,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "boletaVencidaSeMuestraFueraDePlazo",
+                          "segundos":  0.02,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "cantidadNoDisponible",
+                          "segundos":  0.023,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "descuentaLasUnidadesCambiadas",
+                          "segundos":  0.03,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "sinToken",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "inspeccionNoApta",
+                          "segundos":  0.027,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "sinIdempotencyKey",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "comprobanteInexistente",
+                          "segundos":  0.008,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "boletaEnPlazo",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "idempotenciaEnConflicto",
+                          "segundos":  0.034,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CambioControllerTest",
+                          "nombre":  "prendaNoIncluida",
+                          "segundos":  0.024,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  17,
+        "segundos":  0.52
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.CarritoControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/CarritoControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "CarritoController — MockMvc Tests",
+                          "nombre":  "pausarCarritoResponde201",
+                          "segundos":  0.098,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "CarritoController — MockMvc Tests",
+                          "nombre":  "calcularTotalesResponde200",
+                          "segundos":  0.032,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "CarritoController — MockMvc Tests",
+                          "nombre":  "listarCarritosEsperaResponde200",
+                          "segundos":  0.014,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  3,
+        "segundos":  0.753
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/CatalogoControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "buscaPorTextoSinImportarTildes",
+                          "segundos":  0.034,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "codigoInexistenteResponde404",
+                          "segundos":  0.014,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "cadaProductoTraeSusVariantes",
+                          "segundos":  0.013,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "devuelveLaPrimeraPagina",
+                          "segundos":  0.017,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "escanearDevuelveLaVarianteExacta",
+                          "segundos":  0.015,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "codigoMalFormadoResponde404",
+                          "segundos":  0.007,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "filtraPorCategoria",
+                          "segundos":  0.012,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "escanearUnArticuloAgotadoLoMarcaAgotado",
+                          "segundos":  0.008,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "sinTokenResponde401",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "traduceElEstadoDeDisponibilidad",
+                          "segundos":  0.009,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.CatalogoControllerTest",
+                          "nombre":  "busquedaSinCoincidenciasDevuelvePaginaVacia",
+                          "segundos":  0.007,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  11,
+        "segundos":  0.158
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.ClienteControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/ClienteControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "ClienteController — MockMvc Tests",
+                          "nombre":  "registrarAltaRapidaConEmailInvalidoResponde400",
+                          "segundos":  0.023,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteController — MockMvc Tests",
+                          "nombre":  "registrarAltaRapidaResponde201",
+                          "segundos":  0.01,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteController — MockMvc Tests",
+                          "nombre":  "buscarPorRucResponde400",
+                          "segundos":  0.007,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteController — MockMvc Tests",
+                          "nombre":  "registrarAltaRapidaDuplicadaResponde409",
+                          "segundos":  0.012,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteController — MockMvc Tests",
+                          "nombre":  "buscarPorDocumentoInexistenteResponde404",
+                          "segundos":  0.007,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteController — MockMvc Tests",
+                          "nombre":  "buscarPorDocumentoSinParametrosResponde400",
+                          "segundos":  0,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteController — MockMvc Tests",
+                          "nombre":  "buscarPorDocumentoResponde200",
+                          "segundos":  0.012,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteController — MockMvc Tests",
+                          "nombre":  "registrarAltaRapidaConDocumentoInvalidoResponde400",
+                          "segundos":  0,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  8,
+        "segundos":  0.565
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.ContingenciaControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/ContingenciaControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.ContingenciaControllerTest",
+                          "nombre":  "reintentoDevuelveResultadoOriginalYUnSoloCobro",
+                          "segundos":  0.226,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.ContingenciaControllerTest",
+                          "nombre":  "dosSolicitudesConcurrentesNoDuplicanPedido",
+                          "segundos":  0.064,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.ContingenciaControllerTest",
+                          "nombre":  "exigeSesionYLimitaLote",
+                          "segundos":  0.048,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.ContingenciaControllerTest",
+                          "nombre":  "unaVentaCorruptaNoAbortaLaSiguiente",
+                          "segundos":  0.037,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.ContingenciaControllerTest",
+                          "nombre":  "otraTerminalNoPuedeReatribuirLaVenta",
+                          "segundos":  0.04,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.ContingenciaControllerTest",
+                          "nombre":  "falloRemotoConservaReservaYClaveAlReintentar",
+                          "segundos":  0.058,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  6,
+        "segundos":  1.56
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/HistorialPedidosControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "detalleSinPerfilResponde403",
+                          "segundos":  0.012,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "detalleConHistorial",
+                          "segundos":  0.026,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "sinFiltrosResponde400",
+                          "segundos":  0.009,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "detallePickupTraeTienda",
+                          "segundos":  0.007,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "porCodigoExistente",
+                          "segundos":  0.013,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "detalleInexistenteResponde404",
+                          "segundos":  0.003,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "sinTokenResponde401",
+                          "segundos":  0.007,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "porDniListaOrdenado",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "documentoMalFormadoResponde400",
+                          "segundos":  0.012,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "codigoErroneoResponde404",
+                          "segundos":  0.006,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "sizeNoNumericoResponde400",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "busquedaSinPerfilResponde403",
+                          "segundos":  0.01,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.HistorialPedidosControllerTest",
+                          "nombre":  "porDocumentoSinVentasEnEstaEjecucion",
+                          "segundos":  0.006,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  13,
+        "segundos":  0.14
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/PickupControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "entregaDobleResponde404",
+                          "segundos":  0.046,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "codigoRetiroMalFormadoResponde400",
+                          "segundos":  0.027,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "pedidoInexistenteResponde404",
+                          "segundos":  0.027,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "dniInvalidoResponde400",
+                          "segundos":  0.031,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "dniDistintoAlTitularResponde422",
+                          "segundos":  0.027,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "bandejaListaPendientes",
+                          "segundos":  0.048,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "pedidoEnCaminoResponde409",
+                          "segundos":  0.048,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "usuarioSinTiendaResponde403",
+                          "segundos":  0.04,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "entregaAlTitularResponde200",
+                          "segundos":  0.027,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "terceroConCartaPoderResponde200",
+                          "segundos":  0.044,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "terceroSinCartaPoderResponde422",
+                          "segundos":  0.031,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.PickupControllerTest",
+                          "nombre":  "sinTokenResponde401",
+                          "segundos":  0.04,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  12,
+        "segundos":  6.82
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.SaludControllerTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/SaludControllerTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.SaludControllerTest",
+                          "nombre":  "respondeUpSinToken",
+                          "segundos":  0.003,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  1,
+        "segundos":  0.423
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.controller.VentaBoletaCambioTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/controller/VentaBoletaCambioTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.controller.VentaBoletaCambioTest",
+                          "nombre":  "recuperaParaCambioLaBoletaEmitidaTrasReintentarLaMismaVenta",
+                          "segundos":  0.13,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  1,
+        "segundos":  0.577
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.exception.ManejoDeErroresTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/exception/ManejoDeErroresTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.exception.ManejoDeErroresTest",
+                          "nombre":  "sinTokenSeCortaEn401",
+                          "segundos":  0.146,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.exception.ManejoDeErroresTest",
+                          "nombre":  "reutilizaElIdentificadorDeCorrelacion",
+                          "segundos":  0.02,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.exception.ManejoDeErroresTest",
+                          "nombre":  "rutaInexistenteDevuelve404",
+                          "segundos":  0.009,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.exception.ManejoDeErroresTest",
+                          "nombre":  "elErrorUsaElFormatoCanonico",
+                          "segundos":  0.008,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  4,
+        "segundos":  0.899
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/integracion/productos/mock/ProductosMockTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "elPrecioEsBigDecimal",
+                          "segundos":  0.006,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "paginaEmpezandoEnUno",
+                          "segundos":  0.004,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "laBusquedaIgnoraTildesYMayusculas",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "filtraPorCategoria",
+                          "segundos":  0.007,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "laSemillaTieneElVolumenPedido",
+                          "segundos":  0.008,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "elPrecioEfectivoPrefiereLaOferta",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "lasVariantesTraenTallaYColor",
+                          "segundos":  0.01,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "cadaSkuTieneCodigoDeBarrasUnico",
+                          "segundos":  0.005,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "resuelveUnCodigoDeBarrasConocido",
+                          "segundos":  0.004,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "devuelveDisponibilidadPorSku",
+                          "segundos":  0.003,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "codigoDesconocidoDevuelveVacio",
+                          "segundos":  0.004,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.integracion.productos.mock.ProductosMockTest",
+                          "nombre":  "paginaFueraDeRangoSaleVacia",
+                          "segundos":  0.004,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  12,
+        "segundos":  0.06
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.integracion.seguridad.TokenServicioG7Test",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/integracion/seguridad/TokenServicioG7Test.java",
+        "casos":  [
+                      {
+                          "grupo":  "TokenServicioG7 — token client_credentials de Seguridad (G7)",
+                          "nombre":  "credencialesRechazadas",
+                          "segundos":  0.01,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "TokenServicioG7 — token client_credentials de Seguridad (G7)",
+                          "nombre":  "reutilizaTokenVigente",
+                          "segundos":  0.01,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "TokenServicioG7 — token client_credentials de Seguridad (G7)",
+                          "nombre":  "renuevaTokenPorVencer",
+                          "segundos":  0,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "TokenServicioG7 — token client_credentials de Seguridad (G7)",
+                          "nombre":  "sinSecretoNoLlamaAG7",
+                          "segundos":  0.006,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "TokenServicioG7 — token client_credentials de Seguridad (G7)",
+                          "nombre":  "sinSecretoNoEstaConfigurado",
+                          "segundos":  0.002,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  5,
+        "segundos":  0.028
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.integracion.ventas.PedidosVentasHttpTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/integracion/ventas/PedidosVentasHttpTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "PedidosVentasHttp — consulta de pedidos contra Ventas (G5)",
+                          "nombre":  "consultaPedidoConToken",
+                          "segundos":  0.059,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "PedidosVentasHttp — consulta de pedidos contra Ventas (G5)",
+                          "nombre":  "caidaDeVentas",
+                          "segundos":  0,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "PedidosVentasHttp — consulta de pedidos contra Ventas (G5)",
+                          "nombre":  "credencialRechazada",
+                          "segundos":  0.007,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "PedidosVentasHttp — consulta de pedidos contra Ventas (G5)",
+                          "nombre":  "noEncontradoDevuelveVacio",
+                          "segundos":  0,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  4,
+        "segundos":  0.07
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.integracion.ventas.PickupVentasHttpTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/integracion/ventas/PickupVentasHttpTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "PickupVentasHttp — bandeja y entrega pickup contra Ventas (G5)",
+                          "nombre":  "noEncontradoEnVentas",
+                          "segundos":  0.012,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "PickupVentasHttp — bandeja y entrega pickup contra Ventas (G5)",
+                          "nombre":  "listaBandejaConToken",
+                          "segundos":  0,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "PickupVentasHttp — bandeja y entrega pickup contra Ventas (G5)",
+                          "nombre":  "confirmaEntrega",
+                          "segundos":  0.008,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "PickupVentasHttp — bandeja y entrega pickup contra Ventas (G5)",
+                          "nombre":  "caidaDeVentas",
+                          "segundos":  0.002,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "PickupVentasHttp — bandeja y entrega pickup contra Ventas (G5)",
+                          "nombre":  "conflictoDeVentas",
+                          "segundos":  0.005,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "PickupVentasHttp — bandeja y entrega pickup contra Ventas (G5)",
+                          "nombre":  "credencialRechazada",
+                          "segundos":  0.004,
+                          "tipo":  "Componente HTTP simulado",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  6,
+        "segundos":  0.031
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.integracion.ventas.RegistroPedidosMostradorTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/integracion/ventas/RegistroPedidosMostradorTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "RegistroPedidosMostrador — pedidos de mostrador por documento",
+                          "nombre":  "registraSinDuplicar",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "RegistroPedidosMostrador — pedidos de mostrador por documento",
+                          "nombre":  "ignoraDocumentoVacio",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  2,
+        "segundos":  0
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.repository.CobroTurnoRepositoryTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/repository/CobroTurnoRepositoryTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.repository.CobroTurnoRepositoryTest",
+                          "nombre":  "sumaSoloEfectivoVigente",
+                          "segundos":  0.009,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.repository.CobroTurnoRepositoryTest",
+                          "nombre":  "buscaPorLlave",
+                          "segundos":  0.008,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.repository.CobroTurnoRepositoryTest",
+                          "nombre":  "llaveDuplicadaFalla",
+                          "segundos":  0.01,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.repository.CobroTurnoRepositoryTest",
+                          "nombre":  "turnoSinCobrosDevuelveNull",
+                          "segundos":  0,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  4,
+        "segundos":  0.274
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.repository.PersonalTiendaRepositoryTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/repository/PersonalTiendaRepositoryTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.repository.PersonalTiendaRepositoryTest",
+                          "nombre":  "encuentraPerfilActivo",
+                          "segundos":  0.009,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.repository.PersonalTiendaRepositoryTest",
+                          "nombre":  "ignoraPerfilInactivo",
+                          "segundos":  0.007,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.repository.PersonalTiendaRepositoryTest",
+                          "nombre":  "distingueLaTienda",
+                          "segundos":  0.004,
+                          "tipo":  "Integración de capa",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  3,
+        "segundos":  0.032
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.repository.RegistroVentaSqlTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/repository/RegistroVentaSqlTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.repository.RegistroVentaSqlTest",
+                          "nombre":  "recuperaLaCompraPorBoletaTrasReabrirLaBaseYNoRepiteElCorrelativo",
+                          "segundos":  0.124,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  1,
+        "segundos":  0.124
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.RetailApplicationTests",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/RetailApplicationTests.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.RetailApplicationTests",
+                          "nombre":  "contextoArranca",
+                          "segundos":  0,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.RetailApplicationTests",
+                          "nombre":  "elMockDeProductosQuedaInyectado",
+                          "segundos":  0.008,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  2,
+        "segundos":  0.438
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.AuthServiceTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/AuthServiceTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.AuthServiceTest",
+                          "nombre":  "distingueAlSupervisor",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.AuthServiceTest",
+                          "nombre":  "devuelveElPerfilDelVendedor",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.AuthServiceTest",
+                          "nombre":  "usuarioSinPerfilRecibe403",
+                          "segundos":  0.005,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.AuthServiceTest",
+                          "nombre":  "elPersonalInactivoNoPuedeOperar",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  4,
+        "segundos":  0.007
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/CajaCobroServiceTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "sinCobrosElCalculoNoCambia",
+                          "segundos":  0.217,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "pendientePasaAConfirmado",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "llaveDeOtroTurnoSeRechaza",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "reintentoConfirmadoConfirmaElCobroPendiente",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "efectivoInsuficienteSeRechaza",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "turnoCerradoNoAdmiteCobros",
+                          "segundos":  0.005,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "turnoAbiertoEsValido",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "turnoAjenoNoPermiteCobrar",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "cobroConTarjetaNoTieneVuelto",
+                          "segundos":  0.005,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "confirmadoEsFinal",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "cobroEnEfectivoNacePendienteConVuelto",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "cobroInexistenteResponde404",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "actualizarEstadoSinPerfilSeRechaza(String)[1]",
+                          "segundos":  0.01,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "actualizarEstadoSinPerfilSeRechaza(String)[2]",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "actualizarEstadoSinPerfilSeRechaza(String)[3]",
+                          "segundos":  0.003,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "ventaConfirmadaRegistraCobroConfirmado",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "reporteZIncluyeElEfectivoDeVentas",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "turnoCerradoNoPermiteCobrar",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "mismaLlaveConCuerpoDistintoRespondeConflicto",
+                          "segundos":  0.007,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "medioDePagoInvalidoSeRechaza",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "mismaLlaveNoDuplicaElCobro",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "turnoInexistenteNoPermiteCobrar",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "rechazoPasaARevisionDelSupervisor",
+                          "segundos":  0.009,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "actualizarEstadoDeOtraTiendaSeRechaza",
+                          "segundos":  0.001,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaCobroServiceTest",
+                          "nombre":  "noSeAnulaEnTurnoCerrado",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  25,
+        "segundos":  0.295
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/CajaMovimientoServiceTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+                          "nombre":  "ingresoNoDependeDelSaldo",
+                          "segundos":  0.005,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+                          "nombre":  "turnoDeOtraTiendaNoAdmiteMovimientos",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+                          "nombre":  "turnoInexistenteNoAdmiteMovimientos",
+                          "segundos":  0.005,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+                          "nombre":  "egresoUnCentimoSobreElSaldoSeRechaza",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+                          "nombre":  "egresoIgualAlSaldoEsValido",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+                          "nombre":  "saldoEstimadoConsideraLosMovimientosDelTurno",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+                          "nombre":  "turnoCerradoNoAdmiteMovimientos",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+                          "nombre":  "montoSeEscalaADosDecimales",
+                          "segundos":  0.004,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaMovimientoServiceTest",
+                          "nombre":  "ingresoSumaAlSaldo",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  9,
+        "segundos":  0.022
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/CajaServiceTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "abreElTurnoConFondoFijo",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "turnoActualSinTurnoDevuelveCerrada",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "noPermiteDosTurnosEnLaMismaTerminal",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "cierraLaCajaCuadrada",
+                          "segundos":  0.008,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "noPermiteGirarMasDeLoQueHayEnGaveta",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "turnoInexistenteResponde404",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "registraElEgresoAutorizado",
+                          "segundos":  0.007,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "usuarioSinPerfilRecibe403",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "turnoDeOtraTiendaResponde403",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "marcaObservadaLaCajaConFaltante",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "marcaObservadaLaCajaConSobrante",
+                          "segundos":  0.006,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.CajaServiceTest",
+                          "nombre":  "turnoYaCerradoResponde409",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  12,
+        "segundos":  0.024
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.CarritoServiceTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/CarritoServiceTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "Suspensión de Venta / Carritos en Espera (RF-10)",
+                          "nombre":  "listaCarritosSuspendidos",
+                          "segundos":  0.004,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Suspensión de Venta / Carritos en Espera (RF-10)",
+                          "nombre":  "suspendeVentaEnEsperaCorrectamente",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Cálculo Financiero y Desglose Tributario (RF-12)",
+                          "nombre":  "carritoVacioLanzaExcepcion",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Cálculo Financiero y Desglose Tributario (RF-12)",
+                          "nombre":  "quitarCuponRestableceImportes",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Cálculo Financiero y Desglose Tributario (RF-12)",
+                          "nombre":  "calculaTotalesCorrectamenteSinDescuento",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Cálculo Financiero y Desglose Tributario (RF-12)",
+                          "nombre":  "aplicaCuponVerano2026Con10Porciento",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Cálculo Financiero y Desglose Tributario (RF-12)",
+                          "nombre":  "variasPrendasConcilianTotalEImpuesto",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Cálculo Financiero y Desglose Tributario (RF-12)",
+                          "nombre":  "cuponInvalidoNoBloqueaYDevuelveAdvertencia",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  8,
+        "segundos":  0.004
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.ClienteValidationTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/ClienteValidationTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConRucInvalidoResponde400",
+                          "segundos":  0.02,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailValidoResponde201(String)[1]",
+                          "segundos":  0.007,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailValidoResponde201(String)[2]",
+                          "segundos":  0.003,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailValidoResponde201(String)[3]",
+                          "segundos":  0.013,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailValidoResponde201(String)[4]",
+                          "segundos":  0.011,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[1]",
+                          "segundos":  0.011,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[2]",
+                          "segundos":  0.008,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[3]",
+                          "segundos":  0.006,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[4]",
+                          "segundos":  0.012,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[5]",
+                          "segundos":  0.01,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[6]",
+                          "segundos":  0.006,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[7]",
+                          "segundos":  0.008,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[8]",
+                          "segundos":  0.01,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[9]",
+                          "segundos":  0.01,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[10]",
+                          "segundos":  0.01,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[11]",
+                          "segundos":  0.013,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[12]",
+                          "segundos":  0.009,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[13]",
+                          "segundos":  0.008,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConEmailInvalidoResponde400(String)[14]",
+                          "segundos":  0.008,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "tipoNoAdmitidoResponde400",
+                          "segundos":  0,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "busquedaConRucResponde400(String)[1]",
+                          "segundos":  0.009,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "busquedaConRucResponde400(String)[2]",
+                          "segundos":  0.004,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "busquedaConRucResponde400(String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "rucRegistradoNoSePuedeBuscar",
+                          "segundos":  0.013,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "busquedaInvalidaResponde400(String, String)[1]",
+                          "segundos":  0.005,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "busquedaInvalidaResponde400(String, String)[2]",
+                          "segundos":  0.008,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "busquedaInvalidaResponde400(String, String)[3]",
+                          "segundos":  0.007,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "busquedaInvalidaResponde400(String, String)[4]",
+                          "segundos":  0.004,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "API /api/v1/retail/clientes con el padron real",
+                          "nombre":  "altaConPasaporteValidoResponde201",
+                          "segundos":  0.006,
+                          "tipo":  "Componente MVC standalone",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "rucSeRegistraPeroNoSeBusca",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "busquedaRechazaRucPorTipo(String)[1]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "busquedaRechazaRucPorTipo(String)[2]",
+                          "segundos":  0.004,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "busquedaRechazaRucPorTipo(String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "altaValidaQuedaDisponible(String, String)[1]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "altaValidaQuedaDisponible(String, String)[2]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "altaValidaQuedaDisponible(String, String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "altaRechazaFormatoInvalido(String, String)[1]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "altaRechazaFormatoInvalido(String, String)[2]",
+                          "segundos":  0.008,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "altaRechazaFormatoInvalido(String, String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "altaRechazaFormatoInvalido(String, String)[4]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "ceSinDistinguirMayusculas",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "elTipoFormaParteDeLaIdentidad",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "busquedaRechazaFormatoInvalido(String, String)[1]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "busquedaRechazaFormatoInvalido(String, String)[2]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "busquedaRechazaFormatoInvalido(String, String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "busquedaRechazaFormatoInvalido(String, String)[4]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "busquedaRechazaFormatoInvalido(String, String)[5]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ClienteServiceImpl",
+                          "nombre":  "documentoValidoInexistente",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "normalizaAlfanumericos",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaTiposNoAdmitidos(String)[1]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaTiposNoAdmitidos(String)[2]",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaTiposNoAdmitidos(String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaTiposNoAdmitidos(String)[4]",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "cadaTipoUsaSuRegex",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "dniRechazaCaracteresProhibidos(String)[1]",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "dniRechazaCaracteresProhibidos(String)[2]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "dniRechazaCaracteresProhibidos(String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "dniRechazaCaracteresProhibidos(String)[4]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "dniRechazaCaracteresProhibidos(String)[5]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "dniRechazaCaracteresProhibidos(String)[6]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "dniRechazaCaracteresProhibidos(String)[7]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "dniRechazaCaracteresProhibidos(String)[8]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[1]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[2]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[4]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[5]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[6]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[7]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[8]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[9]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "aceptaDocumentosValidos(String, String)[10]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rucRechazaPrefijosNoAutorizados(String)[1]",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rucRechazaPrefijosNoAutorizados(String)[2]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rucRechazaPrefijosNoAutorizados(String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rucRechazaPrefijosNoAutorizados(String)[4]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rucRechazaPrefijosNoAutorizados(String)[5]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaLongitudesIncorrectas(String, String, int)[1]",
+                          "segundos":  0.008,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaLongitudesIncorrectas(String, String, int)[2]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaLongitudesIncorrectas(String, String, int)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaLongitudesIncorrectas(String, String, int)[4]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaLongitudesIncorrectas(String, String, int)[5]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaLongitudesIncorrectas(String, String, int)[6]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaLongitudesIncorrectas(String, String, int)[7]",
+                          "segundos":  0.008,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaLongitudesIncorrectas(String, String, int)[8]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "ceYPasaporteRechazanSimbolos(String, String)[1]",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "ceYPasaporteRechazanSimbolos(String, String)[2]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "ceYPasaporteRechazanSimbolos(String, String)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "ceYPasaporteRechazanSimbolos(String, String)[4]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "ceYPasaporteRechazanSimbolos(String, String)[5]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "ceYPasaporteRechazanSimbolos(String, String)[6]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaNumeroAusente(String)[1]",
+                          "segundos":  0.003,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "ValidadorDocumento",
+                          "nombre":  "rechazaNumeroAusente(String)[2]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  93,
+        "segundos":  0.359
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.HashContingenciaTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/HashContingenciaTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.HashContingenciaTest",
+                          "nombre":  "hashEsDeterminista",
+                          "segundos":  0.001,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.HashContingenciaTest",
+                          "nombre":  "alteracionModificaHash",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  2,
+        "segundos":  0.003
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.HistorialPedidosServiceTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/HistorialPedidosServiceTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "porDocumentoSoloVentasDeEstaEjecucion",
+                          "segundos":  0.057,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "porDocumentoOrdenaDescendente",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "pagina",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "historialAscendenteEnLima",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "detalleInexistente",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "sinPerfilActivoResponde403",
+                          "segundos":  0.01,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "porCodigo",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "documentoInvalido",
+                          "segundos":  0.005,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "codigoYDocumentoDeOtroComprador",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "supervisorPuedeConsultar",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "codigoInexistente",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "porDocumentoOmiteLasQueVentasNoConoce",
+                          "segundos":  0.005,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "perfilNoPermitidoResponde403",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "lineasConSubtotal",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "sinFiltros",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "HistorialPedidosService — F6 (RF-16, RF-17)",
+                          "nombre":  "paginacionInvalida",
+                          "segundos":  0.006,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  16,
+        "segundos":  0.083
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.PickupServiceTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/PickupServiceTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PickupServiceTest",
+                          "nombre":  "uuidSinCodigoNoSeAdivina",
+                          "segundos":  0.054,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PickupServiceTest",
+                          "nombre":  "codigoTextualSeUsaTalCual",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PickupServiceTest",
+                          "nombre":  "terceroConCartaPoderRecogePedidoSinDni",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PickupServiceTest",
+                          "nombre":  "titularSinDniRegistradoResponde422",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PickupServiceTest",
+                          "nombre":  "cadaSucursalConsultaSuBandeja",
+                          "segundos":  0.007,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  5,
+        "segundos":  0.061
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/PoliticaInspeccionPrendaTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "cambioDeTallaConUsoSeRechaza",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "cambioDeTallaCompletoSeAprueba",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "cambioDeModeloEsOrdinario",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "exigeMotivoEInspeccion",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "cambioDeTallaSinEtiquetasSeRechaza",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "elEmpaqueNoBloquea(MotivoCambio)[1]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "elEmpaqueNoBloquea(MotivoCambio)[2]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "elEmpaqueNoBloquea(MotivoCambio)[3]",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "fallaDeFabricaSeApruebaPorGarantia",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaInspeccionPrendaTest",
+                          "nombre":  "listaTodasLasCondicionesIncumplidas",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  10,
+        "segundos":  0.003
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.PoliticaPlazoCambioTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/PoliticaPlazoCambioTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaPlazoCambioTest",
+                          "nombre":  "elUltimoDiaEsValido",
+                          "segundos":  0.001,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaPlazoCambioTest",
+                          "nombre":  "compraDeHoyEstaEnPlazo",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaPlazoCambioTest",
+                          "nombre":  "fechaFuturaNoCuentaNegativo",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaPlazoCambioTest",
+                          "nombre":  "unDiaDespuesSeBloquea",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaPlazoCambioTest",
+                          "nombre":  "cuentaConElCalendarioDeLaTienda",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaPlazoCambioTest",
+                          "nombre":  "rechazaPlazosInvalidos",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.PoliticaPlazoCambioTest",
+                          "nombre":  "elPlazoEsConfigurable",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  7,
+        "segundos":  0.003
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.VentaCobroCorteZIntegrationTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/VentaCobroCorteZIntegrationTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "Flujo integrado: venta en mostrador -\u003e cobro en el turno -\u003e Corte Z",
+                          "nombre":  "turnoNoSustituyeAlVendedor",
+                          "segundos":  0.035,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Flujo integrado: venta en mostrador -\u003e cobro en el turno -\u003e Corte Z",
+                          "nombre":  "ventaConfirmadaConfirmaElCobro",
+                          "segundos":  0.02,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Flujo integrado: venta en mostrador -\u003e cobro en el turno -\u003e Corte Z",
+                          "nombre":  "reintentoNoDuplicaElCobro",
+                          "segundos":  0.037,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Flujo integrado: venta en mostrador -\u003e cobro en el turno -\u003e Corte Z",
+                          "nombre":  "terminalDistintaALaDelTurno",
+                          "segundos":  0.013,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Flujo integrado: venta en mostrador -\u003e cobro en el turno -\u003e Corte Z",
+                          "nombre":  "ventasDelTurnoComputanEnCorteZ",
+                          "segundos":  0.042,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  5,
+        "segundos":  0.56
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/VentaReintentosIntegrationTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "reintentoDeOtraTiendaSeRechaza",
+                          "segundos":  0.034,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "reintentoSinPerfilSeRechaza",
+                          "segundos":  0.019,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "reintentoDespuesDelCierreDevuelveOriginal",
+                          "segundos":  0.027,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaVentaConDistintaEscalaDecimalDevuelveOriginal",
+                          "segundos":  0.022,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[1]",
+                          "segundos":  0.028,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[2]",
+                          "segundos":  0.02,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[3]",
+                          "segundos":  0.024,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[4]",
+                          "segundos":  0.022,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[5]",
+                          "segundos":  0.016,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[6]",
+                          "segundos":  0.028,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[7]",
+                          "segundos":  0.023,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[8]",
+                          "segundos":  0.019,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[9]",
+                          "segundos":  0.019,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[10]",
+                          "segundos":  0.017,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[11]",
+                          "segundos":  0.017,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "pe.edu.unmsm.fisi.retail.service.VentaReintentosIntegrationTest",
+                          "nombre":  "mismaClaveConOtroCuerpoSeRechaza(String)[12]",
+                          "segundos":  0.02,
+                          "tipo":  "Integración",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  16,
+        "segundos":  0.368
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.VentaServiceCobroTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/VentaServiceCobroTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "VentaService: cobro de la venta en el turno de caja",
+                          "nombre":  "falloAlPersistirElCobroSePropagaYElReintentoCobra",
+                          "segundos":  0.068,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "VentaService: cobro de la venta en el turno de caja",
+                          "nombre":  "validaElPerfilDelUsuarioAutenticado",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "VentaService: cobro de la venta en el turno de caja",
+                          "nombre":  "turnoComoUsuarioNoSeSaltaLaValidacion",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  3,
+        "segundos":  0.074
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.VentaServiceTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/VentaServiceTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "Registro para la consulta histórica (F6)",
+                          "nombre":  "registraElPedidoPorDocumento",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Integración con Módulo de Ventas G5 (Hito 3)",
+                          "nombre":  "aplicaFallbackLocalAnteFalloDeVentas",
+                          "segundos":  0.006,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Integración con Módulo de Ventas G5 (Hito 3)",
+                          "nombre":  "adoptaPedidoIdDeVentasG5",
+                          "segundos":  0.006,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Estructura de respuesta (contrato v0.4 §5.5)",
+                          "nombre":  "respuestaTieneCamposDelContrato",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Validacion de turno de caja",
+                          "nombre":  "turnoAbiertoPermiteVenta",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Validacion de turno de caja",
+                          "nombre":  "turnoNoAbiertoLanzaExcepcion",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Ticket de regalo",
+                          "nombre":  "sinRegaloTicketEsNull",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Ticket de regalo",
+                          "nombre":  "conRegaloTicketTieneCodigoCanje",
+                          "segundos":  0.008,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Idempotencia",
+                          "nombre":  "mismaLlaveDevuelveMismoPedidoId",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Idempotencia",
+                          "nombre":  "diferentesLlavesGeneranPedidosDistintos",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Normativa SUNAT",
+                          "nombre":  "boletaSinDniMenorA700EsValida",
+                          "segundos":  0.004,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Normativa SUNAT",
+                          "nombre":  "boletaMayorA700ConDniEsValida",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Normativa SUNAT",
+                          "nombre":  "boletaMayorA700SinDniCausaExcepcion",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Normativa SUNAT",
+                          "nombre":  "facturaSinRucCausaExcepcion",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo de vuelto y validacion de pago",
+                          "nombre":  "pagoTarjetaVueltoCero",
+                          "segundos":  0.004,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo de vuelto y validacion de pago",
+                          "nombre":  "pagoConBilleteDe200",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo de vuelto y validacion de pago",
+                          "nombre":  "pagoInsuficienteCausaExcepcion",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo de vuelto y validacion de pago",
+                          "nombre":  "pagoConExcedenteCalculaVuelto",
+                          "segundos":  0.006,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo de vuelto y validacion de pago",
+                          "nombre":  "pagoExactoVueltoCero",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo de vuelto y validacion de pago",
+                          "nombre":  "tarjetaSinReferenciaCausaExcepcion",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo de vuelto y validacion de pago",
+                          "nombre":  "tarjetaReferenciaCorta",
+                          "segundos":  0.003,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo fiscal IGV 18 %",
+                          "nombre":  "igvRedondeadoCorrectamente",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo fiscal IGV 18 %",
+                          "nombre":  "descomposicionFiscalCorrecta",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "Calculo fiscal IGV 18 %",
+                          "nombre":  "totalEsSumaDeItems",
+                          "segundos":  0.003,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  24,
+        "segundos":  0.056
+    },
+    {
+        "clase":  "pe.edu.unmsm.fisi.retail.service.VentaTiendaCodigoTest",
+        "ruta":  "src/test/java/pe/edu/unmsm/fisi/retail/service/VentaTiendaCodigoTest.java",
+        "casos":  [
+                      {
+                          "grupo":  "F5 — tiendaId enviado a Ventas (R5, D-05)",
+                          "nombre":  "uuidSinCodigoNoSeAdivina",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "F5 — tiendaId enviado a Ventas (R5, D-05)",
+                          "nombre":  "perfilConCodigoLoEnviaIgual",
+                          "segundos":  0.002,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      },
+                      {
+                          "grupo":  "F5 — tiendaId enviado a Ventas (R5, D-05)",
+                          "nombre":  "perfilConUuidEnviaCodigoDeSucursal",
+                          "segundos":  0,
+                          "tipo":  "Unitaria",
+                          "estado":  "aprobado"
+                      }
+                  ],
+        "cantidad":  3,
+        "segundos":  0.002
+    }
+]

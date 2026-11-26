@@ -1,0 +1,47 @@
+[INFO] Scanning for projects...
+
+[INFO]
+
+[INFO] ----------------------< pe.edu.unmsm.fisi:retail >----------------------
+
+[INFO] Building ms-retail 0.0.1-SNAPSHOT
+
+[INFO]   from pom.xml
+
+[INFO] --------------------------------[ jar ]---------------------------------
+
+[WARNING] The POM for org.springdoc:springdoc-openapi-starter-webmvc-ui:jar:2.8.9 is missing, no dependency information available
+
+[INFO] ------------------------------------------------------------------------
+
+[INFO] BUILD FAILURE
+
+[INFO] ------------------------------------------------------------------------
+
+[INFO] Total time:  1.024 s
+
+[INFO] Finished at: 2026-11-24T21:56:51-05:00
+
+[INFO] ------------------------------------------------------------------------
+
+[ERROR] Failed to execute goal on project retail: Could not resolve dependencies for project pe.edu.unmsm.fisi:retail:jar:0.0.1-SNAPSHOT
+
+[ERROR] dependency: org.springdoc:springdoc-openapi-starter-webmvc-ui:jar:2.8.9 (compile)
+
+[ERROR] 	Cannot access central-8fac3ebd6edbaca3c794783fa38088af0aa128e7 (https://repo.maven.apache.org/maven2) in offline mode and the artifact org.springdoc:springdoc-openapi-starter-webmvc-ui:jar:2.8.9 has not been downloaded from it before.
+
+[ERROR] 	Cannot access central (https://repo.maven.apache.org/maven2) in offline mode and the artifact org.springdoc:springdoc-openapi-starter-webmvc-ui:jar:2.8.9 has not been downloaded from it before.
+
+[ERROR] -> [Help 1]
+
+[ERROR]
+
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+
+[ERROR]
+
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
