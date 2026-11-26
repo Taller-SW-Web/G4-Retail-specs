@@ -1,4 +1,4 @@
-# Contrato de API — Módulo Retail (G4) · v0.5.3
+# Contrato de API — Módulo Retail (G4) · v0.5.4
 
 | Campo | Valor |
 |---|---|
@@ -984,7 +984,16 @@ X-Correlation-Id: <uuid>
 ```
 - El acta se imprime desde el POS con estos datos; Retail no genera PDF. El correlativo es por año y único en el módulo. Cada incidencia guarda su `actaNumero`, y la notificación a Inventory sale por el outbox de incidencias (no la hace este endpoint).
 - El acta **documenta la salida, pero no cierra el caso**: Inventory resuelve cada incidencia y registra la recepción en el almacén central.
-- **Errores:** `400 LISTA_VACIA`; `409 INCIDENCIA_NO_EN_CUARENTENA`.
+- **Estado de cada incidencia según `tipoDestino`** (decisión del PO, 26/11):
+
+  | `tipoDestino` | Estado de la incidencia |
+  |---|---|
+  | `DEVOLUCION_CENTRAL` | `DERIVADO_ALMACEN` |
+  | `BAJA_DEFINITIVA` | `BAJA_DEFINITIVA` |
+  | `AJUSTE_PERDIDA` | `BAJA_DEFINITIVA`: la prenda extraviada no vuelve a la venta ni viaja al almacén; Inventory registra el faltante al resolver la incidencia |
+
+- **Solo entran incidencias en `EN_CUARENTENA`**, es decir, las que Inventory ya aceptó (decisión del PO, 26/11). Una incidencia en `PENDIENTE_REPORTE` todavía no existe en Inventory: el acta no la despacha y responde `409 INCIDENCIA_NO_EN_CUARENTENA` hasta que el outbox la confirme. Lo mismo para una incidencia ya liquidada o de otra tienda.
+- **Errores:** `400 LISTA_VACIA`; `409 INCIDENCIA_NO_EN_CUARENTENA` (alguna incidencia no está en `EN_CUARENTENA`; el acta no se emite y nada cambia).
 
 ---
 
@@ -1103,6 +1112,10 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 ---
 
 ## 11. Cambios respecto de v0.4
+
+**v0.5.4 (26/11, acta de merma):**
+
+- **F12 (§5.12):** estado de cada incidencia según `tipoDestino` (`AJUSTE_PERDIDA` → `BAJA_DEFINITIVA`) y el acta solo admite incidencias en `EN_CUARENTENA`.
 
 **v0.5.3 (26/11, prueba de punta a punta contra G6 real):**
 
