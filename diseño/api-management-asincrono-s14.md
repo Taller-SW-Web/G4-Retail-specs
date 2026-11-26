@@ -45,7 +45,8 @@ Retail aplica la capa en los dos sentidos:
 | Límite de peticiones | Ventana por minuto por vendedor (`sub`) o por IP (`LimitePeticionesFilter`). Responde `X-RateLimit-Limit`, `X-RateLimit-Remaining` y `429 DEMASIADAS_SOLICITUDES` con `Retry-After` | `RETAIL_LIMITE_PETICIONES_POR_MINUTO` (120 en la nube) |
 | Trazabilidad | `X-Correlation-Id` recibido o generado, devuelto en la respuesta y en el cuerpo de los errores, escrito en el MDC y propagado a G5, G6 y G7 (`TrazabilidadFilter`, `CorrelacionSaliente`) | — |
 | Catálogo de la API | OpenAPI en `/v3/api-docs` y Swagger UI en `/swagger-ui.html` | — |
-| Consumo de Ventas por gateway | `RETAIL_VENTAS_URL=https://g5-api-gateway.onrender.com`. El gateway de G5 aplica autenticación (`401 TOKEN_INVALIDO` sin token), límite (`x-ratelimit-limit: 60`) y su propio `x-correlation-id` | `RETAIL_VENTAS_URL` |
+| Consumo de Ventas por gateway | `RETAIL_VENTAS_URL=https://g5-api-gateway.onrender.com`. El gateway de G5 aplica autenticación (`401 TOKEN_INVALIDO` sin token), límite (300 por minuto por cliente con token; 60 por IP sin token) y su propio `x-correlation-id` | `RETAIL_VENTAS_URL` |
+| Consumo de Productos por gateway | `RETAIL_PRODUCTOS_URL=https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1`. El gateway de G6 responde `401 TOKEN_INVALIDO` sin token y devuelve su `x-correlation-id` (verificado el 26/11) | `RETAIL_PRODUCTOS_URL` |
 
 ### Evidencia (backend local, límite forzado a 5 por minuto)
 
@@ -136,9 +137,9 @@ Consultas de evidencia en Supabase: `G4-Retail-backend/diseño_bd/migracion-s14-
 | `RETAIL_LIMITE_PETICIONES_POR_MINUTO` | `120` | Límite por vendedor |
 | `RETAIL_OUTBOX_INTERVALO_MS` | `30000` | Frecuencia del job del outbox |
 | `RETAIL_INVENTARIO_MODO` / `RETAIL_INVENTARIO_URL` | `memoria` hasta que G6 confirme `location_id` y scopes; luego `g6` y su URL | Destino del outbox |
-| `RETAIL_PRODUCTOS_URL` + quitar `mock` de `SPRING_PROFILES_ACTIVE` | URL de G6 terminada en `/api/v1` | Catálogo, precios, disponibilidad, promociones y campañas reales |
+| `RETAIL_PRODUCTOS_URL` + quitar `mock` de `SPRING_PROFILES_ACTIVE` | `https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1`, cuando G7 registre los scopes | Catálogo, precios, disponibilidad, promociones y campañas reales |
 | `RETAIL_CLIENTES_MODO` | `memoria` hasta que G7 confirme los permisos del `VENDEDOR`; luego `g7` | Clientes en `/usuarios/*` |
 
 Antes de activar el modo real, ejecutar `migracion-s14-outbox.sql` en Supabase.
 
-> **Ojo con las pruebas de performance:** el gateway de G5 informa `x-ratelimit-limit: 60`. Si ese límite es por cliente, una prueba de carga sobre `POST /retail/ventas` contra G5 real se topa con `429` del gateway antes que con los límites de Retail. Se le consultó a G5.
+> **Ojo con las pruebas de performance:** con el token de `modulo-retail`, el gateway de G5 admite 300 peticiones por minuto sumando todas las cajas (G5, 26/11). Una prueba de carga sobre `POST /retail/ventas` contra G5 real que pase de eso recibe `429` del gateway. Si hace falta más, G5 lo sube a pedido.
