@@ -1,4 +1,4 @@
-# Contrato de API — Módulo Retail (G4) · v0.5.2
+# Contrato de API — Módulo Retail (G4) · v0.5.3
 
 | Campo | Valor |
 |---|---|
@@ -255,7 +255,8 @@ Notas:
 
 | Operación | Ruta oficial (Anexo C del reporte) | Estado |
 |---|---|---|
-| Catálogo comercial | `GET /api/v1/productos` (paginación desde `1`, sin precios) · `GET /api/v1/productos/{id}/variantes` | ✅ OpenAPI de G6 (`G4-Retail-backend/docs/integracion-productos-g6.md`) |
+| Catálogo comercial | `GET /api/v1/productos?canal=RETAIL` (paginación desde `1`, sin precios) · variantes desde el detalle `GET /api/v1/productos/{id}?canal=RETAIL` (campo `variants`). **No** se usa `GET /productos/{id}/variantes`: solo acepta tokens de usuario y responde `403 SCOPE_INSUFICIENTE` al token de servicio · nombres de marca y categoría con `GET /api/v1/marcas` y `GET /api/v1/categorias` | ✅ OpenAPI de G6 · ✅ probado contra G6 real el 26/11 |
+| Formato de atributos | `valor` puede ser de cualquier tipo. Talla y color llegan como `{ "nombre": "S", "valor_id": "…" }`: Retail muestra `nombre` | ✅ Probado contra G6 real el 26/11 |
 | Precio vigente de un SKU | `GET /api/v1/precios/skus/{sku}` (scope `precios:leer`) | ✅ OpenAPI de G6 |
 | Disponibilidad comercial (sin cantidades) | `GET /api/v1/inventario/disponibilidad/comercial?skus=…&canal=RETAIL` (hasta 100 SKU, scope `inventario:disponibilidad:leer`) | ✅ OpenAPI de G6. `INDETERMINADO` **no** equivale a `AGOTADO` (G6, 26/11) |
 | Resolver código de barras (no asumir código = SKU) | `POST /api/v1/productos/codigos-barras/resolver` (devuelve solo el `sku`) | ✅ OpenAPI de G6 |
@@ -1102,6 +1103,12 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 ---
 
 ## 11. Cambios respecto de v0.4
+
+**v0.5.3 (26/11, prueba de punta a punta contra G6 real):**
+
+- **Productos (§4.2):** las variantes salen del detalle comercial `GET /productos/{id}?canal=RETAIL`; marca y categoría se muestran por nombre (`/marcas`, `/categorias`) y el filtro del catálogo acepta el nombre; talla y color se leen de `valor.nombre`.
+- **F4 (§5.4):** se cumple que el precio del carrito sale de Productos y no del cliente (antes se usaba el enviado o 100.00).
+- Verificado en local contra G6 real: catálogo (52 productos), código de barras, carrito con precio y cupón, F11 completo con G5 y G6.
 
 **v0.5.2 (26/11, cierre con G5, G6 y G7):**
 
