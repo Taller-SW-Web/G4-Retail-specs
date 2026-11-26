@@ -1,0 +1,144 @@
+{
+  "fechaRevisionUTC": "2026-11-26T04:37:25.451861+00:00",
+  "resultado": "CONSISTENTE_CON_LOS_ARCHIVOS_ENTREGADOS",
+  "alcance": "Revisión documental y aritmética; no es reejecución ni certificación del código actual",
+  "backend": {
+    "clases": 41,
+    "casos": 390,
+    "por_tipo": {
+      "Componente HTTP simulado": 19,
+      "Componente MVC standalone": 29,
+      "Integración": 116,
+      "Integración de capa": 18,
+      "Unitaria": 208
+    }
+  },
+  "frontend": {
+    "archivos": 43,
+    "casos": 233
+  },
+  "coberturaBackend": {
+    "INSTRUCTION": {
+      "tipo": "INSTRUCTION",
+      "cubiertos": 10339,
+      "noCubiertos": 1042,
+      "total": 11381,
+      "porcentaje": 90.84
+    },
+    "BRANCH": {
+      "tipo": "BRANCH",
+      "cubiertos": 506,
+      "noCubiertos": 223,
+      "total": 729,
+      "porcentaje": 69.41
+    },
+    "LINE": {
+      "tipo": "LINE",
+      "cubiertos": 1756,
+      "noCubiertos": 174,
+      "total": 1930,
+      "porcentaje": 90.98
+    },
+    "COMPLEXITY": {
+      "tipo": "COMPLEXITY",
+      "cubiertos": 634,
+      "noCubiertos": 233,
+      "total": 867,
+      "porcentaje": 73.13
+    },
+    "METHOD": {
+      "tipo": "METHOD",
+      "cubiertos": 470,
+      "noCubiertos": 29,
+      "total": 499,
+      "porcentaje": 94.19
+    },
+    "CLASS": {
+      "tipo": "CLASS",
+      "cubiertos": 161,
+      "noCubiertos": 2,
+      "total": 163,
+      "porcentaje": 98.77
+    }
+  },
+  "coberturaFrontend": {
+    "lines": {
+      "total": 1616,
+      "covered": 1250,
+      "skipped": 0,
+      "pct": 77.35
+    },
+    "statements": {
+      "total": 1894,
+      "covered": 1423,
+      "skipped": 0,
+      "pct": 75.13
+    },
+    "functions": {
+      "total": 602,
+      "covered": 428,
+      "skipped": 0,
+      "pct": 71.09
+    },
+    "branches": {
+      "total": 1445,
+      "covered": 1005,
+      "skipped": 0,
+      "pct": 69.55
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "rfEnMatriz": 28,
+  "archivos": [
+    {
+      "archivo": "informe-pruebas-unitarias-s14.md",
+      "bytes": 61809,
+      "sha256": "d76df354eebc48f4ef79ef5b5717dbe5dda502f4df4de937d8e6fa672ff89da8"
+    },
+    {
+      "archivo": "evidencias-s14/backend-cobertura.json",
+      "bytes": 29637,
+      "sha256": "66321ed02dce270e5924cafd9ad407bb2df1b941e109d1ad66e079864bbe6c6e"
+    },
+    {
+      "archivo": "evidencias-s14/backend-cobertura.png",
+      "bytes": 69543,
+      "sha256": "ed5b3343cddb0844929f8985735196a7ea631e1688011bfc3b816ade9c232e41"
+    },
+    {
+      "archivo": "evidencias-s14/backend-resultados.json",
+      "bytes": 151583,
+      "sha256": "e2ba26d0d27d457a222bda6d36bd2e5baa41e09154e9c5a17bf867b747904b4f"
+    },
+    {
+      "archivo": "evidencias-s14/frontend-cobertura.json",
+      "bytes": 26652,
+      "sha256": "d608d7596577a1a74be06b409679bad18d09e0ef911329a39d0545bad31c7f6d"
+    },
+    {
+      "archivo": "evidencias-s14/frontend-cobertura.png",
+      "bytes": 124524,
+      "sha256": "b58951135eb6d7d58d85162b939ac4c5cabbc4f7d7a6dff5ecf67a820b4a0b21"
+    },
+    {
+      "archivo": "evidencias-s14/frontend-resultados.json",
+      "bytes": 84074,
+      "sha256": "94bc16ca8b97b36fd389e1e05b0314bf10522661aee0bb94852087a4d28c086c"
+    },
+    {
+      "archivo": "evidencias-s14/resultados-ejecucion.html",
+      "bytes": 1861,
+      "sha256": "bd462582f037ce120aa81eb081da8475a662cac10f924d1433afb2cdb680281b"
+    },
+    {
+      "archivo": "evidencias-s14/resultados-ejecucion.png",
+      "bytes": 39292,
+      "sha256": "45e69cfccd5778189dea6bf98eec1a73b2cbd0e6dfedcb8f923b9d92af22aada"
+    }
+  ]
+}

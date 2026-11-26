@@ -1,0 +1,1985 @@
+{
+  "startTime": 1795582970682,
+  "numTotalTests": 233,
+  "numPassedTests": 233,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "success": true,
+  "testResults": [
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/api/catalogoApi.test.ts",
+      "startTime": 1795582977283,
+      "endTime": 1795582977292.4292,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "catálogo de Retail (F2 · RF-04, RF-05, RF-06 · contrato §5.2) convierte el artículo del backend al producto del POS con sus variantes y SKU reales",
+          "title": "convierte el artículo del backend al producto del POS con sus variantes y SKU reales",
+          "status": "passed",
+          "duration": 4.800399999999968,
+          "failureMessages": []
+        },
+        {
+          "fullName": "catálogo de Retail (F2 · RF-04, RF-05, RF-06 · contrato §5.2) usa el stock de la tienda o, si no llega, lo deriva de la disponibilidad (RF-06)",
+          "title": "usa el stock de la tienda o, si no llega, lo deriva de la disponibilidad (RF-06)",
+          "status": "passed",
+          "duration": 0.75,
+          "failureMessages": []
+        },
+        {
+          "fullName": "catálogo de Retail (F2 · RF-04, RF-05, RF-06 · contrato §5.2) no deja vender una variante en cuarentena (RF-33)",
+          "title": "no deja vender una variante en cuarentena (RF-33)",
+          "status": "passed",
+          "duration": 0.25619999999997844,
+          "failureMessages": []
+        },
+        {
+          "fullName": "catálogo de Retail (F2 · RF-04, RF-05, RF-06 · contrato §5.2) el stock del artículo es la suma del de sus variantes",
+          "title": "el stock del artículo es la suma del de sus variantes",
+          "status": "passed",
+          "duration": 0.23539999999997008,
+          "failureMessages": []
+        },
+        {
+          "fullName": "catálogo de Retail (F2 · RF-04, RF-05, RF-06 · contrato §5.2) un artículo de talla única se vende directo con su SKU, sin matriz de tallas",
+          "title": "un artículo de talla única se vende directo con su SKU, sin matriz de tallas",
+          "status": "passed",
+          "duration": 0.458500000000015,
+          "failureMessages": []
+        },
+        {
+          "fullName": "catálogo de Retail (F2 · RF-04, RF-05, RF-06 · contrato §5.2) traduce las categorías del backend a las del mostrador",
+          "title": "traduce las categorías del backend a las del mostrador",
+          "status": "passed",
+          "duration": 1.5289999999999964,
+          "failureMessages": []
+        },
+        {
+          "fullName": "catálogo de Retail (F2 · RF-04, RF-05, RF-06 · contrato §5.2) pide GET /api/v1/retail/catalogo y recorre todas las páginas",
+          "title": "pide GET /api/v1/retail/catalogo y recorre todas las páginas",
+          "status": "passed",
+          "duration": 1.4291999999999803,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/api/pedidoApi.mocks.test.ts",
+      "startTime": 1795582976369,
+      "endTime": 1795582976383.621,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "pedidoApi en modo simulado (F6 · RF-16, RF-17) busca por DNI y devuelve los pedidos del más reciente al más antiguo",
+          "title": "busca por DNI y devuelve los pedidos del más reciente al más antiguo",
+          "status": "passed",
+          "duration": 8.10560000000001,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidoApi en modo simulado (F6 · RF-16, RF-17) pagina los resultados con page y size",
+          "title": "pagina los resultados con page y size",
+          "status": "passed",
+          "duration": 2.3419999999999845,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidoApi en modo simulado (F6 · RF-16, RF-17) busca por código de pedido",
+          "title": "busca por código de pedido",
+          "status": "passed",
+          "duration": 1.274799999999999,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidoApi en modo simulado (F6 · RF-16, RF-17) responde 404 PEDIDO_NO_ENCONTRADO si ningún pedido coincide",
+          "title": "responde 404 PEDIDO_NO_ENCONTRADO si ningún pedido coincide",
+          "status": "passed",
+          "duration": 1.1014999999999873,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidoApi en modo simulado (F6 · RF-16, RF-17) devuelve el detalle con su historial de estados en orden cronológico",
+          "title": "devuelve el detalle con su historial de estados en orden cronológico",
+          "status": "passed",
+          "duration": 0.8352000000000146,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidoApi en modo simulado (F6 · RF-16, RF-17) responde 404 al pedir el detalle de un pedido inexistente",
+          "title": "responde 404 al pedir el detalle de un pedido inexistente",
+          "status": "passed",
+          "duration": 0.6211000000000126,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/api/pedidoApi.test.ts",
+      "startTime": 1795582978324,
+      "endTime": 1795582978330.335,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "pedidoApi (F6 · RF-16) arma la consulta con un solo filtro y la paginación del contrato",
+          "title": "arma la consulta con un solo filtro y la paginación del contrato",
+          "status": "passed",
+          "duration": 3.856899999999996,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidoApi (F6 · RF-16) busca por DNI en GET /api/v1/retail/pedidos",
+          "title": "busca por DNI en GET /api/v1/retail/pedidos",
+          "status": "passed",
+          "duration": 1.7364000000000033,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidoApi (F6 · RF-16) pide el detalle en GET /api/v1/retail/pedidos/{pedidoId} con el id codificado",
+          "title": "pide el detalle en GET /api/v1/retail/pedidos/{pedidoId} con el id codificado",
+          "status": "passed",
+          "duration": 0.33490000000000464,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/api/pickupApi.mocks.test.ts",
+      "startTime": 1795582976335,
+      "endTime": 1795582976351.0217,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "pickupApi en modo simulado: reglas de entrega (F7 · RF-18, RF-19) RF-19: entrega al titular, emite la constancia y el pedido sale de la bandeja",
+          "title": "RF-19: entrega al titular, emite la constancia y el pedido sale de la bandeja",
+          "status": "passed",
+          "duration": 9.334299999999985,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pickupApi en modo simulado: reglas de entrega (F7 · RF-18, RF-19) rechaza un DNI mal formado o un nombre vacío (400)",
+          "title": "rechaza un DNI mal formado o un nombre vacío (400)",
+          "status": "passed",
+          "duration": 1.729299999999995,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pickupApi en modo simulado: reglas de entrega (F7 · RF-18, RF-19) no entrega dos veces ni pedidos que no están en la bandeja (404)",
+          "title": "no entrega dos veces ni pedidos que no están en la bandeja (404)",
+          "status": "passed",
+          "duration": 1.0506000000000029,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pickupApi en modo simulado: reglas de entrega (F7 · RF-18, RF-19) no entrega un paquete que todavía no está listo para recojo (409)",
+          "title": "no entrega un paquete que todavía no está listo para recojo (409)",
+          "status": "passed",
+          "duration": 0.6965999999999894,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pickupApi en modo simulado: reglas de entrega (F7 · RF-18, RF-19) un tercero solo recoge con la carta poder verificada (422)",
+          "title": "un tercero solo recoge con la carta poder verificada (422)",
+          "status": "passed",
+          "duration": 1.0259000000000071,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pickupApi en modo simulado: reglas de entrega (F7 · RF-18, RF-19) el titular debe presentar su propio DNI (422)",
+          "title": "el titular debe presentar su propio DNI (422)",
+          "status": "passed",
+          "duration": 0.7484000000000037,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pickupApi en modo simulado: reglas de entrega (F7 · RF-18, RF-19) si sessionStorage está bloqueado, la bandeja sigue funcionando",
+          "title": "si sessionStorage está bloqueado, la bandeja sigue funcionando",
+          "status": "passed",
+          "duration": 1.0217000000000098,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/api/pickupApi.test.ts",
+      "startTime": 1795582978348,
+      "endTime": 1795582978353.642,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "pickupApi contra el backend (F7 · RF-18, RF-19, contrato §5.7) RF-18: lista la bandeja en GET /api/v1/retail/pickup/pendientes",
+          "title": "RF-18: lista la bandeja en GET /api/v1/retail/pickup/pendientes",
+          "status": "passed",
+          "duration": 3.83239999999995,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pickupApi contra el backend (F7 · RF-18, RF-19, contrato §5.7) RF-19: registra la entrega en POST /retail/pickup/{pedidoId}/entrega con el id codificado",
+          "title": "RF-19: registra la entrega en POST /retail/pickup/{pedidoId}/entrega con el id codificado",
+          "status": "passed",
+          "duration": 0.5620999999999867,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pickupApi contra el backend (F7 · RF-18, RF-19, contrato §5.7) valida el código de retiro de 6 caracteres alfanuméricos en mayúsculas",
+          "title": "valida el código de retiro de 6 caracteres alfanuméricos en mayúsculas",
+          "status": "passed",
+          "duration": 0.6419999999999959,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pickupApi contra el backend (F7 · RF-18, RF-19, contrato §5.7) suma las prendas del bulto",
+          "title": "suma las prendas del bulto",
+          "status": "passed",
+          "duration": 0.32490000000001373,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/api/seguridad.g7.test.ts",
+      "startTime": 1795582977322,
+      "endTime": 1795582977329.4717,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "iniciarSesion contra Seguridad (G7) envía el correo normalizado y la contraseña a POST /api/v1/auth/login",
+          "title": "envía el correo normalizado y la contraseña a POST /api/v1/auth/login",
+          "status": "passed",
+          "duration": 4.914199999999994,
+          "failureMessages": []
+        },
+        {
+          "fullName": "iniciarSesion contra Seguridad (G7) si G7 rechaza las credenciales, propaga el 401",
+          "title": "si G7 rechaza las credenciales, propaga el 401",
+          "status": "passed",
+          "duration": 2.018100000000004,
+          "failureMessages": []
+        },
+        {
+          "fullName": "iniciarSesion contra Seguridad (G7) si G7 no responde, no entra con un usuario semilla",
+          "title": "si G7 no responde, no entra con un usuario semilla",
+          "status": "passed",
+          "duration": 0.4715999999999667,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/api/seguridad.test.ts",
+      "startTime": 1795582971120,
+      "endTime": 1795582971844.0317,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "Seguridad API (F1) nombreDelToken extrae el nombre cuando la claim nombre está presente",
+          "title": "extrae el nombre cuando la claim nombre está presente",
+          "status": "passed",
+          "duration": 2.756399999999985,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Seguridad API (F1) nombreDelToken extrae el email si la claim nombre no está presente",
+          "title": "extrae el email si la claim nombre no está presente",
+          "status": "passed",
+          "duration": 0.3569999999999709,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Seguridad API (F1) nombreDelToken devuelve sub si no hay nombre ni email",
+          "title": "devuelve sub si no hay nombre ni email",
+          "status": "passed",
+          "duration": 0.2407999999999788,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Seguridad API (F1) nombreDelToken retorna null si el token es inválido o corrupto",
+          "title": "retorna null si el token es inválido o corrupto",
+          "status": "passed",
+          "duration": 0.38110000000000355,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Seguridad API (F1) iniciarSesion con mocks autentica satisfactoriamente con usuario semilla en modo mock",
+          "title": "autentica satisfactoriamente con usuario semilla en modo mock",
+          "status": "passed",
+          "duration": 360.4917,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Seguridad API (F1) iniciarSesion con mocks rechaza credenciales incorrectas en modo mock",
+          "title": "rechaza credenciales incorrectas en modo mock",
+          "status": "passed",
+          "duration": 360.0318000000001,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/api/ventas.test.ts",
+      "startTime": 1795582976984,
+      "endTime": 1795582976995.578,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "registrarVentaConReintento reintenta una vez con la misma Idempotency-Key cuando Ventas no confirma a tiempo",
+          "title": "reintenta una vez con la misma Idempotency-Key cuando Ventas no confirma a tiempo",
+          "status": "passed",
+          "duration": 8.15039999999999,
+          "failureMessages": []
+        },
+        {
+          "fullName": "registrarVentaConReintento si el reintento tampoco se confirma, devuelve el error para que el cajero decida",
+          "title": "si el reintento tampoco se confirma, devuelve el error para que el cajero decida",
+          "status": "passed",
+          "duration": 2.8322000000000003,
+          "failureMessages": []
+        },
+        {
+          "fullName": "registrarVentaConReintento no reintenta un rechazo de negocio",
+          "title": "no reintenta un rechazo de negocio",
+          "status": "passed",
+          "duration": 0.5778999999999996,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/context/ContingenciaContext.test.tsx",
+      "startTime": 1795582978008,
+      "endTime": 1795582978085.756,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "ContingenciaContext (RF-26, RF-27, RF-28) inicializa con cero pendientes y detecta ventas offline registradas (CA-10-02)",
+          "title": "inicializa con cero pendientes y detecta ventas offline registradas (CA-10-02)",
+          "status": "passed",
+          "duration": 45.901600000000144,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ContingenciaContext (RF-26, RF-27, RF-28) sincroniza en cola FIFO al llamar sincronizarCola y actualiza estado a RESINCRONIZADO (RF-28 / CA-10-01)",
+          "title": "sincroniza en cola FIFO al llamar sincronizarCola y actualiza estado a RESINCRONIZADO (RF-28 / CA-10-01)",
+          "status": "passed",
+          "duration": 12.173600000000079,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ContingenciaContext (RF-26, RF-27, RF-28) separa lotes por turno y terminal respetando paquetes de hasta 50 ventas (CA-10-05)",
+          "title": "separa lotes por turno y terminal respetando paquetes de hasta 50 ventas (CA-10-05)",
+          "status": "passed",
+          "duration": 6.227100000000064,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ContingenciaContext (RF-26, RF-27, RF-28) maneja errores de red conservando las ventas pendientes para posterior reintento",
+          "title": "maneja errores de red conservando las ventas pendientes para posterior reintento",
+          "status": "passed",
+          "duration": 13.756099999999606,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/hooks/useCatalogoTienda.test.tsx",
+      "startTime": 1795582973352,
+      "endTime": 1795582973832.385,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "useCatalogoTienda (F2 · RF-04, F10 · CA-10-03) no consulta el catálogo mientras no hay sesión",
+          "title": "no consulta el catálogo mientras no hay sesión",
+          "status": "passed",
+          "duration": 20.35660000000007,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCatalogoTienda (F2 · RF-04, F10 · CA-10-03) con sesión carga el catálogo de Retail y guarda la copia para contingencia",
+          "title": "con sesión carga el catálogo de Retail y guarda la copia para contingencia",
+          "status": "passed",
+          "duration": 80.98559999999998,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCatalogoTienda (F2 · RF-04, F10 · CA-10-03) sin conexión con Retail usa la última copia local del catálogo",
+          "title": "sin conexión con Retail usa la última copia local del catálogo",
+          "status": "passed",
+          "duration": 80.37469999999985,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCatalogoTienda (F2 · RF-04, F10 · CA-10-03) sin conexión ni copia local deja el catálogo vacío",
+          "title": "sin conexión ni copia local deja el catálogo vacío",
+          "status": "passed",
+          "duration": 92.7492000000002,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCatalogoTienda (F2 · RF-04, F10 · CA-10-03) recupera el carrito guardado con la variante exacta que se había elegido",
+          "title": "recupera el carrito guardado con la variante exacta que se había elegido",
+          "status": "passed",
+          "duration": 113.3433,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCatalogoTienda (F2 · RF-04, F10 · CA-10-03) no reemplaza un carrito que ya está en curso",
+          "title": "no reemplaza un carrito que ya está en curso",
+          "status": "passed",
+          "duration": 92.38500000000022,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/hooks/useEnfoqueInicial.test.tsx",
+      "startTime": 1795582977978,
+      "endTime": 1795582978166.3594,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "useEnfoqueInicial deja el cursor en el campo al abrir la pantalla para escanear sin usar el mouse",
+          "title": "deja el cursor en el campo al abrir la pantalla para escanear sin usar el mouse",
+          "status": "passed",
+          "duration": 188.35940000000028,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/cart.test.ts",
+      "startTime": 1795582978043,
+      "endTime": 1795582978048.4075,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "cart helpers adds products and calculates totals",
+          "title": "adds products and calculates totals",
+          "status": "passed",
+          "duration": 3.475599999999986,
+          "failureMessages": []
+        },
+        {
+          "fullName": "cart helpers does not add a product beyond available stock",
+          "title": "does not add a product beyond available stock",
+          "status": "passed",
+          "duration": 0.46940000000000737,
+          "failureMessages": []
+        },
+        {
+          "fullName": "cart helpers removes a line when its quantity reaches zero",
+          "title": "removes a line when its quantity reaches zero",
+          "status": "passed",
+          "duration": 0.2507999999999697,
+          "failureMessages": []
+        },
+        {
+          "fullName": "cart helpers calculates SUNAT tax breakdown correctly (RF-12)",
+          "title": "calculates SUNAT tax breakdown correctly (RF-12)",
+          "status": "passed",
+          "duration": 0.4075000000000273,
+          "failureMessages": []
+        },
+        {
+          "fullName": "cart helpers applies VERANO2026 coupon with 10% discount",
+          "title": "applies VERANO2026 coupon with 10% discount",
+          "status": "passed",
+          "duration": 0.2829999999999586,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/cartStorage.test.ts",
+      "startTime": 1795582978414,
+      "endTime": 1795582978417.3687,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "cart persistence restores known products and caps quantities at current stock",
+          "title": "restores known products and caps quantities at current stock",
+          "status": "passed",
+          "duration": 3.1562000000000126,
+          "failureMessages": []
+        },
+        {
+          "fullName": "cart persistence ignores unknown products and invalid quantities",
+          "title": "ignores unknown products and invalid quantities",
+          "status": "passed",
+          "duration": 0.30169999999998254,
+          "failureMessages": []
+        },
+        {
+          "fullName": "cart persistence stores only product IDs and quantities",
+          "title": "stores only product IDs and quantities",
+          "status": "passed",
+          "duration": 0.3686999999999898,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/catalog.test.ts",
+      "startTime": 1795582977624,
+      "endTime": 1795582977634.4497,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "searchProducts matches product name, category, and SKU without case sensitivity",
+          "title": "matches product name, category, and SKU without case sensitivity",
+          "status": "passed",
+          "duration": 6.393300000000011,
+          "failureMessages": []
+        },
+        {
+          "fullName": "searchProducts matches accented text when the query omits accents",
+          "title": "matches accented text when the query omits accents",
+          "status": "passed",
+          "duration": 0.4976999999999805,
+          "failureMessages": []
+        },
+        {
+          "fullName": "searchProducts returns the complete catalog for an empty query",
+          "title": "returns the complete catalog for an empty query",
+          "status": "passed",
+          "duration": 0.4081999999999937,
+          "failureMessages": []
+        },
+        {
+          "fullName": "searchProducts combines category and text filters",
+          "title": "combines category and text filters",
+          "status": "passed",
+          "duration": 0.3585999999999956,
+          "failureMessages": []
+        },
+        {
+          "fullName": "búsqueda por etiqueta (RF-04) encuentra el artículo por el SKU de una de sus variantes",
+          "title": "encuentra el artículo por el SKU de una de sus variantes",
+          "status": "passed",
+          "duration": 0.25320000000002096,
+          "failureMessages": []
+        },
+        {
+          "fullName": "búsqueda por etiqueta (RF-04) encuentra el artículo por el código de barras que dispara el lector",
+          "title": "encuentra el artículo por el código de barras que dispara el lector",
+          "status": "passed",
+          "duration": 0.17940000000001532,
+          "failureMessages": []
+        },
+        {
+          "fullName": "productoDeVariante (RF-05: se vende la talla y el color elegidos) crea una línea de carrito con el SKU, el stock y la talla de la variante elegida",
+          "title": "crea una línea de carrito con el SKU, el stock y la talla de la variante elegida",
+          "status": "passed",
+          "duration": 0.9744000000000028,
+          "failureMessages": []
+        },
+        {
+          "fullName": "productoDeVariante (RF-05: se vende la talla y el color elegidos) dos tallas del mismo artículo son líneas distintas del carrito",
+          "title": "dos tallas del mismo artículo son líneas distintas del carrito",
+          "status": "passed",
+          "duration": 0.4497000000000071,
+          "failureMessages": []
+        },
+        {
+          "fullName": "productoDeVariante (RF-05: se vende la talla y el color elegidos) las líneas guardadas del carrito se pueden recuperar con el catálogo expandido",
+          "title": "las líneas guardadas del carrito se pueden recuperar con el catálogo expandido",
+          "status": "passed",
+          "duration": 0.39339999999998554,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/documento.test.ts",
+      "startTime": 1795582976658,
+      "endTime": 1795582976670.1514,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "esDocumentoValido (RF-09) DNI 12345678 es válido",
+          "title": "DNI 12345678 es válido",
+          "status": "passed",
+          "duration": 2.5452999999999975,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) RUC 10456789123 es válido",
+          "title": "RUC 10456789123 es válido",
+          "status": "passed",
+          "duration": 0.3405999999999949,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) RUC 20100047218 es válido",
+          "title": "RUC 20100047218 es válido",
+          "status": "passed",
+          "duration": 0.18870000000001141,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) CE 001234567 es válido",
+          "title": "CE 001234567 es válido",
+          "status": "passed",
+          "duration": 0.17379999999999995,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) CE AB1234567890 es válido",
+          "title": "CE AB1234567890 es válido",
+          "status": "passed",
+          "duration": 0.13630000000000564,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) PASAPORTE A12345 es válido",
+          "title": "PASAPORTE A12345 es válido",
+          "status": "passed",
+          "duration": 0.1342999999999961,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) PASAPORTE AB12345678901234 es válido",
+          "title": "PASAPORTE AB12345678901234 es válido",
+          "status": "passed",
+          "duration": 0.11529999999999063,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) DNI 1234567 se rechaza",
+          "title": "DNI 1234567 se rechaza",
+          "status": "passed",
+          "duration": 0.18330000000000268,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) DNI 123456789 se rechaza",
+          "title": "DNI 123456789 se rechaza",
+          "status": "passed",
+          "duration": 0.1740000000000066,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) DNI 1234567A se rechaza",
+          "title": "DNI 1234567A se rechaza",
+          "status": "passed",
+          "duration": 0.10259999999999536,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) RUC 15123456789 se rechaza",
+          "title": "RUC 15123456789 se rechaza",
+          "status": "passed",
+          "duration": 0.10059999999998581,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) RUC 17123456789 se rechaza",
+          "title": "RUC 17123456789 se rechaza",
+          "status": "passed",
+          "duration": 0.07980000000000587,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) RUC 30123456789 se rechaza",
+          "title": "RUC 30123456789 se rechaza",
+          "status": "passed",
+          "duration": 0.08329999999997995,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) RUC 2010004721 se rechaza",
+          "title": "RUC 2010004721 se rechaza",
+          "status": "passed",
+          "duration": 0.09459999999998558,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) CE 12345678 se rechaza",
+          "title": "CE 12345678 se rechaza",
+          "status": "passed",
+          "duration": 0.1203999999999894,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) CE 1234567890123 se rechaza",
+          "title": "CE 1234567890123 se rechaza",
+          "status": "passed",
+          "duration": 0.10039999999997917,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) CE AB-1234567 se rechaza",
+          "title": "CE AB-1234567 se rechaza",
+          "status": "passed",
+          "duration": 0.08250000000001023,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) PASAPORTE A1234 se rechaza",
+          "title": "PASAPORTE A1234 se rechaza",
+          "status": "passed",
+          "duration": 0.0689999999999884,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) PASAPORTE A1234567890123456 se rechaza",
+          "title": "PASAPORTE A1234567890123456 se rechaza",
+          "status": "passed",
+          "duration": 0.08869999999998868,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esDocumentoValido (RF-09) PASAPORTE AB#12345 se rechaza",
+          "title": "PASAPORTE AB#12345 se rechaza",
+          "status": "passed",
+          "duration": 0.07550000000000523,
+          "failureMessages": []
+        },
+        {
+          "fullName": "enmascararDocumento bloquea letras y símbolos en DNI y RUC",
+          "title": "bloquea letras y símbolos en DNI y RUC",
+          "status": "passed",
+          "duration": 0.34369999999998413,
+          "failureMessages": []
+        },
+        {
+          "fullName": "enmascararDocumento corta en la longitud máxima del tipo",
+          "title": "corta en la longitud máxima del tipo",
+          "status": "passed",
+          "duration": 1.269299999999987,
+          "failureMessages": []
+        },
+        {
+          "fullName": "enmascararDocumento CE y pasaporte pasan a mayúsculas y descartan lo no alfanumérico",
+          "title": "CE y pasaporte pasan a mayúsculas y descartan lo no alfanumérico",
+          "status": "passed",
+          "duration": 0.23510000000001696,
+          "failureMessages": []
+        },
+        {
+          "fullName": "evaluarDocumento (validación en vivo) avisa cuántos dígitos faltan sin marcarlo como error",
+          "title": "avisa cuántos dígitos faltan sin marcarlo como error",
+          "status": "passed",
+          "duration": 1.7163000000000181,
+          "failureMessages": []
+        },
+        {
+          "fullName": "evaluarDocumento (validación en vivo) marca el prefijo de RUC no autorizado apenas se escriben 2 dígitos",
+          "title": "marca el prefijo de RUC no autorizado apenas se escriben 2 dígitos",
+          "status": "passed",
+          "duration": 0.3185999999999751,
+          "failureMessages": []
+        },
+        {
+          "fullName": "evaluarDocumento (validación en vivo) un RUC con prefijo correcto e incompleto solo avisa lo que falta",
+          "title": "un RUC con prefijo correcto e incompleto solo avisa lo que falta",
+          "status": "passed",
+          "duration": 0.2366999999999848,
+          "failureMessages": []
+        },
+        {
+          "fullName": "evaluarDocumento (validación en vivo) indica el rango de caracteres en CE y pasaporte",
+          "title": "indica el rango de caracteres en CE y pasaporte",
+          "status": "passed",
+          "duration": 0.15919999999999845,
+          "failureMessages": []
+        },
+        {
+          "fullName": "evaluarDocumento (validación en vivo) confirma el documento completo",
+          "title": "confirma el documento completo",
+          "status": "passed",
+          "duration": 0.3412000000000148,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa@correo..com",
+          "title": "rechaza rosa@correo..com",
+          "status": "passed",
+          "duration": 0.2820999999999856,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa@.correo.com",
+          "title": "rechaza rosa@.correo.com",
+          "status": "passed",
+          "duration": 0.13690000000002556,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa@correo.com.",
+          "title": "rechaza rosa@correo.com.",
+          "status": "passed",
+          "duration": 0.08669999999997913,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa@-correo.com",
+          "title": "rechaza rosa@-correo.com",
+          "status": "passed",
+          "duration": 0.06989999999998986,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa@correo-.com",
+          "title": "rechaza rosa@correo-.com",
+          "status": "passed",
+          "duration": 0.06909999999999172,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa@correo.c",
+          "title": "rechaza rosa@correo.c",
+          "status": "passed",
+          "duration": 0.07189999999999941,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa@correo.c0m",
+          "title": "rechaza rosa@correo.c0m",
+          "status": "passed",
+          "duration": 0.07269999999999754,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa@correo",
+          "title": "rechaza rosa@correo",
+          "status": "passed",
+          "duration": 0.09360000000000923,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa..huaman@correo.com",
+          "title": "rechaza rosa..huaman@correo.com",
+          "status": "passed",
+          "duration": 0.1039000000000101,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza .rosa@correo.com",
+          "title": "rechaza .rosa@correo.com",
+          "status": "passed",
+          "duration": 0.07839999999998781,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa.@correo.com",
+          "title": "rechaza rosa.@correo.com",
+          "status": "passed",
+          "duration": 0.07890000000000441,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa@@correo.com",
+          "title": "rechaza rosa@@correo.com",
+          "status": "passed",
+          "duration": 0.06419999999999959,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) rechaza rosa huaman@correo.com",
+          "title": "rechaza rosa huaman@correo.com",
+          "status": "passed",
+          "duration": 0.06630000000001246,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) acepta rosa@correo.com",
+          "title": "acepta rosa@correo.com",
+          "status": "passed",
+          "duration": 0.15139999999999532,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) acepta rosa.huaman@correo.com.pe",
+          "title": "acepta rosa.huaman@correo.com.pe",
+          "status": "passed",
+          "duration": 0.06539999999998258,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) acepta rosa+tienda@mi-correo.pe",
+          "title": "acepta rosa+tienda@mi-correo.pe",
+          "status": "passed",
+          "duration": 0.0648999999999944,
+          "failureMessages": []
+        },
+        {
+          "fullName": "esCorreoValido (RF-09) acepta r_h-2026@sub.dominio.org",
+          "title": "acepta r_h-2026@sub.dominio.org",
+          "status": "passed",
+          "duration": 0.06260000000000332,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/format.test.ts",
+      "startTime": 1795582978484,
+      "endTime": 1795582978486.4758,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "formatCurrency formats soles with two decimal places",
+          "title": "formats soles with two decimal places",
+          "status": "passed",
+          "duration": 2.4758999999999673,
+          "failureMessages": []
+        },
+        {
+          "fullName": "formatCurrency groups thousands",
+          "title": "groups thousands",
+          "status": "passed",
+          "duration": 0.2633000000000152,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/inspeccion.test.ts",
+      "startTime": 1795582978074,
+      "endTime": 1795582978079.2253,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "evaluarInspeccion (RF-24) bloquea un cambio de talla sin etiquetas intactas",
+          "title": "bloquea un cambio de talla sin etiquetas intactas",
+          "status": "passed",
+          "duration": 3.189900000000023,
+          "failureMessages": []
+        },
+        {
+          "fullName": "evaluarInspeccion (RF-24) permite un cambio de talla con el checklist completo",
+          "title": "permite un cambio de talla con el checklist completo",
+          "status": "passed",
+          "duration": 0.30750000000000455,
+          "failureMessages": []
+        },
+        {
+          "fullName": "evaluarInspeccion (RF-24) exige lo mismo para un cambio de modelo",
+          "title": "exige lo mismo para un cambio de modelo",
+          "status": "passed",
+          "duration": 0.19310000000001537,
+          "failureMessages": []
+        },
+        {
+          "fullName": "evaluarInspeccion (RF-24) el empaque original no bloquea",
+          "title": "el empaque original no bloquea",
+          "status": "passed",
+          "duration": 0.1623000000000161,
+          "failureMessages": []
+        },
+        {
+          "fullName": "evaluarInspeccion (RF-24) una falla de fábrica no emite vale: se deriva a Postventa como garantía",
+          "title": "una falla de fábrica no emite vale: se deriva a Postventa como garantía",
+          "status": "passed",
+          "duration": 0.22109999999997854,
+          "failureMessages": []
+        },
+        {
+          "fullName": "formato de boleta acepta serie y correlativo de 8 dígitos, aunque llegue con espacios o en minúsculas",
+          "title": "acepta serie y correlativo de 8 dígitos, aunque llegue con espacios o en minúsculas",
+          "status": "passed",
+          "duration": 0.5319000000000074,
+          "failureMessages": []
+        },
+        {
+          "fullName": "formato de boleta rechaza correlativos cortos y series desconocidas",
+          "title": "rechaza correlativos cortos y series desconocidas",
+          "status": "passed",
+          "duration": 0.22530000000000427,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/inventory.test.ts",
+      "startTime": 1795582978428,
+      "endTime": 1795582978432.4502,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "getStockStatus marks products without stock as unavailable",
+          "title": "marks products without stock as unavailable",
+          "status": "passed",
+          "duration": 3.0226000000000113,
+          "failureMessages": []
+        },
+        {
+          "fullName": "getStockStatus warns when only a few units remain",
+          "title": "warns when only a few units remain",
+          "status": "passed",
+          "duration": 0.45009999999996353,
+          "failureMessages": []
+        },
+        {
+          "fullName": "getStockStatus shows regular stock for healthy inventory",
+          "title": "shows regular stock for healthy inventory",
+          "status": "passed",
+          "duration": 0.24750000000000227,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/offlineHash.test.ts",
+      "startTime": 1795582976939,
+      "endTime": 1795582976951.4202,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "offlineHash — CA-10-06 y RF-27 calcula el hash SHA-256 de forma determinista para la venta offline",
+          "title": "calcula el hash SHA-256 de forma determinista para la venta offline",
+          "status": "passed",
+          "duration": 10.194499999999977,
+          "failureMessages": []
+        },
+        {
+          "fullName": "offlineHash — CA-10-06 y RF-27 alterar cualquier campo (SKU, cantidad, importes) cambia el hash resultante",
+          "title": "alterar cualquier campo (SKU, cantidad, importes) cambia el hash resultante",
+          "status": "passed",
+          "duration": 1.4202000000000226,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/offlineStorage.indexeddb.test.ts",
+      "startTime": 1795582976021,
+      "endTime": 1795582976049.157,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "offlineStorage con IndexedDB — RF-27 / CA-10-02 y CA-10-03 persiste las ventas offline y devuelve solo las pendientes en orden FIFO",
+          "title": "persiste las ventas offline y devuelve solo las pendientes en orden FIFO",
+          "status": "passed",
+          "duration": 22.10379999999998,
+          "failureMessages": []
+        },
+        {
+          "fullName": "offlineStorage con IndexedDB — RF-27 / CA-10-02 y CA-10-03 marca una venta como sincronizada con su pedido y comprobante",
+          "title": "marca una venta como sincronizada con su pedido y comprobante",
+          "status": "passed",
+          "duration": 2.15949999999998,
+          "failureMessages": []
+        },
+        {
+          "fullName": "offlineStorage con IndexedDB — RF-27 / CA-10-02 y CA-10-03 ignora la actualización de una venta que no existe",
+          "title": "ignora la actualización de una venta que no existe",
+          "status": "passed",
+          "duration": 1.1077000000000226,
+          "failureMessages": []
+        },
+        {
+          "fullName": "offlineStorage con IndexedDB — RF-27 / CA-10-02 y CA-10-03 reemplaza el catálogo local con la última copia y lo recupera sin conexión",
+          "title": "reemplaza el catálogo local con la última copia y lo recupera sin conexión",
+          "status": "passed",
+          "duration": 2.157099999999957,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/offlineStorage.test.ts",
+      "startTime": 1795582977860,
+      "endTime": 1795582977866.1023,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "offlineStorage — CA-10-02 y CA-10-03 guarda una venta offline y la recupera en cola FIFO de pendientes",
+          "title": "guarda una venta offline y la recupera en cola FIFO de pendientes",
+          "status": "passed",
+          "duration": 4.3396999999999935,
+          "failureMessages": []
+        },
+        {
+          "fullName": "offlineStorage — CA-10-02 y CA-10-03 actualiza el estado de conciliación de una venta sincronizada",
+          "title": "actualiza el estado de conciliación de una venta sincronizada",
+          "status": "passed",
+          "duration": 0.6037000000000035,
+          "failureMessages": []
+        },
+        {
+          "fullName": "offlineStorage — CA-10-02 y CA-10-03 guarda y recupera el catálogo local para contingencia (CA-10-03)",
+          "title": "guarda y recupera el catálogo local para contingencia (CA-10-03)",
+          "status": "passed",
+          "duration": 1.102199999999982,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/pedidos.test.ts",
+      "startTime": 1795582977634,
+      "endTime": 1795582977641.1934,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "pedidos (F6) acepta DNI de 8 dígitos o RUC de 11 y rechaza lo demás",
+          "title": "acepta DNI de 8 dígitos o RUC de 11 y rechaza lo demás",
+          "status": "passed",
+          "duration": 2.649600000000021,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidos (F6) da a cada estado el color semántico del Design System (RF-17)",
+          "title": "da a cada estado el color semántico del Design System (RF-17)",
+          "status": "passed",
+          "duration": 0.4851000000000454,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidos (F6) muestra la hora de Lima aunque la fecha llegue en UTC",
+          "title": "muestra la hora de Lima aunque la fecha llegue en UTC",
+          "status": "passed",
+          "duration": 0.3672000000000253,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidos (F6) reconoce la modalidad de recojo en tienda",
+          "title": "reconoce la modalidad de recojo en tienda",
+          "status": "passed",
+          "duration": 0.2186999999999557,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidos (F6) marca los estados ocurridos como completados, resalta el actual y deja pendientes los siguientes",
+          "title": "marca los estados ocurridos como completados, resalta el actual y deja pendientes los siguientes",
+          "status": "passed",
+          "duration": 1.2402999999999906,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidos (F6) no dibuja los estados que una venta de mostrador se saltó y cierra en entregado",
+          "title": "no dibuja los estados que una venta de mostrador se saltó y cierra en entregado",
+          "status": "passed",
+          "duration": 0.27890000000002146,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidos (F6) corta la línea con un nodo de anulación y su motivo",
+          "title": "corta la línea con un nodo de anulación y su motivo",
+          "status": "passed",
+          "duration": 0.3324999999999818,
+          "failureMessages": []
+        },
+        {
+          "fullName": "pedidos (F6) completa foto, talla y color de la prenda con el catálogo de la tienda",
+          "title": "completa foto, talla y color de la prenda con el catálogo de la tienda",
+          "status": "passed",
+          "duration": 1.193300000000022,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/scanner.test.ts",
+      "startTime": 1795582978270,
+      "endTime": 1795582978275.4175,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "resolveScan resuelve la variante exacta a partir del código de barras",
+          "title": "resuelve la variante exacta a partir del código de barras",
+          "status": "passed",
+          "duration": 3.375,
+          "failureMessages": []
+        },
+        {
+          "fullName": "resolveScan acepta también el SKU tecleado, sin importar mayúsculas",
+          "title": "acepta también el SKU tecleado, sin importar mayúsculas",
+          "status": "passed",
+          "duration": 0.5014999999999645,
+          "failureMessages": []
+        },
+        {
+          "fullName": "resolveScan cae al artículo cuando no tiene variantes que etiquetar",
+          "title": "cae al artículo cuando no tiene variantes que etiquetar",
+          "status": "passed",
+          "duration": 0.3117000000000303,
+          "failureMessages": []
+        },
+        {
+          "fullName": "resolveScan no elige nada ante una etiqueta ajena al catálogo",
+          "title": "no elige nada ante una etiqueta ajena al catálogo",
+          "status": "passed",
+          "duration": 0.23939999999998918,
+          "failureMessages": []
+        },
+        {
+          "fullName": "sampleBarcodes propone solo artículos con etiqueta, con su talla para reconocerlos",
+          "title": "propone solo artículos con etiqueta, con su talla para reconocerlos",
+          "status": "passed",
+          "duration": 0.4174000000000433,
+          "failureMessages": []
+        },
+        {
+          "fullName": "sampleBarcodes con el catálogo de Retail usa el SKU como código de muestra cuando la variante no trae código de barras",
+          "title": "usa el SKU como código de muestra cuando la variante no trae código de barras",
+          "status": "passed",
+          "duration": 0.27899999999999636,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/lib/token.test.ts",
+      "startTime": 1795582978380,
+      "endTime": 1795582978384.2842,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "tokenVigente (seguridad en pantallas) acepta un token que todavía no vence",
+          "title": "acepta un token que todavía no vence",
+          "status": "passed",
+          "duration": 2.8555999999999813,
+          "failureMessages": []
+        },
+        {
+          "fullName": "tokenVigente (seguridad en pantallas) rechaza un token vencido",
+          "title": "rechaza un token vencido",
+          "status": "passed",
+          "duration": 0.3213000000000079,
+          "failureMessages": []
+        },
+        {
+          "fullName": "tokenVigente (seguridad en pantallas) rechaza un token que vence exactamente ahora",
+          "title": "rechaza un token que vence exactamente ahora",
+          "status": "passed",
+          "duration": 0.1927000000000021,
+          "failureMessages": []
+        },
+        {
+          "fullName": "tokenVigente (seguridad en pantallas) deja decidir al backend cuando el token no trae exp",
+          "title": "deja decidir al backend cuando el token no trae exp",
+          "status": "passed",
+          "duration": 0.166499999999985,
+          "failureMessages": []
+        },
+        {
+          "fullName": "tokenVigente (seguridad en pantallas) rechaza lo que no es un JWT",
+          "title": "rechaza lo que no es un JWT",
+          "status": "passed",
+          "duration": 0.28429999999997335,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/pages/CashClosePage.test.tsx",
+      "startTime": 1795582977740,
+      "endTime": 1795582978398.644,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "RF-22: muestra solo el conteo declarado antes del cierre y revela el reporte al confirmarlo",
+          "title": "RF-22: muestra solo el conteo declarado antes del cierre y revela el reporte al confirmarlo",
+          "status": "passed",
+          "duration": 498.25940000000037,
+          "failureMessages": []
+        },
+        {
+          "fullName": "RF-22: registrar un movimiento durante el arqueo no revela el saldo teórico antes de enviar el conteo",
+          "title": "RF-22: registrar un movimiento durante el arqueo no revela el saldo teórico antes de enviar el conteo",
+          "status": "passed",
+          "duration": 160.64409999999998,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/pages/ExchangePage.test.tsx",
+      "startTime": 1795582973753,
+      "endTime": 1795582974979.822,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "ExchangePage (F9) RF-23: una boleta en plazo muestra la etiqueta verde con el día del plazo",
+          "title": "RF-23: una boleta en plazo muestra la etiqueta verde con el día del plazo",
+          "status": "passed",
+          "duration": 418.91110000000026,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ExchangePage (F9) RF-23: una boleta vencida bloquea la selección de prendas",
+          "title": "RF-23: una boleta vencida bloquea la selección de prendas",
+          "status": "passed",
+          "duration": 114.32029999999986,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ExchangePage (F9) no consulta al servidor si el número no tiene el formato de boleta",
+          "title": "no consulta al servidor si el número no tiene el formato de boleta",
+          "status": "passed",
+          "duration": 60.33669999999984,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ExchangePage (F9) RF-24: el cambio de talla queda bloqueado hasta completar el checklist crítico",
+          "title": "RF-24: el cambio de talla queda bloqueado hasta completar el checklist crítico",
+          "status": "passed",
+          "duration": 227.81629999999996,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ExchangePage (F9) RF-24: una falla de fábrica se deriva a Postventa y no permite emitir vale",
+          "title": "RF-24: una falla de fábrica se deriva a Postventa y no permite emitir vale",
+          "status": "passed",
+          "duration": 163.07470000000012,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ExchangePage (F9) RF-25: al aprobar emite el vale térmico y descuenta la unidad cambiada",
+          "title": "RF-25: al aprobar emite el vale térmico y descuenta la unidad cambiada",
+          "status": "passed",
+          "duration": 241.8218999999999,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/pages/LoginPage.test.tsx",
+      "startTime": 1795582973272,
+      "endTime": 1795582973785.256,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "LoginPage (F1 · RF-01) con Seguridad real el formulario empieza vacío, sin credenciales de prueba",
+          "title": "con Seguridad real el formulario empieza vacío, sin credenciales de prueba",
+          "status": "passed",
+          "duration": 489.75930000000017,
+          "failureMessages": []
+        },
+        {
+          "fullName": "LoginPage (F1 · RF-01) en el modo simulado precarga la cuenta semilla para la demo local",
+          "title": "en el modo simulado precarga la cuenta semilla para la demo local",
+          "status": "passed",
+          "duration": 23.256000000000313,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/pages/OrdersHistoryPage.test.tsx",
+      "startTime": 1795582973772,
+      "endTime": 1795582974741.344,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "OrdersHistoryPage (RF-16) por DNI lista las compras del cliente con su estado",
+          "title": "por DNI lista las compras del cliente con su estado",
+          "status": "passed",
+          "duration": 463.78740000000016,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrdersHistoryPage (RF-16) no consulta con un DNI mal escrito y explica el formato",
+          "title": "no consulta con un DNI mal escrito y explica el formato",
+          "status": "passed",
+          "duration": 105.779,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrdersHistoryPage (RF-16) por DNI/RUC avisa que solo busca las ventas de la sesión actual",
+          "title": "por DNI/RUC avisa que solo busca las ventas de la sesión actual",
+          "status": "passed",
+          "duration": 104.92640000000029,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrdersHistoryPage (RF-16) un usuario sin perfil de tienda ve el aviso del 403",
+          "title": "un usuario sin perfil de tienda ve el aviso del 403",
+          "status": "passed",
+          "duration": 81.09249999999975,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrdersHistoryPage (RF-16) un código inexistente muestra el estado vacío sin romper la pantalla",
+          "title": "un código inexistente muestra el estado vacío sin romper la pantalla",
+          "status": "passed",
+          "duration": 65.39709999999968,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrdersHistoryPage (RF-16) un código exacto abre de inmediato el detalle del pedido",
+          "title": "un código exacto abre de inmediato el detalle del pedido",
+          "status": "passed",
+          "duration": 108.90030000000024,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrdersHistoryPage (RF-16) llega con la búsqueda hecha desde la boleta (?codigo=)",
+          "title": "llega con la búsqueda hecha desde la boleta (?codigo=)",
+          "status": "passed",
+          "duration": 39.34389999999985,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/pages/PickupPage.test.tsx",
+      "startTime": 1795582978413,
+      "endTime": 1795582978541.9583,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "PickupPage (RF-18) busca por DNI o código aunque un pedido llegue sin DNI del cliente",
+          "title": "busca por DNI o código aunque un pedido llegue sin DNI del cliente",
+          "status": "passed",
+          "duration": 128.95829999999978,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/router/ProtectedRoute.test.tsx",
+      "startTime": 1795582975340,
+      "endTime": 1795582975605.9158,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "ProtectedRoute (seguridad en pantallas) redirige al login cuando se entra directo a una pantalla sin sesión",
+          "title": "redirige al login cuando se entra directo a una pantalla sin sesión",
+          "status": "passed",
+          "duration": 53.118099999999686,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ProtectedRoute (seguridad en pantallas) muestra la pantalla cuando la sesión está activa",
+          "title": "muestra la pantalla cuando la sesión está activa",
+          "status": "passed",
+          "duration": 4.692599999999857,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ProtectedRoute (seguridad en pantallas) redirige al login si el token ya venció, aunque quede un perfil en memoria",
+          "title": "redirige al login si el token ya venció, aunque quede un perfil en memoria",
+          "status": "passed",
+          "duration": 4.480000000000018,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ProtectedRoute (seguridad en pantallas) espera mientras se restaura una sesión guardada, en vez de mandar al login",
+          "title": "espera mientras se restaura una sesión guardada, en vez de mandar al login",
+          "status": "passed",
+          "duration": 173.05600000000004,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ProtectedRoute (seguridad en pantallas) devuelve al login apenas el vendedor cierra sesión desde una pantalla protegida",
+          "title": "devuelve al login apenas el vendedor cierra sesión desde una pantalla protegida",
+          "status": "passed",
+          "duration": 8.132300000000214,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ProtectedRoute con roles (RBAC) muestra acceso restringido a un vendedor, sin mandarlo al login",
+          "title": "muestra acceso restringido a un vendedor, sin mandarlo al login",
+          "status": "passed",
+          "duration": 18.295900000000074,
+          "failureMessages": []
+        },
+        {
+          "fullName": "ProtectedRoute con roles (RBAC) deja pasar al perfil permitido",
+          "title": "deja pasar al perfil permitido",
+          "status": "passed",
+          "duration": 3.9157000000000153,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/store/authStore.test.ts",
+      "startTime": 1795582979503,
+      "endTime": 1795582979506.303,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "authStore.restaurarSesion (sesión que sobrevive a una recarga) restaura la sesión de un token guardado que sigue vigente",
+          "title": "restaura la sesión de un token guardado que sigue vigente",
+          "status": "passed",
+          "duration": 2.5437999999999192,
+          "failureMessages": []
+        },
+        {
+          "fullName": "authStore.restaurarSesion (sesión que sobrevive a una recarga) no consulta al backend si el token guardado ya venció, y lo descarta",
+          "title": "no consulta al backend si el token guardado ya venció, y lo descarta",
+          "status": "passed",
+          "duration": 0.5703000000000884,
+          "failureMessages": []
+        },
+        {
+          "fullName": "authStore.restaurarSesion (sesión que sobrevive a una recarga) limpia la sesión si el backend rechaza el token guardado",
+          "title": "limpia la sesión si el backend rechaza el token guardado",
+          "status": "passed",
+          "duration": 0.30300000000011096,
+          "failureMessages": []
+        },
+        {
+          "fullName": "authStore.restaurarSesion (sesión que sobrevive a una recarga) termina de inmediato cuando no hay sesión guardada",
+          "title": "termina de inmediato cuando no hay sesión guardada",
+          "status": "passed",
+          "duration": 0.1756000000000313,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/store/cart.test.ts",
+      "startTime": 1795582976633,
+      "endTime": 1795582976644.7021,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "useCartStore (F4) agrega un producto nuevo con cantidad 1",
+          "title": "agrega un producto nuevo con cantidad 1",
+          "status": "passed",
+          "duration": 4.100800000000021,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCartStore (F4) no permite exceder el stock físico local de la tienda",
+          "title": "no permite exceder el stock físico local de la tienda",
+          "status": "passed",
+          "duration": 0.5152999999999963,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCartStore (F4) permite disminuir la cantidad y eliminar la prenda",
+          "title": "permite disminuir la cantidad y eliminar la prenda",
+          "status": "passed",
+          "duration": 0.4981999999999971,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCartStore (F4) pausa la venta en espera con alias y limpia el mostrador para el siguiente cliente (RF-10)",
+          "title": "pausa la venta en espera con alias y limpia el mostrador para el siguiente cliente (RF-10)",
+          "status": "passed",
+          "duration": 4.965000000000003,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCartStore (F4) reanuda una venta pausada si el mostrador está libre",
+          "title": "reanuda una venta pausada si el mostrador está libre",
+          "status": "passed",
+          "duration": 0.7021000000000015,
+          "failureMessages": []
+        },
+        {
+          "fullName": "useCartStore (F4) no permite reanudar venta en espera si el mostrador ya tiene artículos",
+          "title": "no permite reanudar venta en espera si el mostrador ya tiene artículos",
+          "status": "passed",
+          "duration": 0.4480000000000075,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/molecules/OfflineBanner.test.tsx",
+      "startTime": 1795582977567,
+      "endTime": 1795582977826.3242,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "Detección de conexión en el POS (RF-26) avisa inmediatamente al desconectarse y verifica Retail al volver la red",
+          "title": "avisa inmediatamente al desconectarse y verifica Retail al volver la red",
+          "status": "passed",
+          "duration": 229.85640000000012,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Detección de conexión en el POS (RF-26) avisa tras dos fallos consecutivos del heartbeat",
+          "title": "avisa tras dos fallos consecutivos del heartbeat",
+          "status": "passed",
+          "duration": 12.552200000000084,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Detección de conexión en el POS (RF-26) aborta un heartbeat sin respuesta y avisa al llegar a tres segundos",
+          "title": "aborta un heartbeat sin respuesta y avisa al llegar a tres segundos",
+          "status": "passed",
+          "duration": 16.32420000000002,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/caja/ShiftOpenModal.test.tsx",
+      "startTime": 1795582977943,
+      "endTime": 1795582978423.578,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "RF-20: un fondo negativo impide abrir turno",
+          "title": "RF-20: un fondo negativo impide abrir turno",
+          "status": "passed",
+          "duration": 308.00279999999975,
+          "failureMessages": []
+        },
+        {
+          "fullName": "RF-20: abrir con S/150 actualiza el turno disponible para el POS",
+          "title": "RF-20: abrir con S/150 actualiza el turno disponible para el POS",
+          "status": "passed",
+          "duration": 110.01130000000012,
+          "failureMessages": []
+        },
+        {
+          "fullName": "RF-20: un conflicto 409 informa que la terminal ya tiene un turno y no habilita otra apertura",
+          "title": "RF-20: un conflicto 409 informa que la terminal ya tiene un turno y no habilita otra apertura",
+          "status": "passed",
+          "duration": 61.57790000000023,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/carrito/CartPanel.test.tsx",
+      "startTime": 1795582973809,
+      "endTime": 1795582974810.8674,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "permite editar la cantidad y conserva el límite de stock (RF-10)",
+          "title": "permite editar la cantidad y conserva el límite de stock (RF-10)",
+          "status": "passed",
+          "duration": 448.35099999999966,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Carrito en espera (RF-10 y RF-12) libera el mostrador y recupera el importe con descuento al reanudar",
+          "title": "libera el mostrador y recupera el importe con descuento al reanudar",
+          "status": "passed",
+          "duration": 410.4778000000001,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Carrito en espera (RF-10 y RF-12) reanuda un carrito anterior sin cupón con el importe original",
+          "title": "reanuda un carrito anterior sin cupón con el importe original",
+          "status": "passed",
+          "duration": 116.3784999999998,
+          "failureMessages": []
+        },
+        {
+          "fullName": "muestra la talla y el color de la variante vendida en la línea del carrito (RF-05)",
+          "title": "muestra la talla y el color de la variante vendida en la línea del carrito (RF-05)",
+          "status": "passed",
+          "duration": 25.86750000000029,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/catalogo/ProductDetailModal.test.tsx",
+      "startTime": 1795582977144,
+      "endTime": 1795582977483.9587,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "ProductDetailModal (F2 · RF-05) agrega al carrito la talla y el color elegidos, con su propio SKU",
+          "title": "agrega al carrito la talla y el color elegidos, con su propio SKU",
+          "status": "passed",
+          "duration": 339.9586999999997,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/clientes/AltaRapida.s14.test.tsx",
+      "startTime": 1795582977139,
+      "endTime": 1795582977875.7344,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "RF-08: guardar asocia al cliente, cierra el alta y conserva las prendas y cantidades",
+          "title": "RF-08: guardar asocia al cliente, cierra el alta y conserva las prendas y cantidades",
+          "status": "passed",
+          "duration": 449.56460000000015,
+          "failureMessages": []
+        },
+        {
+          "fullName": "RF-08: cancelar el alta conserva la orden y permite continuar sin cliente",
+          "title": "RF-08: cancelar el alta conserva la orden y permite continuar sin cliente",
+          "status": "passed",
+          "duration": 127.41930000000002,
+          "failureMessages": []
+        },
+        {
+          "fullName": "RF-09: correo con puntos consecutivos bloquea guardar aunque los demás datos sean válidos",
+          "title": "RF-09: correo con puntos consecutivos bloquea guardar aunque los demás datos sean válidos",
+          "status": "passed",
+          "duration": 159.73440000000028,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/clientes/CustomerSection.test.tsx",
+      "startTime": 1795582973755,
+      "endTime": 1795582974538.422,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 escribir letras en el DNI no produce ningún carácter",
+          "title": "escribir letras en el DNI no produce ningún carácter",
+          "status": "passed",
+          "duration": 70.2773000000002,
+          "failureMessages": []
+        },
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 DNI de 7 dígitos mantiene el botón inhabilitado y avisa cuánto falta",
+          "title": "DNI de 7 dígitos mantiene el botón inhabilitado y avisa cuánto falta",
+          "status": "passed",
+          "duration": 256.8831,
+          "failureMessages": []
+        },
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 al salir del campo con el DNI incompleto lo marca como error",
+          "title": "al salir del campo con el DNI incompleto lo marca como error",
+          "status": "passed",
+          "duration": 29.16459999999961,
+          "failureMessages": []
+        },
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 RUC que inicia con 30 muestra error inmediato de prefijo no autorizado",
+          "title": "RUC que inicia con 30 muestra error inmediato de prefijo no autorizado",
+          "status": "passed",
+          "duration": 61.97409999999991,
+          "failureMessages": []
+        },
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 RUC con prefijo 15 completo sigue bloqueando la asociación",
+          "title": "RUC con prefijo 15 completo sigue bloqueando la asociación",
+          "status": "passed",
+          "duration": 59.36110000000008,
+          "failureMessages": []
+        },
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 RUC válido con razón social se asocia sin consultar el padrón",
+          "title": "RUC válido con razón social se asocia sin consultar el padrón",
+          "status": "passed",
+          "duration": 69.61080000000038,
+          "failureMessages": []
+        },
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 el carné de extranjería admite letras, las pasa a mayúsculas y busca con su tipo",
+          "title": "el carné de extranjería admite letras, las pasa a mayúsculas y busca con su tipo",
+          "status": "passed",
+          "duration": 74.91870000000017,
+          "failureMessages": []
+        },
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 pasaporte de 5 caracteres no habilita la búsqueda",
+          "title": "pasaporte de 5 caracteres no habilita la búsqueda",
+          "status": "passed",
+          "duration": 54.34900000000016,
+          "failureMessages": []
+        },
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 muestra el motivo cuando el backend responde 400 DATO_INVALIDO",
+          "title": "muestra el motivo cuando el backend responde 400 DATO_INVALIDO",
+          "status": "passed",
+          "duration": 46.63059999999996,
+          "failureMessages": []
+        },
+        {
+          "fullName": "CustomerSection — validación estricta RF-09 un DNI que no está en el padrón abre el alta rápida con el documento de solo lectura",
+          "title": "un DNI que no está en el padrón abre el alta rápida con el documento de solo lectura",
+          "status": "passed",
+          "duration": 59.42209999999977,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/historial/OrderHistoryModal.test.tsx",
+      "startTime": 1795582973837,
+      "endTime": 1795582974449.0732,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "OrderHistoryModal (RF-17) muestra el estado con su badge de color y la línea de tiempo con el nodo en curso",
+          "title": "muestra el estado con su badge de color y la línea de tiempo con el nodo en curso",
+          "status": "passed",
+          "duration": 364.2345999999998,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrderHistoryModal (RF-17) desglosa las prendas con talla y color del catálogo y su subtotal",
+          "title": "desglosa las prendas con talla y color del catálogo y su subtotal",
+          "status": "passed",
+          "duration": 61.55839999999989,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrderHistoryModal (RF-17) corta la línea con un nodo rojo si el pedido se anuló",
+          "title": "corta la línea con un nodo rojo si el pedido se anuló",
+          "status": "passed",
+          "duration": 63.357800000000225,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrderHistoryModal (RF-17) en un pedido pickup muestra la tienda y el aviso de recojo",
+          "title": "en un pedido pickup muestra la tienda y el aviso de recojo",
+          "status": "passed",
+          "duration": 81.07610000000022,
+          "failureMessages": []
+        },
+        {
+          "fullName": "OrderHistoryModal (RF-17) si Ventas no responde, avisa sin romper la pantalla",
+          "title": "si Ventas no responde, avisa sin romper la pantalla",
+          "status": "passed",
+          "duration": 41.073199999999815,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/cobro/PaymentModal.offline.test.tsx",
+      "startTime": 1795582973790,
+      "endTime": 1795582974345.7551,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "PaymentModal en modo Contingencia Offline (RF-26, RF-27) muestra aviso de contingencia y deshabilita pago con tarjeta y facturas (RF-26 / CA-10-04)",
+          "title": "muestra aviso de contingencia y deshabilita pago con tarjeta y facturas (RF-26 / CA-10-04)",
+          "status": "passed",
+          "duration": 382.19320000000016,
+          "failureMessages": []
+        },
+        {
+          "fullName": "PaymentModal en modo Contingencia Offline (RF-26, RF-27) registra la venta en contingencia en IndexedDB con hash y emite ticket CONT (RF-27 / CA-10-02)",
+          "title": "registra la venta en contingencia en IndexedDB con hash y emite ticket CONT (RF-27 / CA-10-02)",
+          "status": "passed",
+          "duration": 94.85850000000028,
+          "failureMessages": []
+        },
+        {
+          "fullName": "PaymentModal en modo Contingencia Offline (RF-26, RF-27) una venta en contingencia sin cliente identificado viaja sin clienteId (RF-28)",
+          "title": "una venta en contingencia sin cliente identificado viaja sin clienteId (RF-28)",
+          "status": "passed",
+          "duration": 78.75520000000006,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/cobro/PaymentModal.test.tsx",
+      "startTime": 1795582973790,
+      "endTime": 1795582976019.3213,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "RF-13: efectivo menor al total bloquea el cobro y el monto exacto lo habilita",
+          "title": "RF-13: efectivo menor al total bloquea el cobro y el monto exacto lo habilita",
+          "status": "passed",
+          "duration": 361.7080000000001,
+          "failureMessages": []
+        },
+        {
+          "fullName": "RF-13: tarjeta exige referencia y cambiar de medio limpia los datos anteriores",
+          "title": "RF-13: tarjeta exige referencia y cambiar de medio limpia los datos anteriores",
+          "status": "passed",
+          "duration": 218.44999999999982,
+          "failureMessages": []
+        },
+        {
+          "fullName": "reintenta el mismo cobro y guarda la boleta emitida por Retail",
+          "title": "reintenta el mismo cobro y guarda la boleta emitida por Retail",
+          "status": "passed",
+          "duration": 1649.3213,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/cobro/Receipt.offline.test.tsx",
+      "startTime": 1795582977794,
+      "endTime": 1795582977977.9775,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "Receipt — Comprobante en Contingencia Offline (RF-27 / CA-10-04) renderiza cabecera y correlativo de contingencia correctamente",
+          "title": "renderiza cabecera y correlativo de contingencia correctamente",
+          "status": "passed",
+          "duration": 117.69930000000022,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Receipt — Comprobante en Contingencia Offline (RF-27 / CA-10-04) muestra los primeros 8 caracteres del hash de integridad como comprobante de seguridad",
+          "title": "muestra los primeros 8 caracteres del hash de integridad como comprobante de seguridad",
+          "status": "passed",
+          "duration": 32.02390000000014,
+          "failureMessages": []
+        },
+        {
+          "fullName": "Receipt — Comprobante en Contingencia Offline (RF-27 / CA-10-04) incluye la leyenda obligatoria de contingencia pendiente de sincronización fiscal",
+          "title": "incluye la leyenda obligatoria de contingencia pendiente de sincronización fiscal",
+          "status": "passed",
+          "duration": 33.97759999999971,
+          "failureMessages": []
+        }
+      ]
+    },
+    {
+      "name": "C:/Users/guill/G4-Retail-frontend/src/components/organisms/pickup/DeliveryModal.test.tsx",
+      "startTime": 1795582973755,
+      "endTime": 1795582974714.1633,
+      "status": "passed",
+      "assertionResults": [
+        {
+          "fullName": "DeliveryModal (RF-19) retiro por titular autocompleta el nombre y pide digitar el DNI del documento",
+          "title": "retiro por titular autocompleta el nombre y pide digitar el DNI del documento",
+          "status": "passed",
+          "duration": 298.40930000000026,
+          "failureMessages": []
+        },
+        {
+          "fullName": "DeliveryModal (RF-19) habilita el botón con DNI del titular y verificación, sin exigir código de retiro",
+          "title": "habilita el botón con DNI del titular y verificación, sin exigir código de retiro",
+          "status": "passed",
+          "duration": 145.92700000000013,
+          "failureMessages": []
+        },
+        {
+          "fullName": "DeliveryModal (RF-19) avisa y bloquea si el DNI no es el del titular",
+          "title": "avisa y bloquea si el DNI no es el del titular",
+          "status": "passed",
+          "duration": 61.0646999999999,
+          "failureMessages": []
+        },
+        {
+          "fullName": "DeliveryModal (RF-19) bloquea la entrega como titular si el pedido no tiene DNI registrado",
+          "title": "bloquea la entrega como titular si el pedido no tiene DNI registrado",
+          "status": "passed",
+          "duration": 97.00410000000011,
+          "failureMessages": []
+        },
+        {
+          "fullName": "DeliveryModal (RF-19) retiro por tercero exige DNI de 8 dígitos y carta poder verificada",
+          "title": "retiro por tercero exige DNI de 8 dígitos y carta poder verificada",
+          "status": "passed",
+          "duration": 138.16869999999972,
+          "failureMessages": []
+        },
+        {
+          "fullName": "DeliveryModal (RF-19) confirma la entrega del titular y retira el pedido de la bandeja",
+          "title": "confirma la entrega del titular y retira el pedido de la bandeja",
+          "status": "passed",
+          "duration": 65.9360999999999,
+          "failureMessages": []
+        },
+        {
+          "fullName": "DeliveryModal (RF-19) envía la carta poder y el código de retiro cuando recoge un tercero",
+          "title": "envía la carta poder y el código de retiro cuando recoge un tercero",
+          "status": "passed",
+          "duration": 82.81089999999995,
+          "failureMessages": []
+        },
+        {
+          "fullName": "DeliveryModal (RF-19) muestra el error del backend si Ventas no está disponible",
+          "title": "muestra el error del backend si Ventas no está disponible",
+          "status": "passed",
+          "duration": 69.16330000000016,
+          "failureMessages": []
+        }
+      ]
+    }
+  ]
+}

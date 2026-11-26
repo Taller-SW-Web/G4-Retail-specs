@@ -1,0 +1,23 @@
+{
+  "fechaUTC": "2026-11-26T04:37:55.184968+00:00",
+  "repositorios": {
+    "G4-Retail-backend": {
+      "shaLocal": "375b46e7a83261e298ca30c103a8c989c215c74d",
+      "shaGuillermoDeclarado": "5555afbaa0a6d6e9b52917076b513598056cd7f9",
+      "objetoGuillermoDisponible": false
+    },
+    "G4-Retail-frontend": {
+      "shaLocal": "e102c7ac64a1da0715d27da5c521964cea45b0ae",
+      "shaGuillermoDeclarado": "5ac85424709d3d0d7b00eb6a46c5db479fb6040a",
+      "objetoGuillermoDisponible": false
+    }
+  },
+  "springdocEnCache": false,
+  "vitestInstalado": false,
+  "frontendPruebasAusentes": [
+    "src/pages/CashClosePage.test.tsx",
+    "src/pages/LoginPage.test.tsx",
+    "src/components/organisms/caja/ShiftOpenModal.test.tsx",
+    "src/components/organisms/clientes/AltaRapida.s14.test.tsx"
+  ]
+}

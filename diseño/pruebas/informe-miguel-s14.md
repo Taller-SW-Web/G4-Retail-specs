@@ -1,24 +1,28 @@
 # Informe de implementación y evidencia — Miguel Alonso Solis Cunza
 
-**Semana 14 / Hito 5 — revisión local del 24/11/2026, America/Lima.**
+**Semana 14 / Hito 5 — actualizado el 25/11/2026, America/Lima.**
+
+Actualización: se recibió y revisó la entrega de Guillermo. Ver el
+[dictamen de revisión](revision-guillermo-s14.md), el [informe recibido](informe-pruebas-unitarias-s14.md)
+y el [estado de cierre con pendientes concretos](cierre-tecnico-s14.md).
 
 ## 1. Estado real de la entrega
 
-Se implementó la infraestructura de pruebas y evidencia descrita abajo. **El hito no se
-declara aprobado todavía:** las suites Java/React y la medición del POS necesitan ejecutarse
-en un entorno con las dependencias completas. No se inventaron capturas, cobertura, latencias,
-resultados de Sonar ni ejecuciones de GitHub.
+Se implementó la infraestructura de pruebas y se validó la consistencia de la evidencia
+entregada por Guillermo: 390 casos backend y 233 frontend aprobados en sus revisiones declaradas.
+**El hito no se declara aprobado todavía:** falta verificar el código combinado, ejecutar
+performance y resolver SonarCloud. La evidencia recibida no sustituye esos pasos.
 
 | Responsabilidad de Miguel | Implementación / revisión realizada | Evidencia disponible | Pendiente para cerrar |
 |---|---|---|---|
 | CI/CD y seguridad | Reutilización de Sonar/CodeQL/Dependency Review; corrección de disparadores; auditoría npm completa; Dependabot; gate de evidencia antes de despliegue normal | 41 pruebas de las acciones compartidas aprobadas; workflows inspeccionados y YAML válido | Ejecutar PR y comprobar configuración/licencias/gates en GitHub |
-| Integración | Perfil Maven dedicado; nueva suite API + BD + HTTP; job H2 y PostgreSQL efímero | Código y matriz de escenarios; ejecución Java bloqueada por dependencia ausente | Ejecutar suites y descargar JUnit; repetir contra integraciones de Mihael |
-| Performance | Generador HTTP, carga progresiva, umbrales, validación de JSON, JSON/Markdown automáticos, workflow y script Windows | 8 pruebas del generador aprobadas, con transporte simulado | Medir el backend y adjuntar resultados reales; no hay latencias del POS todavía |
-| Revisión de Guillermo | Inventario estático y procedimiento de recepción/validación | Miguel confirmó que aún está pendiente de entrega | Recibirlo y contrastarlo con JUnit/JaCoCo/LCOV del mismo SHA |
-| Evidencia de sustentación | Este informe, inventario, consolidador y guía de demo | 5 pruebas del consolidador aprobadas | Adjuntar artefactos de los runs y referencias de despliegue |
+| Integración | Perfil Maven dedicado; nueva suite API + BD + HTTP; job H2 y PostgreSQL efímero | Entrega de Guillermo: 116 casos de integración y 18 de capa dentro de los 390, con el alcance declarado por él; nueva suite de Miguel aún sin ejecutar | Verificar SHA combinado, nueva suite y PostgreSQL; repetir contra integraciones de Mihael |
+| Performance | Generador HTTP y reportes; desde el 25/11 se ejecuta automáticamente después de integración en PR y deploy normal | 8 pruebas del generador aprobadas, con transporte simulado | Medir el backend; todavía no hay latencias reales del POS |
+| Revisión de Guillermo | Recibido, recalculado y revisado; copia fiel con SHA-256 | 390/233 casos y porcentajes consistentes; aceptación documental con observaciones | Recepción/revisión completadas; integración de código y reejecución quedan separadas |
+| Evidencia de sustentación | Informe, inventario, consolidador, revisión y guía de cierre | 5 pruebas del consolidador + 8 del nuevo validador de entrega aprobadas | Adjuntar runs de la versión combinada y performance |
 
-Los 41 + 8 + 5 casos corresponden a herramientas de CI/evidencia, **no** son el resultado
-de las suites funcionales de Retail. Las pruebas del generador usan un doble de `fetch`;
+Los 41 + 8 + 5 + 8 casos corresponden a herramientas de CI/evidencia, **no** son el resultado
+de las suites funcionales de Retail ni se suman a los 390/233 recibidos. Las pruebas del generador usan un doble de `fetch`;
 sus tiempos no deben mostrarse como performance de la aplicación.
 
 ## 2. Qué ya existía y se conservó
@@ -43,8 +47,8 @@ desplegado: validar la infraestructura real con Mihael/Maylle antes de la PPT.
 |---|---|---|
 | `.github/workflows/workflow-pr.yml` | Elimina `paths-ignore: .github/**`; llama workflow de evidencia | Los cambios del propio CI deben revisarse; generar resultados de integración |
 | `.github/workflows/workflow-main.yml` | Mismo arreglo de disparadores; `delivery` depende de evidencia en despliegue normal | Evitar desplegar sin la nueva verificación; mantener autorización de rollback existente |
-| `.github/workflows/workflow-evidence.yml` | Suite completa H2, subconjunto de integración y nueva suite sobre PostgreSQL 16 efímero; publica XML aun al fallar | Evidencia reproducible sin secretos de Supabase/G5/G7 |
-| `.github/workflows/workflow-performance.yml` | Compila/verifica, levanta el jar local, espera health, ejecuta carga y publica artefactos | Medición automatizada con estado de fallo y diagnóstico explícitos |
+| `.github/workflows/workflow-evidence.yml` | Suite completa H2, subconjunto de integración, PostgreSQL 16 efímero y job posterior de performance; publica XML aun al fallar | Evidencia reproducible y medición automática |
+| `.github/workflows/workflow-performance.yml` | Ahora admite `workflow_call`; conserva ejecución manual; levanta el jar local y publica mediciones | La carga deja de depender de cambios de rutas o disparo manual; participa en el gate normal de deploy |
 | `.github/dependabot.yml` | Actualización semanal Maven y GitHub Actions hacia develop | Mantenimiento de dependencias sujeto a revisión |
 | `pom.xml` | Perfil `integracion-s14`, informes separados y `failIfNoTests`; propiedad `retail.test.reports` | Selección inequívoca; no confundir ausencia de pruebas con aprobación |
 | `src/test/java/pe/edu/unmsm/fisi/retail/integracion/PosDependenciasIntegrationTest.java` | 8 métodos de prueba, uno parametrizado en tres estados: 10 casos esperados | Recorrer API, servicios, perfil persistido y adaptadores HTTP, incluidos fallos |
@@ -80,6 +84,10 @@ de dependencias del PR. No se ejecutó `npm audit fix` ni se cambiaron versiones
 - `scripts/consolidar.py`: convierte JUnit de **un solo run** a JSON/Markdown, cuenta casos
   reales del XML y rechaza duplicados, reportes inexistentes, vacíos o todos omitidos.
 - `scripts/test_consolidar.py`: 5 casos de verificación del consolidador, incluidos fallos del runner a nivel de suite.
+- `scripts/revisar_entrega.py` y `test_revisar_entrega.py`: validación de la entrega recibida, con 8 pruebas aprobadas.
+- `informe-pruebas-unitarias-s14.md` y `evidencias-s14/`: copia íntegra de la entrega de Guillermo.
+- `revision-guillermo-s14.md`, `validacion-entrega-guillermo.json` y `estado-workspace-2026-11-25.json`: dictamen, comprobaciones y procedencia.
+- `cierre-tecnico-s14.md`: estado actual, automatización y pasos verificables de cierre.
 - `evidencias-locales/`: resultados de herramientas y diagnóstico de dependencias.
 - `MIGUEL-SOLIS-SEMANA14.md` en la raíz: índice y bitácora resumida.
 
@@ -106,6 +114,11 @@ esperados**, aún no confirmados por Surefire. Mockito, H2 y servidores HTTP de 
 deben explicarse como dependencias controladas, no como evidencia de servicios productivos.
 
 ## 5. Verificaciones realizadas y bloqueos
+
+La tabla siguiente conserva las comprobaciones del 24/11. El 25/11 se recibieron resultados
+de Guillermo para otros commits y se ejecutaron las 13 pruebas de los scripts de revisión y
+consolidación, todas aprobadas. Siguen ausentes las dependencias y commits necesarios para
+reejecutar la aplicación combinada en este workspace; GitHub:443 volvió a fallar.
 
 | Verificación | Resultado observado |
 |---|---|
@@ -153,12 +166,14 @@ npm audit --audit-level=high --json
 Para consolidar, desde specs, reemplazar `SHA-DEL-RUN` por la revisión probada:
 
 ```powershell
-python -B diseño/pruebas/scripts/consolidar.py --junit ../G4-Retail-backend/target/integration-reports --etiqueta backend-integracion-h2 --sha SHA-DEL-RUN --salida diseño/pruebas/evidencias-s14/integracion-h2
-python -B diseño/pruebas/scripts/consolidar.py --junit ../G4-Retail-frontend/reports/vitest.xml --etiqueta frontend --sha SHA-DEL-RUN --salida diseño/pruebas/evidencias-s14/frontend
+python -B diseño/pruebas/scripts/consolidar.py --junit ../G4-Retail-backend/target/integration-reports --etiqueta backend-integracion-h2 --sha SHA-DEL-RUN --salida diseño/pruebas/evidencias-version-combinada/integracion-h2
+python -B diseño/pruebas/scripts/consolidar.py --junit ../G4-Retail-frontend/reports/vitest.xml --etiqueta frontend --sha SHA-DEL-RUN --salida diseño/pruebas/evidencias-version-combinada/frontend
 ```
 
 El consolidador retorna 2 si faltan reportes/son inválidos y 1 si la suite no aprueba.
 No mezclar los XML de H2/PostgreSQL, ni integración con la suite completa.
+Las salidas nuevas usan `evidencias-version-combinada/`; `evidencias-s14/` conserva exclusivamente
+la entrega original de Guillermo, cuyos bytes protege `.gitattributes` para mantener sus huellas.
 
 En GitHub conservar: URL del run, SHA, fecha, resultado del **Security Policy Result**,
 artefactos JUnit/SARIF/Sonar y auditoría npm. Los nuevos nombres de checks deben seleccionarse
@@ -186,16 +201,18 @@ Una medición local posterior solo acredita comportamiento con H2/mocks. Para nu
 en staging con token y fixtures reales, registrar configuración de adaptadores y revisar trazas.
 No se hicieron pruebas de carga a Render, Railway ni a los módulos de otros equipos.
 
-## 8. Recepción del informe de Guillermo
+## 8. Recepción del informe de Guillermo — completada el 25/11
 
-Miguel confirmó durante esta sesión que Guillermo todavía no entrega el informe. No se encontró
-`diseño/pruebas/informe-pruebas-unitarias-s14.md`. No se creó un documento
-en su nombre ni se dio por revisado un informe inexistente.
+Miguel entregó el archivo y la carpeta de evidencias en la raíz del workspace. Se copiaron
+a la ubicación prevista en specs y se compararon sus bytes con los originales.
 
-Al recibirlo: confirmar SHA/fecha; comparar cantidades con JUnit; separar unitarias,
-slices e integración; revisar JaCoCo/LCOV del mismo run; contrastar RF-01…RF-28 con la matriz;
-verificar fallos, omitidos y RF sin cubrir; registrar observaciones y aceptación de Miguel.
-El inventario adjunto ayuda a comparar archivos, pero no sustituye cobertura ni trazabilidad.
+La revisión comprobó casos individuales, clasificación, conteos y cobertura por paquete/archivo,
+28 filas de trazabilidad, fechas y capturas. Resultado: **consistente y aceptado documentalmente
+con observaciones para los SHA declarados**. Ver [dictamen](revision-guillermo-s14.md).
+
+Los archivos recibidos son JSON y capturas; no contienen los XML/LCOV completos ni el código
+de los commits citados. No se atribuye la evidencia a la versión combinada ni a una nueva ejecución
+local. Ya no está pendiente que Guillermo entregue el informe.
 
 ## 9. Hallazgos previos que deben quedar visibles
 
@@ -217,7 +234,7 @@ El inventario adjunto ayuda a comparar archivos, pero no sustituye cobertura ni 
 2. Abrir Security Policy Result y hallazgos reales de Sonar/CodeQL/dependencias.
 3. Mostrar JUnit de integración y explicar qué BD/módulos son reales o controlados.
 4. Ejecutar/mostrar carga y explicar p95, errores, RPS y límites del entorno medido.
-5. Mostrar el informe de Guillermo ya validado, o declarar pendiente si aún no existe.
+5. Mostrar el informe de Guillermo y el dictamen de Miguel, distinguiendo revisiones medidas y código combinado.
 6. Cerrar con las correcciones pendientes respaldadas por evidencia, sin presentar mocks como nube.
 
 ## Referencias de configuración
