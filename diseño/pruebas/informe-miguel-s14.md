@@ -1,6 +1,6 @@
 # Informe de implementación y evidencia — Miguel Alonso Solis Cunza
 
-**Semana 14 / Hito 5 — actualizado el 25/11/2026, America/Lima.**
+**Semana 14 / Hito 5 — actualizado el 26/11/2026, America/Lima.**
 
 Actualización: se recibió y revisó la entrega de Guillermo. Ver el
 [dictamen de revisión](revision-guillermo-s14.md), el [informe recibido](informe-pruebas-unitarias-s14.md)
@@ -11,11 +11,12 @@ y el [estado de cierre con pendientes concretos](cierre-tecnico-s14.md).
 Se implementó la infraestructura de pruebas y se validó la consistencia de la evidencia
 entregada por Guillermo: 390 casos backend y 233 frontend aprobados en sus revisiones declaradas.
 **El hito no se declara aprobado todavía:** falta verificar el código combinado, ejecutar
-performance y resolver SonarCloud. La evidencia recibida no sustituye esos pasos.
+performance y DAST reales, y resolver SonarCloud. La evidencia recibida no sustituye esos pasos.
 
 | Responsabilidad de Miguel | Implementación / revisión realizada | Evidencia disponible | Pendiente para cerrar |
 |---|---|---|---|
-| CI/CD y seguridad | Reutilización de Sonar/CodeQL/Dependency Review; corrección de disparadores; auditoría npm completa; Dependabot; gate de evidencia antes de despliegue normal | 41 pruebas de las acciones compartidas aprobadas; workflows inspeccionados y YAML válido | Ejecutar PR y comprobar configuración/licencias/gates en GitHub |
+| CI/CD y seguridad | Reutilización de Sonar/CodeQL/Dependency Review; auditoría npm, Dependabot y gate de evidencia antes de despliegue normal | 41 pruebas de las acciones compartidas aprobadas; workflows inspeccionados y YAML válido | Ejecutar PR y comprobar configuración/licencias/gates en GitHub |
+| DAST | API Scan activo de OWASP ZAP importando `/v3/api-docs`, JWT de prueba y política explícita de bloqueo | Implementación local y 3 pruebas del resumen aprobadas; **sin run de ZAP aún** | Publicar, ejecutar contra la instancia H2/mocks y conservar `dast-zap-s14-*` |
 | Integración | Perfil Maven dedicado; nueva suite API + BD + HTTP; job H2 y PostgreSQL efímero | Entrega de Guillermo: 116 casos de integración y 18 de capa dentro de los 390, con el alcance declarado por él; nueva suite de Miguel aún sin ejecutar | Verificar SHA combinado, nueva suite y PostgreSQL; repetir contra integraciones de Mihael |
 | Performance | Generador HTTP y reportes; desde el 25/11 se ejecuta automáticamente después de integración en PR y deploy normal | 8 pruebas del generador aprobadas, con transporte simulado | Medir el backend; todavía no hay latencias reales del POS |
 | Revisión de Guillermo | Recibido, recalculado y revisado; copia fiel con SHA-256 | 390/233 casos y porcentajes consistentes; aceptación documental con observaciones | Recepción/revisión completadas; integración de código y reejecución quedan separadas |
@@ -47,8 +48,12 @@ desplegado: validar la infraestructura real con Mihael/Maylle antes de la PPT.
 |---|---|---|
 | `.github/workflows/workflow-pr.yml` | Elimina `paths-ignore: .github/**`; llama workflow de evidencia | Los cambios del propio CI deben revisarse; generar resultados de integración |
 | `.github/workflows/workflow-main.yml` | Mismo arreglo de disparadores; `delivery` depende de evidencia en despliegue normal | Evitar desplegar sin la nueva verificación; mantener autorización de rollback existente |
-| `.github/workflows/workflow-evidence.yml` | Suite completa H2, subconjunto de integración, PostgreSQL 16 efímero y job posterior de performance; publica XML aun al fallar | Evidencia reproducible y medición automática |
+| `.github/workflows/workflow-evidence.yml` | Suite completa H2, subconjunto de integración, PostgreSQL 16 efímero; comparte su JAR con performance y DAST | Evitar reconstruir o repetir pruebas para los controles posteriores |
 | `.github/workflows/workflow-performance.yml` | Ahora admite `workflow_call`; conserva ejecución manual; levanta el jar local y publica mediciones | La carga deja de depender de cambios de rutas o disparo manual; participa en el gate normal de deploy |
+| `.github/workflows/workflow-dast.yml` | Reutilizable y manual; descarga el JAR ya validado o lo empaqueta sin tests solo en modo manual, levanta H2/mocks y ejecuta ZAP API Scan | DAST activo aislado, sin escanear producción ni repetir la suite Maven |
+| `.zap/api-scan-rules.tsv` | Declara las reglas ZAP que bloquean | Evitar que WARN y una severidad supuesta conviertan cualquier resultado en aprobación o bloqueo indiscriminado |
+| `scripts/dast/resumir-zap.mjs` y `scripts/dast/*.test.mjs` | Resumen Markdown con SHA, fecha, digest de imagen, alcance, modalidad y conteos; tres pruebas | Conserva diagnóstico y presenta reporte ausente como incompleto |
+| `scripts/dast/README.md` | Procedimiento, aislamiento, límites y artefactos | Repetir el escaneo sin usar secretos de producción |
 | `.github/dependabot.yml` | Actualización semanal Maven y GitHub Actions hacia develop | Mantenimiento de dependencias sujeto a revisión |
 | `pom.xml` | Perfil `integracion-s14`, informes separados y `failIfNoTests`; propiedad `retail.test.reports` | Selección inequívoca; no confundir ausencia de pruebas con aprobación |
 | `src/test/java/pe/edu/unmsm/fisi/retail/integracion/PosDependenciasIntegrationTest.java` | 8 métodos de prueba, uno parametrizado en tres estados: 10 casos esperados | Recorrer API, servicios, perfil persistido y adaptadores HTTP, incluidos fallos |
@@ -60,7 +65,8 @@ desplegado: validar la infraestructura real con Mihael/Maylle antes de la PPT.
 
 `mvnw test` continúa ejecutando todas las pruebas; el perfil no elimina las integraciones
 de la suite normal. El subconjunto vuelve a ejecutar algunos casos y **no debe sumarse**
-a la suite completa como si fueran casos distintos.
+a la suite completa como si fueran casos distintos. DAST descarga el JAR ya producido por
+`clean verify`; solo el disparo manual usa `package -DskipTests` para disponer de un binario.
 
 ### Frontend
 
@@ -124,6 +130,7 @@ reejecutar la aplicación combinada en este workspace; GitHub:443 volvió a fall
 |---|---|
 | `node --test tests/policy.test.cjs tests/security-report.test.cjs` en github-actions | 41 aprobadas, 0 fallos |
 | `node --test scripts/performance/*.test.mjs` en backend | 8 aprobadas, 0 fallos |
+| `node --test scripts/performance/*.test.mjs scripts/dast/*.test.mjs` en backend | 11 aprobadas, 0 fallos: 8 de performance y 3 del resumen DAST; no es un escaneo ZAP |
 | `python -B -m unittest discover -s diseño/pruebas/scripts -p test_*.py -v` en specs | 5 aprobadas, 0 fallos |
 | Parseo YAML de workflows/Dependabot y XML de POM | Válidos sintácticamente; no equivale a ejecución de Actions |
 | Parseo del script PowerShell | Sin errores de sintaxis |
@@ -134,6 +141,7 @@ reejecutar la aplicación combinada en este workspace; GitHub:443 volvió a fall
 | `npm run build` | Falta `vite/client`, instalación incompleta |
 | Conexión a repositorios Maven/npm | `WinError 10013`, sockets no permitidos por el entorno |
 | Prueba de carga contra Retail | No ejecutada: no se pudo construir/levantar el backend |
+| API Scan ZAP contra Retail | No ejecutado: este workspace no pudo empaquetar/levantar el backend; la implementación no se presenta como resultado DAST |
 
 La máquina tiene Node 22.17.0 y Java 24 por defecto; se seleccionó Java 21 instalado
 para la comprobación de Maven. El lockfile exige como mínimo Node 22.22.2 para algunas
@@ -148,6 +156,12 @@ Desde backend con Java 21 y acceso a Maven Central:
 ./mvnw.cmd -B -Pintegracion-s14 test
 ./scripts/performance/ejecutar-local.ps1
 ```
+
+Para DAST, publicar el cambio y ejecutar **DAST API OWASP ZAP S14** manualmente, o abrir un PR para
+que `Evidencias Backend S14` lo invoque después de integración. Descargar `dast-zap-s14-*` y registrar
+el SHA, URL del run, `resumen.md`, HTML/JSON/Markdown de ZAP y `servidor.log`. Un estado `success`
+solo acredita el alcance H2/mocks definido; si falta el reporte o falla el arranque, el resumen debe
+decir **incompleto**, no “sin vulnerabilidades”. Ver la [guía DAST](../../../G4-Retail-backend/scripts/dast/README.md).
 
 PostgreSQL: ejecutar **Evidencias Backend S14** en GitHub. El servicio es descartable,
 la base se llama `retail_s14` y se crea/elimina el esquema para las pruebas. **Nunca apuntar
@@ -176,10 +190,10 @@ Las salidas nuevas usan `evidencias-version-combinada/`; `evidencias-s14/` conse
 la entrega original de Guillermo, cuyos bytes protege `.gitattributes` para mantener sus huellas.
 
 En GitHub conservar: URL del run, SHA, fecha, resultado del **Security Policy Result**,
-artefactos JUnit/SARIF/Sonar y auditoría npm. Los nuevos nombres de checks deben seleccionarse
+artefactos JUnit/SARIF/Sonar, auditoría npm y `dast-zap-s14-*`. Los nuevos nombres de checks deben seleccionarse
 en protección de ramas tras el primer run: **Integración H2 y PostgreSQL** en backend y
-**Pruebas, build y auditoría de dependencias** en frontend. Mantener el gate de seguridad
-existente. No se alteraron reglas remotas ni secretos desde esta sesión.
+**API Scan activo en H2 y mocks** en backend, además de **Pruebas, build y auditoría de dependencias**
+en frontend. Mantener el gate de seguridad existente. No se alteraron reglas remotas ni secretos desde esta sesión.
 
 Antes del deploy normal ambos callers esperan que la nueva evidencia pase. Rollback mantiene
 su flujo de autorización previo y reconstrucción de la versión seleccionada, sin usar como
@@ -232,15 +246,18 @@ local. Ya no está pendiente que Guillermo entregue el informe.
 
 1. Mostrar PR de Miguel hacia develop y SHA probado.
 2. Abrir Security Policy Result y hallazgos reales de Sonar/CodeQL/dependencias.
-3. Mostrar JUnit de integración y explicar qué BD/módulos son reales o controlados.
-4. Ejecutar/mostrar carga y explicar p95, errores, RPS y límites del entorno medido.
-5. Mostrar el informe de Guillermo y el dictamen de Miguel, distinguiendo revisiones medidas y código combinado.
-6. Cerrar con las correcciones pendientes respaldadas por evidencia, sin presentar mocks como nube.
+3. Mostrar `dast-zap-s14-*`, el resumen, alcance H2/mocks y la política de bloqueo; no presentarlo como staging.
+4. Mostrar JUnit de integración y explicar qué BD/módulos son reales o controlados.
+5. Ejecutar/mostrar carga y explicar p95, errores, RPS y límites del entorno medido.
+6. Mostrar el informe de Guillermo y el dictamen de Miguel, distinguiendo revisiones medidas y código combinado.
+7. Cerrar con las correcciones pendientes respaldadas por evidencia, sin presentar mocks como nube.
 
 ## Referencias de configuración
 
 - [GitHub: filtros por rutas en workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax).
 - [Maven Surefire: selección y parámetros de test](https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html).
+- [OWASP ZAP API Scan](https://www.zaproxy.org/docs/docker/api-scan/).
+- [OWASP ZAP Docker y GitHub Actions](https://www.zaproxy.org/docs/docker/about/).
 
 Las decisiones de alcance provienen de `reparticionSemana14.md` y de los contratos locales;
 las referencias anteriores se consultaron para comprobar sintaxis y comportamiento de herramientas.

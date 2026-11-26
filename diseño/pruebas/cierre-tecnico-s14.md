@@ -1,6 +1,6 @@
 # Estado de cierre de Miguel — Semana 14
 
-**Actualizado: 25/11/2026.** Este documento reúne lo realizado, el resultado comprobado
+**Actualizado: 26/11/2026.** Este documento reúne lo realizado, el resultado comprobado
 y los pasos que todavía requieren código/dependencias o acceso a servicios externos.
 
 ## Resultado actual
@@ -10,7 +10,8 @@ y los pasos que todavía requieren código/dependencias o acceso a servicios ext
 | Recepción y revisión de Guillermo | **Completada.** Informe y ocho archivos copiados fielmente; resultados consistentes; dictamen con observaciones |
 | Unitarias/componentes de la entrega | **Evidencia recibida y validada:** 390 backend y 233 frontend, de las revisiones declaradas por Guillermo |
 | Integración | **Evidencia histórica incorporada.** 116 casos de integración y 18 de capa dentro del total backend; nueva suite de Miguel y PostgreSQL todavía sin resultado |
-| CI/CD con seguridad | **Implementado; no certificado como aprobado.** Guillermo reporta Build/CodeQL/Dependency Review aprobados y SonarCloud con HTTP 403 |
+| CI/CD con seguridad | **Implementado; no certificado como aprobado.** Sonar/CodeQL/Dependency Review previos se conservan; el último error Sonar fue coexistencia de CI Analysis y Automatic Analysis |
+| DAST OWASP ZAP | **Implementado; no ejecutado.** API Scan activo, autenticado con JWT efímero y aislado en H2/mocks |
 | Performance | **Implementado y conectado al CI automáticamente. Sin medición real todavía.** Las pruebas del generador no miden Retail |
 | Código combinado | **Pendiente de sincronización y ejecución.** Los commits de Guillermo no están disponibles en esta copia |
 | Nube y módulos reales | **No verificados.** No hay evidencia nueva de Supabase, G6/G7 reales ni despliegue |
@@ -31,7 +32,9 @@ para evitar repetir una solicitud ya atendida.
 7. Conecté `workflow-performance.yml` como workflow reutilizable, llamado después de integración
    en `workflow-evidence.yml`. Ahora las PR y los despliegues normales producirán performance
    cuando puedan ejecutar correctamente el backend; ya no requiere editar la carpeta de carga.
-8. Actualicé el informe de Miguel, el índice raíz y la documentación de performance.
+8. Implementé `workflow-dast.yml`, política de bloqueo, resumen Markdown y guía de alcance para ZAP.
+9. Verifiqué 11 pruebas Node de herramientas: 8 de performance y 3 del resumen DAST; no son un run ZAP.
+10. Actualicé el informe de Miguel, el índice raíz y la documentación de performance/DAST.
 
 ## Cierre operativo, en orden
 
@@ -47,15 +50,18 @@ El informe cita el ajuste backend `c22a8c8` que alinea JaCoCo a 0.8.13 con la pl
 Su resultado CI está descrito en el informe, pero los porcentajes locales corresponden a
 0.8.14. Registrar el SHA combinado y generar nueva evidencia, sin mezclar agentes ni runs.
 
-### B. GitHub Actions y performance
+### B. GitHub Actions, DAST y performance
 
 Al ejecutar el pipeline de backend, la secuencia nueva es:
 
 ```text
 Integración H2 + PostgreSQL
-            ↓ si aprueba
-Performance POS local (1, 5 y 10 usuarios)
-            ↓ si aprueba y pasan los controles previos
+      ┌─────┴─────┐
+      ↓           ↓
+Performance     DAST API Scan activo
+H2/mocks        H2/mocks con OpenAPI
+      └─────┬─────┘
+            ↓ si ambos aprueban
 Despliegue normal autorizado por el pipeline existente
 ```
 
@@ -68,6 +74,7 @@ Descargar y conservar los artefactos:
 - `backend-s14-*`: XML de suite completa, integración y PostgreSQL, separados.
 - `frontend-s14-*`: JUnit y auditoría npm.
 - `performance-s14-*`: `resultados.json`, `informe.md` y log del servidor.
+- `dast-zap-s14-*`: resumen, reportes ZAP, preflights y log del servidor; su ausencia indica ejecución incompleta.
 - Reportes de Sonar, CodeQL/SARIF y Dependency Review del mismo commit.
 
 La performance automática es una línea base de **H2 y mocks**, no de Supabase ni de módulos
@@ -81,25 +88,24 @@ Para staging, seguir [README de performance](../../../G4-Retail-backend/scripts/
 con fixtures y token de prueba reales. Registrar entorno, SHA, configuración de adaptadores,
 latencias, errores y RPS. No usar tiempos de las suites como mediciones del POS.
 
-### C. SonarCloud HTTP 403
+DAST importa `/v3/api-docs`, verifica una ruta autenticada con JWT de desarrollo efímero y ejecuta
+ZAP activo solo contra `127.0.0.1`. La política bloquea inyecciones, XSS, Path Traversal, RFI, CRLF,
+manipulación de parámetros y XXE; los demás WARN se guardan para revisión sin bloquear por sí solos.
+No se usa `continue-on-error`, `|| true` ni el modo seguro/pasivo. Ver la
+[guía DAST](../../../G4-Retail-backend/scripts/dast/README.md) antes de cualquier variante para staging.
 
-El informe registra un 403 al consultar metadatos JRE. Ese mensaje por sí solo no distingue
-token inválido, región/host incorrectos, permisos o un problema del servicio/red. No hay acceso
-al secreto ni al run remoto en esta sesión para determinar la causa exacta.
+### C. SonarCloud: Automatic Analysis en conflicto
 
-1. En cada repo, comprobar `SONAR_HOST_URL` y la región de la organización. Cloud EU usa
-   `sonarcloud.io` y Cloud US `sonarqube.us`; no mezclar token, organización y servidor.
-2. Comprobar `SONAR_TOKEN` en **Settings → Secrets and variables → Actions**, su vigencia y
-   permisos de análisis para el proyecto. Actualizarlo allí si corresponde, sin pegarlo en
-   Markdown, consola compartida o chat.
-3. Contrastar la clave calculada por la plantilla: `Taller-SW-Web_G4-Retail-backend` o
-   `Taller-SW-Web_G4-Retail-frontend`, y organización Cloud `taller-sw-web` salvo configuración distinta.
-4. Reejecutar el scanner y comprobar que el Quality Gate corresponda al `analysisId` del
-   mismo run. Si continúa el 403 con configuración válida, revisar el endpoint concreto,
-   conectividad del runner y estado del servicio antes de atribuirlo a las credenciales.
+El último log ya superó el 403 anterior, cargó el proyecto configurado y terminó porque se ejecutó
+un análisis CI mientras **Automatic Analysis** estaba activo. No hay confirmación de que el ajuste
+se haya cambiado ni un Quality Gate aprobado.
 
-Referencia oficial: [Web API y autenticación de SonarQube Cloud](https://docs.sonarsource.com/sonarqube-cloud/appendices/web-api).
-No se rotaron secretos, se saltó autenticación ni se marcó Sonar como resuelto sin ejecución.
+1. Abrir el proyecto backend en SonarCloud: **Administration → Analysis Method**.
+2. Desactivar **Automatic Analysis** y conservar el análisis de GitHub Actions ya configurado.
+3. Reejecutar el job fallido en GitHub Actions y comprobar el Quality Gate del mismo `analysisId`.
+4. Revisar el mismo ajuste para frontend solo si también tiene Automatic Analysis activado.
+
+No se borran tokens, se cambia de plan ni se marca Sonar como resuelto sin una ejecución real.
 
 ### D. Consolidación final
 
@@ -107,17 +113,17 @@ Usar `scripts/consolidar.py` para cada conjunto JUnit individual, con el SHA pro
 mezclar el subconjunto de integración con la suite completa. Mantener separadas las cifras
 de Guillermo de las de la versión combinada y de las herramientas de evidencia.
 
-El cierre completo requiere: nueva ejecución combinada, la nueva suite y PostgreSQL,
-performance real, Sonar en estado verificable y comprobación del despliegue requerido.
+El cierre completo requiere: nueva ejecución combinada, la nueva suite y PostgreSQL, DAST y
+performance reales, Sonar en estado verificable y comprobación del despliegue requerido.
 
 ## Bloqueos comprobados en este workspace
 
-- GitHub:443 sigue sin conexión desde los procesos de esta sesión.
+- La falta de conexión GitHub:443 corresponde a una sesión anterior; Miguel sí confirmó la publicación desde su terminal. El acceso de esta sesión no se asume.
 - Falta Springdoc 2.8.9 en la caché Maven; no está instalado Vitest en el frontend.
 - No están disponibles los objetos Git de los commits de Guillermo; tampoco sus cuatro
   archivos frontend nuevos. El informe no incluye el código fuente de esas modificaciones.
-- No hay ejecución de performance del backend actual ni acceso a los secretos/configuración
-  de SonarCloud. No se reemplaza esa falta de evidencia por resultados de otro binario.
+- No hay ejecución de performance o DAST del backend actual ni acceso a la configuración de
+  SonarCloud. No se reemplaza esa falta de evidencia por resultados de otro binario.
 
 Ver [estado observado](estado-workspace-2026-11-25.json) y
 [dictamen de revisión](revision-guillermo-s14.md). La documentación está completada hasta
