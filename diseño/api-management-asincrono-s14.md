@@ -136,8 +136,10 @@ Consultas de evidencia en Supabase: `G4-Retail-backend/diseño_bd/migracion-s14-
 | `RETAIL_VENTAS_URL` | `https://g5-api-gateway.onrender.com` | Ventas por su API Gateway |
 | `RETAIL_LIMITE_PETICIONES_POR_MINUTO` | `120` | Límite por vendedor |
 | `RETAIL_OUTBOX_INTERVALO_MS` | `30000` | Frecuencia del job del outbox |
-| `RETAIL_INVENTARIO_MODO` / `RETAIL_INVENTARIO_URL` | `memoria` hasta que G6 confirme `location_id` y scopes; luego `g6` y su URL | Destino del outbox |
+| `RETAIL_INVENTARIO_MODO` / `RETAIL_INVENTARIO_URL` | `memoria` hasta verificar el token de `api-productos`; luego `g6` (la URL ya viene por defecto) | Destino del outbox |
 | `RETAIL_PRODUCTOS_URL` + quitar `mock` de `SPRING_PROFILES_ACTIVE` | `https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1`, cuando G7 registre los scopes | Catálogo, precios, disponibilidad, promociones y campañas reales |
+| `RETAIL_INVENTARIO_UBICACIONES` | `TIENDA-MIRAFLORES=aea2f0d8-e8c6-b09c-8e7a-b4a3630bc485` (valor por defecto, confirmado por G6) | `location_id` de G6 por tienda |
+| `RETAIL_PEDIDOS_BUSQUEDA_DOCUMENTO` | `registro` hasta que G7 asigne `ventas:pedidos:buscar-documento`; luego `g5` | Búsqueda de pedidos por DNI/RUC (RF-16-DOC) |
 | `RETAIL_CLIENTES_MODO` | `memoria` hasta que G7 confirme los permisos del `VENDEDOR`; luego `g7` | Clientes en `/usuarios/*` |
 
 Antes de activar el modo real, ejecutar `migracion-s14-outbox.sql` en Supabase.
