@@ -1,11 +1,11 @@
-# Contrato de API — Módulo Retail (G4) · v0.4
+# Contrato de API — Módulo Retail (G4) · v0.5
 
 | Campo | Valor |
 |---|---|
-| Versión | **0.4 — borrador corregido** (reemplaza a v0.3) |
-| Estado | Pendiente de aprobación por PO (Mihael) y Tech Lead (Miguel) |
-| Responsable | Arquitectura de Software (Maylle) |
-| Fecha | 11/10/2026 |
+| Versión | **0.5 — integraciones reales, API Management y mecanismo asíncrono** (reemplaza a v0.4) |
+| Estado | Aprobado por el PO (Mihael) para el Hito 5; las filas 🟡 siguen pendientes de los módulos dueños |
+| Responsable | Arquitectura de Software (Maylle) · v0.5: PO e integración (Mihael) |
+| Fecha | 26/11/2026 (v0.5) · 11/10/2026 (v0.4) |
 | Base | Specs F1–F12 (fuente de verdad) · Reporte de Consistencia Intermodular (corte 05/10/2026) · Contrato de Despacho G2 · Convenciones de Seguridad G7 · Observaciones de la revisión del pull request de v0.3 |
 
 > **Regla de implementación (Guía Semana 7):** ningún endpoint se programa en backend ni se consume en frontend hasta que figure como **APROBADO** en el [tablero de endpoints](#8-tablero-de-endpoints). Arquitectura notifica a Miguel y Cristhian cada aprobación.
@@ -143,6 +143,51 @@ Las listas paginadas reciben:
 
 Y responden `{ "items": [...], "page": 0, "size": 20, "total": 57 }`, donde `page`, `size` y `total` son `integer` e `items` es un arreglo (vacío si no hay resultados).
 
+
+### 2.8. API Management (v0.5)
+
+Retail aplica la capa de API Management en dos sentidos:
+
+- **Lo que expone:** políticas aplicadas dentro de `ms-retail`, como filtros de entrada antes de los controladores.
+- **Lo que consume:** a Ventas lo consume a través del API Gateway de G5.
+
+| Política | Dónde | Regla |
+|---|---|---|
+| **Enrutamiento y versionado** | `ms-retail` | Toda la API propia vive bajo `/api/v1/retail/*`. Una versión incompatible se publica como `/api/v2/retail/*` y convive con la anterior. Cada respuesta lleva `X-Api-Version: v1` |
+| **Autenticación** | `ms-retail` | JWT de Seguridad (G7) validado localmente con su JWKS (§2.4). Solo `GET /health`, `/v3/api-docs` y `/swagger-ui` quedan públicos |
+| **Límite de peticiones** | `ms-retail` | Ventana por minuto **por vendedor** (el `sub` del JWT) o **por IP** si la petición no trae token. Valor por defecto: `120` peticiones por minuto (`RETAIL_LIMITE_PETICIONES_POR_MINUTO`). Al excederlo responde `429 DEMASIADAS_SOLICITUDES` en el formato de §2.5, con `Retry-After` (segundos). Toda respuesta lleva `X-RateLimit-Limit` y `X-RateLimit-Remaining`. `GET /health` no cuenta |
+| **Trazabilidad** | `ms-retail` → G5, G6 y G7 | Se acepta `X-Correlation-Id` o se genera uno. Se devuelve en la respuesta, se escribe en cada línea de log (MDC `correlationId`) y se propaga en cada llamada saliente a otro módulo |
+| **Catálogo de la API** | `ms-retail` | OpenAPI publicado en `/v3/api-docs` y Swagger UI en `/swagger-ui.html` |
+| **Consumo de Ventas** | API Gateway de G5 | `RETAIL_VENTAS_URL=https://g5-api-gateway.onrender.com`. Las rutas y el token de servicio de §4.3 no cambian |
+
+Un `429` que venga de otro módulo, por ejemplo el límite de búsquedas de G7, se responde también como `429 DEMASIADAS_SOLICITUDES` y conserva su `Retry-After`.
+
+### 2.9. Mecanismo asíncrono entre microservicios: outbox (v0.5)
+
+Las notificaciones que no deben bloquear al vendedor viajan de forma asíncrona con el patrón **transactional outbox**.
+
+1. **Registro:** el servicio de negocio guarda su cambio y, **en la misma transacción**, un evento en `RET_OUTBOX_EVENTO` con estado `PENDIENTE`. Si el cambio no se confirma, el evento tampoco existe.
+2. **Envío:** un job programado de `ms-retail` toma los eventos `PENDIENTE` cuyo `proximoIntento` ya pasó, cada `30 s` (`RETAIL_OUTBOX_INTERVALO_MS`) y en lotes de `20`. Los envía al módulo destino con el token de servicio de `modulo-retail` y `Idempotency-Key: <agregadoId>`.
+3. **Resultado:**
+   - Una respuesta `2xx` pasa el evento a `ENVIADO`, guarda la `referenciaExterna` que devuelve el destino y publica dentro de `ms-retail` el evento `EventoOutboxEnviado`, que el dueño del agregado usa para actualizar su estado.
+   - Un error transitorio (sin respuesta, timeout, `408`, `429` o `5xx`) suma un intento y reprograma el envío con espera creciente: `30 s × 2^(intentos−1)`, con un tope de `1 h`.
+   - Al llegar a `10` intentos (`RETAIL_OUTBOX_MAX_INTENTOS`), o ante un rechazo definitivo (`400`, `401`, `403`, `404`, `409` o `422`), el evento pasa a `FALLIDO` con el `ultimoError`. Queda visible para su revisión y no se reintenta solo.
+4. **Idempotencia:** el destino recibe la misma `Idempotency-Key` en cada reintento, así que un reenvío después de un timeout no duplica el registro.
+
+| Campo de `RET_OUTBOX_EVENTO` | Tipo | Uso |
+|---|---|---|
+| `id` | UUID | Identificador del evento |
+| `tipo_evento` | texto | `INCIDENCIA_INVENTARIO_REPORTADA` (F12). Se pueden sumar más tipos |
+| `agregado_id` | texto | Id del recurso de Retail (`incidenciaId`); es también la `Idempotency-Key` |
+| `destino` | texto | `PRODUCTOS_G6` |
+| `payload` | texto JSON | Cuerpo exacto que se envía |
+| `estado` | texto | `PENDIENTE` · `ENVIADO` · `FALLIDO` |
+| `intentos`, `proximo_intento`, `ultimo_error` | int, timestamptz, texto | Control de reintentos |
+| `referencia_externa` | texto | Id que devuelve el destino (`incidenciaInventoryId`) |
+| `creado_en`, `enviado_en` | timestamptz | Auditoría |
+
+**Primer flujo asíncrono real:** el reporte de incidencias de F12 a Inventory (G6), descrito en §5.12. Mientras G6 confirma la ruta, el destino es el mock del perfil `mock` (§6). Pasar al real es solo configuración (`RETAIL_INVENTARIO_URL`).
+
 ---
 
 ## 3. Mapa general
@@ -184,36 +229,52 @@ Y responden `{ "items": [...], "page": 0, "size": 20, "total": 57 }`, donde `pag
 | Token de servicio | `POST /api/v1/auth/token` (`application/x-www-form-urlencoded`) | `ms-retail` | ✅ |
 | Login del personal **con MFA** | `POST /api/v1/auth/login` → si responde `mfaRequerido`, continuar con `challengeToken` (G4-P1-02) | **SPA** | 🟡 ruta de continuación MFA pendiente |
 | Introspección (autorización de supervisor) | `POST /api/v1/auth/introspeccion` (scope `tokens:introspeccion`) | `ms-retail` | 🟡 grant pendiente |
-| Búsqueda de cliente por DNI | `/usuarios/busqueda-documento` (G4-P1-01) | `ms-retail` | 🟡 payload pendiente |
-| Alta rápida de cliente | `/usuarios/clientes` (G4-P1-01) | `ms-retail` | 🟡 payload pendiente |
+| Búsqueda de cliente por documento | `POST /api/v1/usuarios/busqueda-documento` (G4-P1-01, A7) | `ms-retail` con el **token del vendedor** | ✅ OpenAPI de G7 |
+| Alta rápida de cliente (registro asistido) | `POST /api/v1/usuarios/clientes` (G4-P1-01, A6) | `ms-retail` con el **token del vendedor** | ✅ OpenAPI de G7 |
 
 Notas:
 - **Credenciales de servicio:** `ms-retail` envía `grant_type=client_credentials`, `client_id=modulo-retail` y `client_secret` como formulario a `POST /api/v1/auth/token`. El OpenAPI de G7 documenta `scope` opcional, con los valores separados por espacios. La respuesta `200` contiene `accessToken`, `tokenType`, `expiresIn` (segundos) y `scopes` concedidos. El secreto se configura solo en el servidor y el token de servicio viaja como Bearer en la llamada al módulo destino.
 - La búsqueda de clientes se hace con el token del vendedor, queda auditada y tiene límite de consultas (`429`); la respuesta enmascara el documento.
 - **RUC:** identifica a personas jurídicas y no se consulta en Seguridad. El RUC y la razón social se capturan en la venta (§5.5).
 
+**Payloads de `/usuarios/*` (copiados del OpenAPI de G7, v0.5):**
+
+| Operación | Request | Respuesta | Errores |
+|---|---|---|---|
+| `POST /usuarios/busqueda-documento` | `{ "tipoDocumento": "DNI", "numeroDocumento": "45781234" }`; `tipoDocumento` ∈ `DNI` · `CE` · `PASAPORTE` (sin `RUC`) | `200 { "id": "<uuid>", "nombreCompleto": "María Quispe Rojas", "documentoEnmascarado": "*****234", "estado": "ACTIVO" }`; `estado` ∈ `ACTIVO` · `PENDIENTE_VERIFICACION` | `404` inexistente · `403` sin `cliente.buscar` o con token de servicio · `429 DEMASIADAS_SOLICITUDES` con `Retry-After` (60 búsquedas por hora y vendedor) |
+| `POST /usuarios/clientes` | `{ "correo", "nombres", "apellidos", "celular"?, "tipoDocumento"?, "numeroDocumento"? }`; `celular` con patrón `^\+51[0-9]{9}$` | `201 { "id": "<uuid>", "estado": "PENDIENTE_VERIFICACION" }` | `409 CORREO_NO_DISPONIBLE` · `409 DOCUMENTO_NO_DISPONIBLE` (buscarlo por documento) · `403` sin `cliente.registrar` |
+
+- Ambas exigen un **token de usuario** con el permiso del rol `VENDEDOR` de G7 (`cliente.buscar` y `cliente.registrar`). `ms-retail` reenvía el `Authorization` del vendedor; **no** usa el token de servicio (G7 responde `403`).
+- `ms-retail` traduce el `429` de G7 a su propio `429 DEMASIADAS_SOLICITUDES` y conserva el `Retry-After` (§2.8).
+- Pendiente de G7: confirmar que el JWT del vendedor de Retail trae el rol `VENDEDOR` con esos permisos.
+
 ### 4.2. Productos y Ofertas (G6)
 
 | Operación | Ruta oficial (Anexo C del reporte) | Estado |
 |---|---|---|
-| Catálogo comercial | `GET /api/v1/productos` · `GET /api/v1/productos/{id}` | 🟡 |
-| Disponibilidad comercial (sin cantidades) | `GET /api/v1/inventario/disponibilidad/comercial` | 🟡 |
-| Resolver código de barras (no asumir código = SKU) | `POST /api/v1/productos/codigos-barras/resolver` | 🟡 |
-| Evaluar promociones y cupón | `POST /api/v1/promociones/evaluar` | 🟡 consumidor según protocolo final |
-| Reportar y resolver incidencias | `POST /api/v1/inventario/incidencias` y su operación de resolución | 🟡 ruta de resolución pendiente |
-| Promociones vigentes del canal (F11) | No figura en el Anexo C | 🟡 confirmar con G6 |
+| Catálogo comercial | `GET /api/v1/productos` (paginación desde `1`, sin precios) · `GET /api/v1/productos/{id}/variantes` | ✅ OpenAPI de G6 (`G4-Retail-backend/docs/integracion-productos-g6.md`) |
+| Precio vigente de un SKU | `GET /api/v1/precios/skus/{sku}` | ✅ OpenAPI de G6 |
+| Disponibilidad comercial (sin cantidades) | `GET /api/v1/inventario/disponibilidad/comercial?skus=…&canal=RETAIL` (hasta 100 SKU, scope `inventario:disponibilidad:leer`) | ✅ OpenAPI de G6 · 🟡 equivalencia de `INDETERMINADO` y `SOLO_ALMACEN_CENTRAL` |
+| Resolver código de barras (no asumir código = SKU) | `POST /api/v1/productos/codigos-barras/resolver` (devuelve solo el `sku`) | ✅ OpenAPI de G6 |
+| Evaluar promociones y cupón | `POST /api/v1/promociones/evaluar` (scope `promociones:evaluar`) · `POST /api/v1/cupones/validar` (scope `cupones:validar`) | ✅ OpenAPI de G6 |
+| Reportar incidencias (asíncrono, desde el outbox, §2.9) | `POST /api/v1/inventario/incidencias` (scope `inventario:incidencias:reportar`) | ✅ OpenAPI de G6 (`x-allowed-client-ids: modulo-retail`) · 🟡 `location_id` de cada tienda |
+| Resolver incidencias (RF-34) | `POST /api/v1/inventario/incidencias/{incidenciaId}/resolver` (scope `inventario:incidencias:resolver`) | ✅ OpenAPI de G6 |
+| Promociones vigentes del canal (F11) | `GET /api/v1/promociones?canal=RETAIL&vigentes=true` (scope `promociones:leer`) | ✅ OpenAPI de G6 |
+| Stock crítico por tienda (F11, X-P0-03) | Se deriva de `STOCK_BAJO` y `AGOTADO` de la disponibilidad comercial. `GET /inventario/alertas` es solo para `GESTOR_COMERCIAL` con JWT humano | 🟡 pedir a G6 una lectura M2M por tienda |
 
-Permisos de `modulo-retail` en `api-productos`: **lecturas comerciales e incidencias (reportar y resolver)**. Nombres exactos de los scopes: pendientes del registro en Seguridad.
+Permisos de `modulo-retail` en `api-productos` (audiencia del token de servicio): **lecturas comerciales e incidencias (reportar y resolver)**. Scopes del OpenAPI de G6: `catalogo:leer`, `inventario:disponibilidad:leer`, `promociones:leer`, `promociones:evaluar`, `cupones:validar`, `inventario:incidencias:reportar` e `inventario:incidencias:resolver`. G6 los marca `pending-security-registration`: 🟡 falta registrarlos en Seguridad (G7).
 
 | ⛔ Prohibido para Retail | Motivo |
 |---|---|
 | `/inventario/consumir`, `/inventario/reservas` y su confirmación o liberación | El stock lo orquesta Ventas (G4-P0-01) |
 | `/inventario/reintegros` | Lo pide Postventa tras aceptar la devolución (G4-P0-03) |
 | `/inventario/conciliaciones-offline` | Lo pide Ventas al registrar la venta offline (G4-P0-02) |
-| `/inventario/disponibilidad` (detallada) | No es contrato de canales |
+| `/inventario/disponibilidad` en su vista detallada (con saldos por almacén) | No es contrato de canales |
 | Cualquier "ajuste de discrepancia" o "incrementar stock" | Inventory es la única fuente de saldos (G4-P0-05) |
 
 ### 4.3. Ventas y Postventa (G5)
+
+**URL base (v0.5):** `ms-retail` consume Ventas **a través del API Gateway de G5** (`https://g5-api-gateway.onrender.com`), configurable con `RETAIL_VENTAS_URL`. Las rutas no cambian (§2.8).
 
 | Operación | Ruta | Estado |
 |---|---|---|
@@ -773,16 +834,57 @@ Detalles de implementación F10 S11: el hash canónico, la reserva de comprobant
 
 ### 5.11. F11 — Torre de control (alertas)
 
-| Método y ruta | Contenido | Estado |
-|---|---|---|
-| `GET /api/v1/retail/control/resumen` | Contadores para el badge (la SPA consulta cada 60 s) | Propuesto |
-| `GET /api/v1/retail/control/pickup-pendientes` | Pedidos pickup del día (RF-30) | 🟡 depende de la decisión #9 |
-| `GET /api/v1/retail/control/stock-critico` | Variantes agotadas o críticas en tienda (RF-29) | 🟡 depende de X-P0-03 (cantidades) |
-| `GET /api/v1/retail/control/campanas-vigentes` | Promociones vigentes del canal `RETAIL` (RF-31), en caché 15 min | 🟡 confirmar ruta con G6 |
+Todos los endpoints exigen el rol `VENDEDOR` o `SUPERVISOR`. Toman la tienda del perfil (§2.4) y responden `200`.
+
+| Método y ruta | Contenido | Fuente | Estado |
+|---|---|---|---|
+| `GET /api/v1/retail/control/resumen` | Contadores para el badge; la SPA consulta cada 60 s | Los otros tres | APROBADO |
+| `GET /api/v1/retail/control/pickup-pendientes` | Pedidos pickup `LISTO_PARA_RECOJO` de la tienda (RF-30) | Bandeja pickup de Ventas G5 (§5.7) | APROBADO |
+| `GET /api/v1/retail/control/stock-critico` | Variantes agotadas o críticas en la tienda (RF-29) | Disponibilidad comercial de G6 (`AGOTADO` → `AGOTADO`, `STOCK_BAJO` → `CRITICO`) | APROBADO · 🟡 sin cantidades por X-P0-03 |
+| `GET /api/v1/retail/control/campanas-vigentes` | Promociones vigentes del canal `RETAIL` (RF-31), en caché 15 min | `GET /promociones?canal=RETAIL` de G6, detrás de `CampanasPort` | APROBADO |
+
+#### `GET /api/v1/retail/control/resumen`
+```json
+{ "pickupPendientes": 3, "stockCritico": 2, "campanasVigentes": 4, "fuentesNoDisponibles": [], "actualizadoEn": "2026-11-26T15:00:00Z" }
+```
+Si una fuente no responde, su contador viaja como `null` y su nombre aparece en `fuentesNoDisponibles` (`VENTAS_G5` o `PRODUCTOS_G6`). El resumen nunca responde `503` por una sola fuente caída.
+
+#### `GET /api/v1/retail/control/pickup-pendientes`
+
+| Parámetro | Ubicación | Tipo | Obligatorio | Por defecto | Restricciones |
+|---|---|---|:---:|---|---|
+| `dni` | query | `string` | No | — | `^\d{8}$`. Deja solo los pedidos de ese titular |
+
+- **200 OK:** arreglo con el mismo elemento de `GET /pickup/pendientes` (§5.7): `pedidoId`, `clienteNombre`, `clienteDni`, `anaquelUbicacion`, `fechaArriboTienda`, `estado` y `articulos[]`. Solo trae `LISTO_PARA_RECOJO` y ordena por `fechaArriboTienda` de la más reciente a la más antigua.
+- **Errores:** `400 PARAMETRO_INVALIDO` si el `dni` no tiene 8 dígitos; `503 VENTAS_NO_DISPONIBLE`.
+
+#### `GET /api/v1/retail/control/stock-critico`
+```json
+[
+  { "sku": "ZAP-RUN-42", "productoId": "PROD-101", "nombreProducto": "Zapatilla Running Pro", "talla": "42", "color": "Negro",
+    "nivel": "AGOTADO", "stockTienda": 0, "disponibleEnCentral": true, "stockCentral": 45 }
+]
+```
+- `nivel`: `AGOTADO` (0 en tienda) o `CRITICO` (1 o 2 en tienda). Primero van los `AGOTADO` y luego los `CRITICO`; dentro de cada nivel, por `nombreProducto`.
+- `stockTienda` y `stockCentral` pueden venir `null` si Productos no expone cantidades (X-P0-03). En ese caso el `nivel` sale del estado comercial y la SPA muestra solo el semáforo.
+- **Errores:** `503 PRODUCTOS_NO_DISPONIBLE`.
+
+#### `GET /api/v1/retail/control/campanas-vigentes`
+```json
+[
+  { "campanaId": "CMP-2026-011", "titulo": "30% en chimpunes", "descripcion": "Con cupón en mostrador", "tipoDescuento": "PORCENTAJE", "valor": 30.00,
+    "codigoCupon": "GOAL2026", "montoMinimo": 150.00, "condiciones": "No acumulable con otras promociones",
+    "vigenteDesde": "2026-11-20T05:00:00Z", "vigenteHasta": "2026-11-30T04:59:59Z" }
+]
+```
+- Solo trae las campañas del canal `RETAIL` cuya vigencia incluye el momento de la consulta; una campaña vencida no aparece.
+- `tipoDescuento` es `PORCENTAJE`, `MONTO_FIJO` o `NXM`. `tipoDescuento`, `valor`, `codigoCupon` y `montoMinimo` pueden ser `null`: el `PromocionResumen` de G6 solo trae nombre, estado, vigencia y canales.
+- La SPA inyecta `codigoCupon` en `POST /carritos/calcular` (RF-11).
+- **Errores:** `503 PRODUCTOS_NO_DISPONIBLE`.
 
 ### 5.12. F12 — Incidencias de inventario
 
-Estados locales: `EN_CUARENTENA` · `DERIVADO_ALMACEN` · `BAJA_DEFINITIVA` · `PENDIENTE_REPORTE` (Inventory todavía no la aceptó; se reintenta desde el outbox).
+Estados locales: `EN_CUARENTENA` · `DERIVADO_ALMACEN` · `BAJA_DEFINITIVA` · `PENDIENTE_REPORTE` (Inventory todavía no la aceptó; se reintenta desde el outbox). La **cuarentena activa**, la que bloquea la venta en el POS (RF-33), son `PENDIENTE_REPORTE` y `EN_CUARENTENA`.
 
 #### `POST /api/v1/retail/inventario/incidencias` 🔁
 - **Roles:** VENDEDOR, SUPERVISOR, con turno activo.
@@ -797,8 +899,43 @@ Estados locales: `EN_CUARENTENA` · `DERIVADO_ALMACEN` · `BAJA_DEFINITIVA` · `
 }
 ```
 - `tipoFalla`: `MANCHADO_PROBADOR` · `COSTURA_ROTA` · `EXTRAVIO_NO_UBICADO` · `DEFECTO_FABRICA`. `detalleObservacion` de al menos 5 caracteres.
-- **201 Created:** `{ "incidenciaId": "…", "incidenciaInventoryId": "…", "estado": "EN_CUARENTENA", "sku": "CAM-PERU-M-BLA" }`.
+- **201 Created:** `{ "incidenciaId": "…", "estado": "PENDIENTE_REPORTE", "sku": "CAM-PERU-M-BLA" }`. La prenda queda bloqueada en el POS desde ese momento.
 - Retail guarda una **proyección local** para la interfaz y la reporta a Inventory, que bloquea la unidad. El saldo central manda (G4-P0-05).
+
+#### Notificación asíncrona a Inventory (RF-34, tarea B6; mecanismo de §2.9)
+
+Al registrar la incidencia, el servicio de F12 deja en la misma transacción un evento `INCIDENCIA_INVENTARIO_REPORTADA` en el outbox. El job lo envía a Inventory con el cuerpo `CrearIncidenciaInventarioRequest` del OpenAPI de G6:
+
+```http
+POST /api/v1/inventario/incidencias
+Authorization: Bearer <token de servicio de modulo-retail, audiencia api-productos>
+Idempotency-Key: <incidenciaId>
+X-Correlation-Id: <uuid>
+```
+```json
+{
+  "operation_id": "5b0e3f0a-6c1d-4d3e-9a2b-1f0c7e8d9a10",
+  "external_incident_id": "5b0e3f0a-6c1d-4d3e-9a2b-1f0c7e8d9a10",
+  "sku": "CAM-PERU-M-BLA",
+  "quantity": 1,
+  "location_id": "TIENDA-MIRAFLORES",
+  "type": "DANIO",
+  "occurred_at": "2026-11-26T15:30:00Z",
+  "actor_ref": "bbbbbbbb-0000-0000-0000-000000000001"
+}
+```
+
+| Campo de G6 | Sale de |
+|---|---|
+| `operation_id`, `external_incident_id` | `incidenciaId` de Retail |
+| `quantity` | `1`: en el mostrador se reporta prenda por prenda |
+| `location_id` | La tienda del perfil. 🟡 G6 debe confirmar si su id de ubicación es el `store_code` |
+| `type` | `MANCHADO_PROBADOR`, `COSTURA_ROTA` y `DEFECTO_FABRICA` → `DANIO`; `EXTRAVIO_NO_UBICADO` → `NO_UBICADA` |
+| `actor_ref` | `usuarioId` del vendedor |
+
+- **Respuesta de Inventory:** `201 IncidenciaInventarioResponse` con `incidencia_id` y `estado: ABIERTA`. Al recibirla, la incidencia de Retail pasa de `PENDIENTE_REPORTE` a `EN_CUARENTENA` y guarda `incidencia_id` como su `incidenciaInventoryId`.
+- `409 IDEMPOTENCY_CONFLICT`, `409 STOCK_INSUFICIENTE` y los `422` (`SKU_NO_ENCONTRADO`, `UBICACION_NO_ENCONTRADA`…) son rechazos definitivos: el evento queda `FALLIDO` para revisión (§2.9).
+- La resolución (rehabilitar, merma, faltante o traslado al almacén central) la registra Inventory con `POST /inventario/incidencias/{incidenciaId}/resolver`.
 
 #### `GET /api/v1/retail/inventario/cuarentena`
 - **200 OK:** lista de `incidenciaId`, `sku`, `nombreProducto`, `tipoFalla`, `fechaReporte` y `estado` de la tienda del perfil.
@@ -841,6 +978,8 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 | Seguridad · clientes | Búsqueda por DNI y alta | 3 a 5 clientes de prueba |
 | Productos · catálogo y código de barras | Catálogo, resolución de código de barras, disponibilidad y `stockTienda` | 15 a 20 productos con variantes y código de barras único por SKU |
 | Productos · promociones | Evalúa un cupón de prueba (`VERANO2026`) | 1 o 2 promociones |
+| Productos · campañas vigentes (F11, v0.5) | `CampanasPort` devuelve campañas de varios canales y vigencias; el servicio filtra `RETAIL` vigentes | Cupones `VERANO2026` y `DESCUENTO10` (los mismos de RF-11), una campaña vencida y una de otro canal |
+| Inventory · incidencias (F12, outbox, v0.5) | Acepta `POST /inventario/incidencias` y devuelve un `incidencia_id` `INC-INV-…`, el mismo para la misma `Idempotency-Key` | — |
 | Ventas · pedido y cobro | Devuelve `pedidoId` `PED-…` y un comprobante `B001-…` correlativo | — |
 | Inventario · movimientos del cambio (`InventarioPort`, Semana 14) | Firma: `reintegrar(cambioId, tiendaId, sku, cantidad)` y `consumir(cambioId, tiendaId, items)`, con claves de idempotencia `<cambioId>:REINTEGRO` y `<cambioId>:CONSUMO`. Acepta ambos movimientos y permite simular un fallo para probar el estado `PENDIENTE`. El adaptador real se conecta cuando G6 autorice a `modulo-retail` (§7.1) | — |
 | Tienda y terminales | — | `TIENDA-MIRAFLORES`, `POS-01`, `POS-02` |
@@ -866,13 +1005,16 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 | Tema | Bloquea | Responsable |
 |---|---|---|
 | Firmas de Ventas `api-ventas.md` 1.4 y Postventa | Payloads de §4.3 | Pedir el contrato a G5 |
-| OpenAPI de Seguridad (MFA y `/usuarios/*`) | Payloads de §4.1 | Pedir el contrato a G7 |
+| OpenAPI de Seguridad: continuación del MFA (`/usuarios/*` ✅ cargado en v0.5) | Login con MFA de §4.1 | Pedir la ruta a G7 |
 | ~~Dueño del Pickup (decisión #9)~~ ✅ Resuelta en S11: Ventas (§5.7) | §5.11 | Retail + Ventas |
 | Señal de "apto para pagar" (X-P0-02) | Paso 4 del flujo de §5.5 | Ventas + Productos + canales |
 | Validar N unidades sin exponer saldos (X-P0-03) | `stockTienda` y stock crítico | Productos |
 | Prorrateo de descuentos (X-P0-13) | `montoCredito` de §5.9 | Postventa + Productos + Retail |
 | **Descuento de stock de las ventas Retail.** El acuerdo R9 de G5 dice que Retail descuenta y concilia directo con Productos y que Ventas no reserva stock para `RETAIL`. El OpenAPI de G6 solo autoriza a `modulo-ventas` en `reservas`, `confirmar` y `conciliaciones-offline`, y a Ventas y Postventa en `reintegros`. Este contrato (G4-P0-01) dice que el stock lo orquesta Ventas. Hoy ninguna venta de mostrador descuenta stock | §5.5, §5.9 (`InventarioPort`), §5.10 | Retail (Mihael) + Ventas + Productos |
-| Valor de `metodoPago` para el crédito de un cambio de mayor valor (hoy R3 solo admite `EFECTIVO`, `TARJETA_POS` y `MIXTO`) | `MAYOR_VALOR` de §5.9 | Retail (Mihael) + Ventas |
+| Valor de `metodoPago` para el crédito de un cambio de mayor valor (hoy R3 solo admite `EFECTIVO`, `TARJETA_POS` y `MIXTO`) | `MAYOR_VALOR` de §5.9 | Retail (Mihael) + Ventas. Consultado a G5 el 26/11 |
+| `location_id` de cada tienda para `POST /inventario/incidencias` y registro en G7 de los scopes de `modulo-retail` en `api-productos` | Adaptador real del outbox de F12 (§2.9) y adaptadores de §4.2 | Retail (Mihael) + Productos + Seguridad. Consultado el 26/11 |
+| Stock crítico por tienda con cantidades (lectura M2M de `/inventario/alertas`) | `stockTienda` de §5.11 | Productos. Consultado a G6 el 26/11 |
+| Búsqueda de pedidos por DNI/RUC para `modulo-retail` (A10) | RF-16-DOC (§5.6) | Retail (Mihael) + Ventas (+ Seguridad si hay scope nuevo). Consultado a G5 el 26/11 |
 | Política intermodular de cambios y garantía (G4-P1-03) | Semana 11 fija 7 días para el cambio comercial de mostrador; la garantía se deriva a Postventa | Retail + Postventa |
 
 ---
@@ -899,8 +1041,8 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 | `GET /retail/cambios/validar/{boletaNumero}` | F9 | — | APROBADO para Semana 11 (PO) | Cristhian |
 | `POST /retail/cambios` (cambio directo) | F9 | — | PROPUESTO para Semana 14 (PO). `MAYOR_VALOR` depende de G5 y el inventario real de G6 (§7.1); se programa con mocks | Cristhian |
 | `POST /retail/contingencia/sincronizar` | F10 | — | PROPUESTO | Según la matriz de RF |
-| `/retail/control/*` | F11 | — | BLOQUEADO (#9, X-P0-03) | Según la matriz de RF |
-| `/retail/inventario/*` | F12 | — | PROPUESTO | Según la matriz de RF |
+| `/retail/control/*` | F11 | — | APROBADO (v0.5). `stock-critico` y `campanas-vigentes` usan mocks hasta que G6 confirme sus fuentes | Mihael (backend) · Kevin (SPA) |
+| `/retail/inventario/*` | F12 | — | APROBADO (v0.5) | Angie (RF-32, RF-33) · Cristhian (RF-34) · Mihael (outbox hacia G6) |
 
 ---
 
@@ -935,14 +1077,24 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 
 ---
 
-## 11. Cambios respecto de v0.3
+## 11. Cambios respecto de v0.4
+
+- **API Management (§2.8):** versionado, límite de peticiones por vendedor con `429` y `Retry-After`, `X-Correlation-Id` propagado, catálogo OpenAPI y consumo de Ventas por el API Gateway de G5 (§4.3).
+- **Mecanismo asíncrono (§2.9):** outbox transaccional `RET_OUTBOX_EVENTO` con job de reenvío, espera creciente, idempotencia y estado `FALLIDO`. El primer flujo es el reporte de incidencias de F12 a Inventory (§5.12).
+- **Seguridad (§4.1):** payloads reales de `/usuarios/busqueda-documento` y `/usuarios/clientes`, tomados del OpenAPI de G7. Se llaman con el token del vendedor.
+- **Productos (§4.2):** rutas reales del OpenAPI de G6 (catálogo, variantes, precio por SKU, código de barras y disponibilidad). La ruta de incidencias queda propuesta.
+- **F11 (§5.11):** respuestas de `resumen`, `pickup-pendientes`, `stock-critico` y `campanas-vigentes`. El tablero pasa a APROBADO.
+- **F12 (§5.12):** la incidencia nace `PENDIENTE_REPORTE` y pasa a `EN_CUARENTENA` cuando Inventory la acepta. Se agrega el cuerpo propuesto de la notificación.
+- **Pendientes (§7.1):** nuevas filas consultadas a G5 y G6 el 26/11.
+
+## 12. Cambios respecto de v0.3
 
 - **Perfil único de mostrador (D-08):** se elimina `CAJERO`; el `VENDEDOR` asume la venta, el cobro, la caja y la contingencia offline. Los perfiles quedan en `VENDEDOR` y `SUPERVISOR` (§2.4) y se actualizan los roles de cada endpoint, el ejemplo de `GET /perfil` y los usuarios semilla de los mocks (§6).
 - **Tipado de parámetros (D-09):** nueva §2.6 con los tipos de parámetro y los errores `400 PARAMETRO_INVALIDO` y `400 PARAMETRO_OBLIGATORIO`. La paginación pasa a §2.7 con `page` y `size` como `integer`, sus valores por defecto y el límite `size ≤ 100`.
 - **Tablas de parámetros** en `catalogo`, `catalogo/codigo-barras/{codigo}`, `clientes`, `carritos-espera`, `ventas/{ventaId}/comprobante`, `pedidos`, `pedidos/{pedidoId}`, `pickup/{pedidoId}/entrega`, `caja/turnos/actual`, `caja/turnos/{turnoId}/*` y `cambios/validacion`.
 - **`GET /pedidos`** pasa a ser paginado (§2.7).
 
-## 12. Cambios respecto de v0.2
+## 13. Cambios respecto de v0.2
 
 - **Eliminados:** `/inventario/consumir`, `/inventario/incrementar-stock`, `/productos/inventario/ajuste-discrepancia` y los dos endpoints de Despacho.
 - **Reemplazados por rutas oficiales:** `/clientes/buscar` y `/clientes` (ahora `/usuarios/*`), `/productos/catalogo` (`/productos`), `/ofertas/evaluar-carrito` (`/promociones/evaluar`) y `/ordenes/presenciales` (`POST /pedidos` de Ventas, detrás de `/retail/ventas`).
