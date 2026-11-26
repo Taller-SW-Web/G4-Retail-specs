@@ -22,12 +22,12 @@
 ### [ ] Tarea B3 (RF-25): Servicio de Cambio Directo
 - **Qué hace:** Calcula el crédito y el total nuevo. Registra el cambio de mismo valor sin cobro, cobra la diferencia y emite la boleta con el pedido en Ventas en el de mayor valor, y rechaza el de menor valor. Retira la emisión de vales.
 - **Criterios que verifica:** los tres casos de valor, el arqueo con solo la diferencia, el reintento idempotente y el límite de unidades compradas (RF-25).
-- **Test:** `CambioDirectoServiceTest.java` — mismo valor, mayor valor, menor valor, turno cerrado, reintento y concurrencia.
+- **Test:** `CambioDirectoServiceTest.java` — mismo modelo con precio distinto, mismo valor, mayor valor, menor valor, turno cerrado, reintento y concurrencia.
 
 ### [ ] Tarea B4 (RF-25): Puerto de Inventario con Mock
-- **Qué hace:** `InventarioPort` con el reintegro de la prenda devuelta y el consumo de las nuevas, y su mock. Un fallo deja los movimientos en `PENDIENTE` sin revertir el cambio.
+- **Qué hace:** `InventarioPort` con la firma de §6 del contrato, su mock (perfil `mock`) y el job que reintenta los movimientos `PENDIENTE` cada 5 minutos. Un fallo deja los movimientos en `PENDIENTE` sin revertir el cambio. El adaptador real de G6 queda fuera de esta tarea.
 - **Criterio que verifica:** "El cambio registra los dos movimientos de stock; si el puerto falla, quedan pendientes" (RF-25).
-- **Test:** `CambioInventarioPortTest.java` — Verifica las llamadas al puerto y el estado `PENDIENTE` ante un fallo.
+- **Test:** `CambioInventarioPortTest.java` — Verifica las llamadas al puerto, el estado `PENDIENTE` ante un fallo y el paso a `CONFIRMADO` en el reintento.
 
 ---
 

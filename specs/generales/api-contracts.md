@@ -701,17 +701,20 @@ Cierre con arqueo ciego (RF-22).
 - Los motivos comerciales son `CAMBIO_TALLA` y `CAMBIO_MODELO`. Para cambio de talla se exigen etiquetas intactas y prenda sin signos de uso. El estado del empaque se registra. `clienteId` es opcional. Los casos de falla de fábrica pasan a revisión de garantía en Postventa.
 - Revalida el plazo y la cantidad disponible. **Crédito** = importe efectivamente pagado por las unidades devueltas según `RET_VENTA`. Si el descuento no puede atribuirse a las unidades (X-P0-13), responde `MONTO_NO_DETERMINABLE`.
 - **Total nuevo:** Retail lo recalcula con el precio vigente, como `POST /carritos/calcular` y sin cupón. Las prendas nuevas no pueden estar en cuarentena (F12).
-- **Según el valor:**
+- **Mismo modelo:** si las prendas nuevas son el mismo producto que la devuelta (mismo `productoId` del catálogo, otra talla o color) y en la misma cantidad, el cambio es `MISMO_VALOR` sin comparar precios, aunque el precio vigente haya subido o bajado desde la compra.
+- **Según el valor** (en cualquier otro caso):
   - `MISMO_VALOR` (total nuevo = crédito): `pagoDiferencia` y `comprobante` van en `null`. Se registra el cambio sin cobro, sin boleta y sin pedido nuevo en Ventas.
   - `MAYOR_VALOR` (total nuevo > crédito): `pagoDiferencia` es obligatorio, con la forma y las reglas de `pago` de §5.5 aplicadas a la diferencia. `comprobante` sigue las reglas de §5.5. Retail emite la boleta por el total nuevo, con el crédito y la diferencia como medios de pago, y crea el pedido en Ventas con la **misma** `Idempotency-Key`. 🟡 El valor de `metodoPago` para el crédito depende de G5 (§7.1).
   - Total nuevo < crédito: se rechaza con `CAMBIO_MENOR_VALOR`. No se emiten vales ni se devuelve dinero en mostrador.
 - Registra el cambio en `RET_SOLICITUD_CAMBIO_MOSTRADOR` en una sola transacción. Solo la diferencia cobrada entra al cobro del turno (F8).
-- **Inventario:** Retail registra el reintegro de la prenda devuelta y el consumo de las nuevas, y los envía a Inventory por `InventarioPort`. 🟡 Mientras G6 no autorice a `modulo-retail` (§7.1), el puerto usa el mock de §6. Un fallo de Inventory no revierte el cambio: `estadoInventario` queda `PENDIENTE` y se reintenta.
+- **Crédito en Ventas:** en `MAYOR_VALOR`, el adaptador de Ventas envía el crédito con el valor de `metodoPago` configurado en `retail.ventas.metodo-pago-credito` (provisional: `CREDITO_CAMBIO`). 🟡 Cuando G5 publique el valor definitivo (§7.1), solo cambia la configuración y el mapeo del adaptador. Mientras tanto, se prueba contra el mock de Ventas.
+- **Inventario:** Retail registra el reintegro de la prenda devuelta y el consumo de las nuevas, y los envía a Inventory por `InventarioPort` (firma en §6). 🟡 Mientras G6 no autorice a `modulo-retail` (§7.1), el puerto usa el mock de §6. Un fallo de Inventory no revierte el cambio: `estadoInventario` queda `PENDIENTE` y un job de Retail lo reintenta cada 5 minutos hasta pasar a `CONFIRMADO`.
 - **201 Created:**
 
 ```json
 {
   "cambioId": "9f2c…",
+  "numeroConstancia": "CAMB-2026-000123",
   "tipoCambio": "MAYOR_VALOR",
   "boletaOrigen": "B001-00000045",
   "montoCredito": 116.91,
@@ -725,7 +728,7 @@ Cierre con arqueo ciego (RF-22).
 }
 ```
 
-  En `MISMO_VALOR`: `diferencia` es `0` y `pago`, `comprobante` y `pedidoId` van en `null`. El POS imprime la constancia de cambio con `cambioId`, `boletaOrigen`, las prendas y `fechaCambio`.
+  En `MISMO_VALOR`: `diferencia` es `0` y `pago`, `comprobante` y `pedidoId` van en `null`. El POS imprime la constancia de cambio con `numeroConstancia`, `boletaOrigen`, las prendas y `fechaCambio`. `numeroConstancia` es un correlativo `CAMB-YYYY-XXXXXX` por año y tienda, y se asigna en los dos tipos de cambio. `estadoInventario`: `CONFIRMADO` · `PENDIENTE`.
 - Aplica la semántica de `Idempotency-Key` de §2.3. Reintentar la misma operación devuelve el cambio original y no consume unidades adicionales.
 - **Errores:** `400 PARAMETRO_INVALIDO`, `400 MONTO_INSUFICIENTE`, `400 REFERENCIA_VOUCHER_INVALIDA`, `404 COMPROBANTE_NO_ENCONTRADO`, `409 TURNO_NO_ABIERTO`, `409 IDEMPOTENCY_CONFLICT`, `422 INSPECCION_NO_APTA`, `422 PLAZO_VENCIDO`, `422 PEDIDO_NO_APTO`, `422 CANTIDAD_NO_DISPONIBLE`, `422 MONTO_NO_DETERMINABLE`, `422 GARANTIA_REQUIERE_POSTVENTA`, `422 CAMBIO_MENOR_VALOR`, `422 SKU_EN_CUARENTENA`, `503 VENTAS_NO_DISPONIBLE` (solo en `MAYOR_VALOR`; como en §5.5, se conserva la clave para reintentar).
 
@@ -803,7 +806,22 @@ Estados locales: `EN_CUARENTENA` · `DERIVADO_ALMACEN` · `BAJA_DEFINITIVA` · `
 #### `POST /api/v1/retail/inventario/actas-merma`
 - **Roles:** SUPERVISOR.
 - **Body:** `{ "incidenciasIds": ["…"], "tipoDestino": "DEVOLUCION_CENTRAL", "observaciones": "Lote enviado con transporte interno" }`, con `tipoDestino`: `DEVOLUCION_CENTRAL` · `BAJA_DEFINITIVA` · `AJUSTE_PERDIDA`.
-- **201 Created:** `{ "actaNumero": "ACTA-MERMA-2026-0012", "totalPrendas": 1, "urlPdf": "…", "incidencias": [ { "incidenciaId": "…", "estado": "DERIVADO_ALMACEN" } ] }`.
+- **201 Created:**
+```json
+{
+  "actaNumero": "ACTA-MERMA-2026-0012",
+  "fechaEmision": "2026-11-28T18:00:00Z",
+  "tiendaId": "TIENDA-MIRAFLORES",
+  "tipoDestino": "DEVOLUCION_CENTRAL",
+  "observaciones": "Lote enviado con transporte interno",
+  "supervisor": { "id": "…", "nombre": "…" },
+  "totalPrendas": 1,
+  "incidencias": [
+    { "incidenciaId": "…", "sku": "CAM-PERU-M-BLA", "tipoFalla": "MANCHADO_PROBADOR", "detalleObservacion": "Mancha de maquillaje en el cuello", "estado": "DERIVADO_ALMACEN" }
+  ]
+}
+```
+- El acta se imprime desde el POS con estos datos; Retail no genera PDF. El correlativo es por año y único en el módulo. Cada incidencia guarda su `actaNumero`, y la notificación a Inventory sale por el outbox de incidencias (no la hace este endpoint).
 - El acta **documenta la salida, pero no cierra el caso**: Inventory resuelve cada incidencia y registra la recepción en el almacén central.
 - **Errores:** `400 LISTA_VACIA`; `409 INCIDENCIA_NO_EN_CUARENTENA`.
 
@@ -824,7 +842,7 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 | Productos · catálogo y código de barras | Catálogo, resolución de código de barras, disponibilidad y `stockTienda` | 15 a 20 productos con variantes y código de barras único por SKU |
 | Productos · promociones | Evalúa un cupón de prueba (`VERANO2026`) | 1 o 2 promociones |
 | Ventas · pedido y cobro | Devuelve `pedidoId` `PED-…` y un comprobante `B001-…` correlativo | — |
-| Inventario · movimientos del cambio (`InventarioPort`, Semana 14) | Acepta el reintegro de la prenda devuelta y el consumo de las nuevas, y permite simular un fallo para probar el estado `PENDIENTE`. El adaptador real se conecta cuando G6 autorice a `modulo-retail` (§7.1) | — |
+| Inventario · movimientos del cambio (`InventarioPort`, Semana 14) | Firma: `reintegrar(cambioId, tiendaId, sku, cantidad)` y `consumir(cambioId, tiendaId, items)`, con claves de idempotencia `<cambioId>:REINTEGRO` y `<cambioId>:CONSUMO`. Acepta ambos movimientos y permite simular un fallo para probar el estado `PENDIENTE`. El adaptador real se conecta cuando G6 autorice a `modulo-retail` (§7.1) | — |
 | Tienda y terminales | — | `TIENDA-MIRAFLORES`, `POS-01`, `POS-02` |
 
 ---

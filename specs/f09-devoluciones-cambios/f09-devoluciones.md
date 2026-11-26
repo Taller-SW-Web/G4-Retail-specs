@@ -42,16 +42,17 @@ Fuera del alcance: el cambio por una prenda de menor valor, la devolución de di
 
 - **Crédito del cambio.** El valor de la prenda devuelta es lo que el cliente pagó por esas unidades según `RET_VENTA`. Si el descuento de la compra no puede atribuirse a las unidades (X-P0-13), el cambio se rechaza con `MONTO_NO_DETERMINABLE`.
 - **Prendas nuevas.** Retail calcula su total con el precio vigente, igual que el carrito de F4 y sin cupones. Las prendas nuevas deben estar disponibles en el catálogo (F2) y no estar en cuarentena (F12).
-- **Mismo valor.** Si el total nuevo es igual al crédito (por ejemplo, la misma prenda en otra talla), el cambio se registra sin cobro, sin boleta nueva y sin pedido nuevo en Ventas. El POS imprime una constancia de cambio que referencia la boleta original.
-- **Mayor valor.** Si el total nuevo supera al crédito, el cliente paga la diferencia en efectivo, con tarjeta o de forma mixta, con las reglas de cobro de F5. Retail emite una boleta por las prendas nuevas con su total completo. El crédito y la diferencia figuran como medios de pago. Ventas registra un pedido nuevo con la misma `Idempotency-Key` del cambio.
+- **Mismo modelo.** Si la prenda nueva es el mismo producto que la devuelta (mismo `productoId`, otra talla o color) y en la misma cantidad, el cambio es de mismo valor sin comparar precios, aunque el precio vigente haya cambiado desde la compra.
+- **Mismo valor.** En cualquier otro caso, si el total nuevo es igual al crédito, el cambio también es de mismo valor. Se registra sin cobro, sin boleta nueva y sin pedido nuevo en Ventas. El POS imprime una constancia de cambio con correlativo `CAMB-YYYY-XXXXXX` que referencia la boleta original.
+- **Mayor valor.** Si el total nuevo supera al crédito, el cliente paga la diferencia en efectivo, con tarjeta o de forma mixta, con las reglas de cobro de F5. Retail emite una boleta por las prendas nuevas con su total completo. El crédito y la diferencia figuran como medios de pago. Ventas registra un pedido nuevo con la misma `Idempotency-Key` del cambio. El crédito viaja con el `metodoPago` configurable `retail.ventas.metodo-pago-credito` (provisional `CREDITO_CAMBIO`) hasta que G5 publique el definitivo.
 - **Menor valor.** Si el total nuevo es menor que el crédito, el cambio se rechaza. La regla es cambiar solo por igual o mayor valor. No se emite vale ni se devuelve dinero en mostrador.
 - **Caja.** El cambio exige un turno de caja `ABIERTA`. Solo la diferencia cobrada entra al arqueo (F8). El crédito no es efectivo.
-- **Inventario.** Retail registra dos movimientos de stock: el reintegro de la prenda devuelta y el consumo de las nuevas. Los envía a Inventory a través de un puerto propio (`InventarioPort`). Mientras G6 no autorice a Retail, el puerto funciona con un mock. Un fallo de Inventory no revierte el cambio: el movimiento queda `PENDIENTE` y se reintenta.
+- **Inventario.** Retail registra dos movimientos de stock: el reintegro de la prenda devuelta y el consumo de las nuevas. Los envía a Inventory a través de un puerto propio (`InventarioPort`). Mientras G6 no autorice a Retail, el puerto funciona con un mock. Un fallo de Inventory no revierte el cambio: el movimiento queda `PENDIENTE` y un job de Retail lo reintenta cada 5 minutos hasta `CONFIRMADO`.
 - **Idempotencia y concurrencia.** La misma operación con la misma clave devuelve el resultado original y no consume unidades adicionales. Dos cambios simultáneos sobre la misma boleta no pueden superar las unidades compradas.
 
 **Criterios de aceptación**
 
-- [ ] Un cambio de talla del mismo valor se registra sin cobro, sin boleta y sin pedido nuevo, y la constancia referencia la boleta original.
+- [ ] Un cambio de talla del mismo modelo se registra sin cobro, sin boleta y sin pedido nuevo aunque el precio vigente sea distinto, y la constancia `CAMB-…` referencia la boleta original.
 - [ ] Un cambio de mayor valor cobra exactamente la diferencia, emite una boleta por el total nuevo y crea el pedido en Ventas con la misma clave.
 - [ ] Un cambio de menor valor se rechaza con `CAMBIO_MENOR_VALOR` y no registra nada.
 - [ ] El arqueo del turno suma solo la diferencia cobrada.
