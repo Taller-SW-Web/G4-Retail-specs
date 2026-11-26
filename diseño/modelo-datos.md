@@ -295,7 +295,9 @@ Gobierna la recepción física e inspección de prendas para cambio en tienda pr
 ---
 
 ### Tabla 5b: `RET_VALE_COMPRA` (S11)
-Vale de compra / nota de crédito térmica que Retail emite tras un cambio aprobado (RF-25). Por el acuerdo R6 con Ventas (G5), los vales son responsabilidad exclusiva de Retail: G5 no los guarda. Alineada con la especificación y migración de F9. Se crea con `diseño/schema-s11.sql`.
+> **En desuso desde la Semana 14.** El PO reemplazó el vale por el cambio directo (RF-25). La tabla se conserva con sus registros, pero el POS ya no emite ni canjea vales. La migración del cambio directo la publica el DBA.
+
+Vale de compra / nota de crédito térmica que Retail emitía tras un cambio aprobado (RF-25, Semana 11). Por el acuerdo R6 con Ventas (G5), los vales son responsabilidad exclusiva de Retail: G5 no los guarda. Se crea con `diseño/schema-s11.sql`.
 
 | Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
 | :--- | :--- | :---: | :--- | :--- |

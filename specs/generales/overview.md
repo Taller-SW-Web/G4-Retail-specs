@@ -19,7 +19,7 @@ El **Módulo Retail (Grupo 4)** forma parte del ecosistema de **Marketplace Mult
 - **F6:** Consulta y trazabilidad histórica de pedidos multicanal.
 - **F7:** Verificación y entrega física de pedidos con retiro en tienda (*Store Pickup*).
 - **F8 (Avanzado):** Cierre de turno y corte ciego (*Corte Z*) con actas de descuadre.
-- **F9:** Gestión de cambios de prenda y emisión de vales / notas de crédito.
+- **F9:** Cambio directo de prenda en mostrador, cobrando la diferencia cuando la nueva prenda cuesta más.
 - **F10:** Modo de contingencia offline con almacenamiento local en IndexedDB y sincronización diferida.
 - **F11:** Tablón de alertas operativas (stock crítico y pedidos pickup del día).
 - **F12:** Reporte de discrepancias de inventario y cuarentena de prendas dañadas.

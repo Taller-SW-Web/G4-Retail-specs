@@ -230,7 +230,7 @@ Permisos de `modulo-retail` en `api-productos`: **lecturas comerciales e inciden
   3. **Identificadores estándar:** `vendedorId`, `clienteId` y `tiendaId` se manejan como `UUID` v4 canónicos (claims del JWT de Seguridad G7). Identificador oficial de pedido: `PED-YYYY-NNNNN`.
   4. **Idempotencia obligatoria:** Envío permanente del header `Idempotency-Key: <UUID>` en cada creación de pedido.
   5. **Estados oficiales de pedido:** Enum cerrado de Ventas: `CREADO`, `PAGADO`, `EN_PREPARACION`, `DESPACHADO`, `ENTREGADO`, `ANULADO`.
-  6. **Autonomía en cambios:** En Semana 11, Retail valida la boleta de mostrador en su registro local de ventas confirmadas y emite el vale comercial según §5.9. G5 conserva la orden central y atiende la revisión de garantía.
+  6. **Autonomía en cambios:** Retail valida la boleta de mostrador en su registro local de ventas confirmadas y resuelve el cambio directo según §5.9 (R6). G5 conserva la orden central y atiende la revisión de garantía. En un cambio de mayor valor, Retail crea un pedido nuevo con las prendas nuevas.
 
 ### 4.4. Despacho y Entrega (G2)
 
@@ -662,7 +662,9 @@ Cierre con arqueo ciego (RF-22).
   Si `diferencia ≠ 0`, el estado es `OBSERVADA` y las observaciones son obligatorias.
 - **Errores:** `409 TURNO_NO_ABIERTO`; `422 OBSERVACION_OBLIGATORIA`.
 
-### 5.9. F9 — Cambios de prenda en mostrador (Semana 11)
+### 5.9. F9 — Cambio directo de prenda en mostrador (Semana 14)
+
+> **Semana 14 (decisión del PO, 25/11/2026):** el vale comercial de la Semana 11 se reemplaza por el cambio directo. `RET_VALE_COMPRA` queda en desuso y el POS deja de emitir vales. Retail es dueño del cambio de mostrador (acuerdo R6 con G5).
 
 #### `GET /api/v1/retail/cambios/validar/{boletaNumero}`
 
@@ -673,28 +675,59 @@ Cierre con arqueo ciego (RF-22).
 - **200 OK:** devuelve `boletaNumero`, `pedidoId`, `fechaEmision`, `diasTranscurridos`, `plazoDias` (7), `plazoValido` e `items` con `sku`, `descripcion`, `precioPagado`, `cantidadComprada` y `cantidadDisponibleCambio`. La consulta de una boleta vencida devuelve `plazoValido: false` para mostrar el motivo en el POS.
 - **Errores:** `400 PARAMETRO_INVALIDO`, `404 COMPROBANTE_NO_ENCONTRADO`, `422 PEDIDO_NO_APTO`.
 
-#### `POST /api/v1/retail/cambios` 🔁
+#### `POST /api/v1/retail/cambios` 🔁 · PROPUESTO
 
-- **Roles:** VENDEDOR, SUPERVISOR. Vendedor y tienda resueltos desde el perfil (§2.4).
+- **Roles:** VENDEDOR, SUPERVISOR. Vendedor y tienda resueltos desde el perfil (§2.4). **Precondición:** turno de caja `ABIERTA` en la terminal. No disponible en modo offline (F10).
 - **Body:**
 
 ```json
 {
   "boletaNumero": "B001-00000045",
-  "sku": "CAM-RUN-M-AZUL",
-  "cantidad": 1,
+  "terminalPos": "POS-01",
+  "turnoId": "5b0e3f0a-6c1d-4d3e-9a2b-1f0c7e8d9a10",
   "motivo": "CAMBIO_TALLA",
-  "inspeccion": { "etiquetasIntactas": true, "sinSignosUso": true, "empaqueOriginal": true },
+  "devuelto": {
+    "sku": "CAM-RUN-M-AZUL",
+    "cantidad": 1,
+    "inspeccion": { "etiquetasIntactas": true, "sinSignosUso": true, "empaqueOriginal": true }
+  },
+  "nuevos": [ { "sku": "CAM-RUN-L-AZUL", "cantidad": 1 } ],
+  "pagoDiferencia": null,
+  "comprobante": null,
   "clienteId": null
 }
 ```
 
-- Los motivos comerciales son `CAMBIO_TALLA` y `CAMBIO_MODELO`. Para cambio de talla se exigen etiquetas intactas y prenda sin signos de uso. El estado del empaque se registra. `clienteId` es opcional para la atención en mostrador. La modalidad del hito es vale comercial. Los casos de falla de fábrica pasan a revisión de garantía en Postventa.
-- Revalida el plazo y la cantidad disponible. Registra la inspección en `RET_SOLICITUD_CAMBIO_MOSTRADOR` y emite el vale comercial en `RET_VALE_COMPRA` en una misma transacción. Retail no ajusta stock (G4-P0-03).
-- El vale tiene código único `VALE-AAAA-NNNNN`, código de barras y vigencia de 30 días desde su emisión. El monto es el efectivamente pagado por las unidades cambiadas. Los casos cuyo descuento no pueda atribuirse a las unidades quedan pendientes de X-P0-13.
-- **201 Created:** devuelve `solicitudId`, `estadoAprobacion` (`APROBADO_EN_TIENDA`), `destinoSugerido`, `observaciones`, `montoAcreditado` y `vale` con `codigoVale`, `monto`, `boletaOrigen`, `fechaEmision`, `fechaVencimiento`, `estado` y `codigoBarras`.
-- Aplica la semántica de `Idempotency-Key` de §2.3. Reintentar la misma operación devuelve el vale original y no consume unidades adicionales.
-- **Errores:** `400 PARAMETRO_INVALIDO`, `404 COMPROBANTE_NO_ENCONTRADO`, `422 INSPECCION_NO_APTA`, `422 PLAZO_VENCIDO`, `422 PEDIDO_NO_APTO`, `422 CANTIDAD_NO_DISPONIBLE`, `422 MONTO_NO_DETERMINABLE`, `422 GARANTIA_REQUIERE_POSTVENTA`, `409 IDEMPOTENCY_CONFLICT`.
+- Los motivos comerciales son `CAMBIO_TALLA` y `CAMBIO_MODELO`. Para cambio de talla se exigen etiquetas intactas y prenda sin signos de uso. El estado del empaque se registra. `clienteId` es opcional. Los casos de falla de fábrica pasan a revisión de garantía en Postventa.
+- Revalida el plazo y la cantidad disponible. **Crédito** = importe efectivamente pagado por las unidades devueltas según `RET_VENTA`. Si el descuento no puede atribuirse a las unidades (X-P0-13), responde `MONTO_NO_DETERMINABLE`.
+- **Total nuevo:** Retail lo recalcula con el precio vigente, como `POST /carritos/calcular` y sin cupón. Las prendas nuevas no pueden estar en cuarentena (F12).
+- **Según el valor:**
+  - `MISMO_VALOR` (total nuevo = crédito): `pagoDiferencia` y `comprobante` van en `null`. Se registra el cambio sin cobro, sin boleta y sin pedido nuevo en Ventas.
+  - `MAYOR_VALOR` (total nuevo > crédito): `pagoDiferencia` es obligatorio, con la forma y las reglas de `pago` de §5.5 aplicadas a la diferencia. `comprobante` sigue las reglas de §5.5. Retail emite la boleta por el total nuevo, con el crédito y la diferencia como medios de pago, y crea el pedido en Ventas con la **misma** `Idempotency-Key`. 🟡 El valor de `metodoPago` para el crédito depende de G5 (§7.1).
+  - Total nuevo < crédito: se rechaza con `CAMBIO_MENOR_VALOR`. No se emiten vales ni se devuelve dinero en mostrador.
+- Registra el cambio en `RET_SOLICITUD_CAMBIO_MOSTRADOR` en una sola transacción. Solo la diferencia cobrada entra al cobro del turno (F8).
+- **Inventario:** Retail registra el reintegro de la prenda devuelta y el consumo de las nuevas, y los envía a Inventory por `InventarioPort`. 🟡 Mientras G6 no autorice a `modulo-retail` (§7.1), el puerto usa el mock de §6. Un fallo de Inventory no revierte el cambio: `estadoInventario` queda `PENDIENTE` y se reintenta.
+- **201 Created:**
+
+```json
+{
+  "cambioId": "9f2c…",
+  "tipoCambio": "MAYOR_VALOR",
+  "boletaOrigen": "B001-00000045",
+  "montoCredito": 116.91,
+  "totalNuevo": 139.90,
+  "diferencia": 22.99,
+  "pago": { "medioPago": "EFECTIVO", "montoRecibido": 30.00, "vuelto": 7.01 },
+  "comprobante": { "tipo": "BOLETA", "serie": "B001", "correlativo": "00045310", "total": 139.90, "fechaEmision": "…", "qr": "…" },
+  "pedidoId": "PED-2026-01012",
+  "estadoInventario": "PENDIENTE",
+  "fechaCambio": "2026-11-26T15:30:00Z"
+}
+```
+
+  En `MISMO_VALOR`: `diferencia` es `0` y `pago`, `comprobante` y `pedidoId` van en `null`. El POS imprime la constancia de cambio con `cambioId`, `boletaOrigen`, las prendas y `fechaCambio`.
+- Aplica la semántica de `Idempotency-Key` de §2.3. Reintentar la misma operación devuelve el cambio original y no consume unidades adicionales.
+- **Errores:** `400 PARAMETRO_INVALIDO`, `400 MONTO_INSUFICIENTE`, `400 REFERENCIA_VOUCHER_INVALIDA`, `404 COMPROBANTE_NO_ENCONTRADO`, `409 TURNO_NO_ABIERTO`, `409 IDEMPOTENCY_CONFLICT`, `422 INSPECCION_NO_APTA`, `422 PLAZO_VENCIDO`, `422 PEDIDO_NO_APTO`, `422 CANTIDAD_NO_DISPONIBLE`, `422 MONTO_NO_DETERMINABLE`, `422 GARANTIA_REQUIERE_POSTVENTA`, `422 CAMBIO_MENOR_VALOR`, `422 SKU_EN_CUARENTENA`, `503 VENTAS_NO_DISPONIBLE` (solo en `MAYOR_VALOR`; como en §5.5, se conserva la clave para reintentar).
 
 ### 5.10. F10 — Contingencia offline
 
@@ -791,6 +824,7 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 | Productos · catálogo y código de barras | Catálogo, resolución de código de barras, disponibilidad y `stockTienda` | 15 a 20 productos con variantes y código de barras único por SKU |
 | Productos · promociones | Evalúa un cupón de prueba (`VERANO2026`) | 1 o 2 promociones |
 | Ventas · pedido y cobro | Devuelve `pedidoId` `PED-…` y un comprobante `B001-…` correlativo | — |
+| Inventario · movimientos del cambio (`InventarioPort`, Semana 14) | Acepta el reintegro de la prenda devuelta y el consumo de las nuevas, y permite simular un fallo para probar el estado `PENDIENTE`. El adaptador real se conecta cuando G6 autorice a `modulo-retail` (§7.1) | — |
 | Tienda y terminales | — | `TIENDA-MIRAFLORES`, `POS-01`, `POS-02` |
 
 ---
@@ -818,7 +852,9 @@ Para el Hito 3 la entrega se aísla con mocks controlados (Guía Semana 7). Regl
 | ~~Dueño del Pickup (decisión #9)~~ ✅ Resuelta en S11: Ventas (§5.7) | §5.11 | Retail + Ventas |
 | Señal de "apto para pagar" (X-P0-02) | Paso 4 del flujo de §5.5 | Ventas + Productos + canales |
 | Validar N unidades sin exponer saldos (X-P0-03) | `stockTienda` y stock crítico | Productos |
-| Prorrateo de descuentos (X-P0-13) | `montoAcreditado` de §5.9 | Postventa + Productos + Retail |
+| Prorrateo de descuentos (X-P0-13) | `montoCredito` de §5.9 | Postventa + Productos + Retail |
+| **Descuento de stock de las ventas Retail.** El acuerdo R9 de G5 dice que Retail descuenta y concilia directo con Productos y que Ventas no reserva stock para `RETAIL`. El OpenAPI de G6 solo autoriza a `modulo-ventas` en `reservas`, `confirmar` y `conciliaciones-offline`, y a Ventas y Postventa en `reintegros`. Este contrato (G4-P0-01) dice que el stock lo orquesta Ventas. Hoy ninguna venta de mostrador descuenta stock | §5.5, §5.9 (`InventarioPort`), §5.10 | Retail (Mihael) + Ventas + Productos |
+| Valor de `metodoPago` para el crédito de un cambio de mayor valor (hoy R3 solo admite `EFECTIVO`, `TARJETA_POS` y `MIXTO`) | `MAYOR_VALOR` de §5.9 | Retail (Mihael) + Ventas |
 | Política intermodular de cambios y garantía (G4-P1-03) | Semana 11 fija 7 días para el cambio comercial de mostrador; la garantía se deriva a Postventa | Retail + Postventa |
 
 ---
@@ -842,7 +878,8 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 | `/retail/carritos-espera/*` | F4 | — | PROPUESTO | Según la matriz de RF |
 | `/retail/pedidos/*` | F6 | — | BLOQUEADO (G5) | Según la matriz de RF |
 | `/retail/pickup/*` | F7 | — | PROPUESTO (integrado con G5 en S11) | Maylle |
-| `GET /retail/cambios/validar/{boletaNumero}` · `POST /retail/cambios` | F9 | — | APROBADO para Semana 11 (PO). La disponibilidad depende del despliegue y sus migraciones | Cristhian |
+| `GET /retail/cambios/validar/{boletaNumero}` | F9 | — | APROBADO para Semana 11 (PO) | Cristhian |
+| `POST /retail/cambios` (cambio directo) | F9 | — | PROPUESTO para Semana 14 (PO). `MAYOR_VALOR` depende de G5 y el inventario real de G6 (§7.1); se programa con mocks | Cristhian |
 | `POST /retail/contingencia/sincronizar` | F10 | — | PROPUESTO | Según la matriz de RF |
 | `/retail/control/*` | F11 | — | BLOQUEADO (#9, X-P0-03) | Según la matriz de RF |
 | `/retail/inventario/*` | F12 | — | PROPUESTO | Según la matriz de RF |
@@ -855,12 +892,12 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 |---|---|
 | G4-P0-01 | Se elimina `/inventario/consumir`; la venta crea el pedido en Ventas (§5.5) y Ventas orquesta el stock |
 | G4-P0-02 | La sincronización offline envía cada `ventaLocalUuid` a Ventas, con resultado por venta y `REQUIERE_REVISION` (§5.10) |
-| G4-P0-03 | Retail registra la inspección y emite el vale comercial en mostrador (§5.9). El reintegro corresponde al flujo de Postventa e Inventory. Se elimina `/inventario/incrementar-stock` |
+| G4-P0-03 | Retail registra la inspección y resuelve el cambio directo en mostrador (§5.9). El reintegro de la prenda devuelta pasa por `InventarioPort`, pendiente de la autorización de G6 (§7.1). Se elimina `/inventario/incrementar-stock` |
 | G4-P0-04 | Las integraciones referencian solo rutas oficiales y no redefinen payloads (§4) |
 | G4-P0-05 | Las incidencias se reportan a Inventory; la cuarentena local es una proyección (§5.12). Se elimina `/ajuste-discrepancia` |
 | G4-P1-01 | Clientes vía `/usuarios/busqueda-documento` y `/usuarios/clientes` (§4.1, §5.3) |
 | G4-P1-02 | Login con challenge MFA directo contra Seguridad (§4.1) |
-| G4-P1-03 | `plazoDias` de 7 días para el cambio comercial de mostrador en Semana 11 (§5.9) |
+| G4-P1-03 | `plazoDias` de 7 días para el cambio comercial de mostrador (§5.9), confirmado por el PO en la Semana 14 |
 | X-P0-04 | `tiendaId` = `store_code` en texto (§2.2) |
 | X-P0-08 | La venta de mostrador es un pedido con modalidad `IN_STORE`; los estados se separan por dimensión (§5.5, §5.6) |
 | G5-P0-01 | `Idempotency-Key` obligatorio en la venta y en los comandos críticos (§2.3) |

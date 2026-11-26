@@ -119,7 +119,7 @@ graph TD
         class F9 shouldFunc;
         RF23["RF-23: Validación de Boleta y Plazos (Must)"]
         RF24["RF-24: Inspección Física de la Prenda (Must)"]
-        RF25["RF-25: Vale / Nota de Crédito Presencial (Should)"]
+        RF25["RF-25: Cambio Directo de Prenda (Should)"]
         class RF23,RF24 rfMust;
         class RF25 rfShould;
     end
@@ -184,7 +184,7 @@ graph TD
 | | **RF-17** | Visualización de Estados y Trazabilidad | Kevin | **Should have** | Secundario si F6 entra | RN-03 | [f06-trazabilidad.md#rf-17](./specs/f06-trazabilidad-pedidos/f06-trazabilidad.md#rf-17) |
 | **F9: Cambios y Devoluciones en Mostrador**<br>`[SHOULD HAVE]` | **RF-23** | Validación de Comprobante y Plazos de Cambio | Cristhian | **Must have** | Activo si F9 entra al alcance | RN-01, RN-03 | [f09-devoluciones.md#rf-23](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-23) |
 | | **RF-24** | Inspección Física y Registro de Estado de Prenda | Cristhian | **Must have** | Activo si F9 entra al alcance | RN-05 | [f09-devoluciones.md#rf-24](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-24) |
-| | **RF-25** | Emisión de Vale / Nota de Crédito Presencial | Cristhian | **Should have** | Secundario si F9 entra | RN-01, RN-03 | [f09-devoluciones.md#rf-25](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-25) |
+| | **RF-25** | Cambio Directo de Prenda en Mostrador | Cristhian | **Should have** | Secundario si F9 entra | RN-01, RN-03 | [f09-devoluciones.md#rf-25](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-25) |
 | **F10: Modo de Contingencia y Resiliencia Offline**<br>`[SHOULD HAVE]` | **RF-26** | Detección Automática y Conmutación a Modo Offline | Miguel | **Must have** | Activo si F10 entra al alcance | RNF-02 | [f10-contingencia-offline.md#rf-26](./specs/f10-contingencia-offline/f10-contingencia-offline.md#rf-26) |
 | | **RF-27** | Almacenamiento Local Seguro en IndexedDB | Miguel | **Must have** | Activo si F10 entra al alcance | RNF-02, RN-03 | [f10-contingencia-offline.md#rf-27](./specs/f10-contingencia-offline/f10-contingencia-offline.md#rf-27) |
 | | **RF-28** | Sincronización Diferida y Conciliación Automática | Miguel | **Should have** | Secundario si F10 entra | RN-02, RN-03 | [f10-contingencia-offline.md#rf-28](./specs/f10-contingencia-offline/f10-contingencia-offline.md#rf-28) |
@@ -259,8 +259,8 @@ graph TD
 
 ### F9: Gestión de Cambios y Devoluciones en Mostrador `[SHOULD HAVE]`
 * **Responsable:** Cristhian (Backend Developer)
-* **Propósito:** Atender solicitudes presenciales de clientes que requieren cambio de talla, modelo o devolución de prendas deportivas dentro del plazo reglamentario.
-* **Flujo Operativo:** Validación del comprobante de compra y plazos vigentes ([RF-23](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-23)); inspección física del estado de la prenda ([RF-24](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-24)); y emisión de Vale de Compra / Nota de Crédito para canje inmediato ([RF-25](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-25)).
+* **Propósito:** Atender solicitudes presenciales de clientes que requieren cambio de talla o modelo de prendas deportivas dentro del plazo reglamentario.
+* **Flujo Operativo:** Validación del comprobante de compra y plazos vigentes ([RF-23](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-23)); inspección física del estado de la prenda ([RF-24](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-24)); y cambio directo por otra prenda de igual o mayor valor, cobrando la diferencia ([RF-25](./specs/f09-devoluciones-cambios/f09-devoluciones.md#rf-25)).
 
 ### F10: Modo de Contingencia y Resiliencia Offline `[SHOULD HAVE]`
 * **Responsable:** Miguel (DevOps / Tech Lead)
