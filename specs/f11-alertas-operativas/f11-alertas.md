@@ -32,7 +32,7 @@ Centralizar en la terminal POS una **Torre de Control Operativa de Turno**: prov
 ---
 
 ## 4. Referencias y Contratos
-* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → `GET /api/v1/alertas`
+* **Contrato de API:** [`specs/generales/api-contracts.md`](../generales/api-contracts.md) → §5.11, `GET /api/v1/retail/control/*` (v0.5)
 * **Design System:** [`specs/generales/design-system.md`](../generales/design-system.md)
 * **Modelo de Base de Datos:** `RET_CATALOGO_CACHE`, `RET_DESPACHOS_PICKUP`
 
