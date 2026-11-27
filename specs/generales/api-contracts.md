@@ -1,4 +1,4 @@
-# Contrato de API — Módulo Retail (G4) · v0.5.5
+# Contrato de API — Módulo Retail (G4) · v0.5.6
 
 | Campo | Valor |
 |---|---|
@@ -378,6 +378,11 @@ Heartbeat de la contingencia (F10). **Sin autenticación.**
 - `disponibilidad`: `DISPONIBLE` · `ULTIMAS_UNIDADES` · `SOLO_ALMACEN_CENTRAL` · `AGOTADO_TOTAL` (RF-06).
 - ⚠️ `stockTienda` es **opcional y puede venir `null`**: Productos no expone cantidades a los canales (X-P0-03). En la Semana 8 lo entrega el mock. La SPA no debe depender de él fuera del mock.
 - **Integración:** `GET /productos` + disponibilidad comercial (Productos).
+- **Rendimiento (v0.5.6):** con G6 real cada detalle de producto tarda ~1,4 s y el POS pide el catálogo completo al entrar (`size=100`). Retail no hace esperar al vendedor:
+  - pide las variantes de la página y los tramos de disponibilidad **en paralelo** (máximo `RETAIL_PRODUCTOS_PARALELISMO`, 8 por defecto, llamadas simultáneas a G6);
+  - **precalienta** el catálogo con esa misma paginación al arrancar y cada 4 minutos;
+  - sirve la lista, las variantes y la disponibilidad **desde caché aunque hayan vencido** (hasta 30 minutos) mientras las refresca en segundo plano. La `disponibilidad` del catálogo puede tener unos minutos de antigüedad; la venta la confirma Ventas (G5) al reservar el stock.
+  - Objetivo: respuesta en milisegundos con caché caliente; en frío, el catálogo completo en ~10 s.
 
 #### `GET /api/v1/retail/catalogo/codigo-barras/{codigo}` 🟢
 Lectura prioritaria por escáner (EAN-13 / Code128).
@@ -1114,6 +1119,10 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 ---
 
 ## 11. Cambios respecto de v0.4
+
+**v0.5.6 (27/11, rendimiento del catálogo con G6 real):**
+
+- **F2 (§5.2):** variantes y disponibilidad en paralelo, catálogo precalentado y caché que se refresca en segundo plano. Medido en producción antes del cambio: 72 a 85 s para el catálogo completo.
 
 **v0.5.5 (26/11, bloqueo del carrito por cuarentena):**
 
