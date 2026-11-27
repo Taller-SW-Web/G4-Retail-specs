@@ -12,7 +12,8 @@
 --
 -- Cambios:
 --   1. RET_SOLICITUD_CAMBIO_MOSTRADOR: tipo de cambio, constancia, montos, pedido nuevo en Ventas,
---      venta de la boleta (MAYOR_VALOR) y estado del envío a Ventas. Todas NULL, salvo
+--      venta de la boleta (MAYOR_VALOR), estado del envío a Ventas y la huella y respuesta de la
+--      idempotencia. Todas NULL, salvo
 --      intentos_envio (DEFAULT 0), para no romper las filas del vale de la S11.
 --   2. RET_SOLICITUD_CAMBIO_ITEM (nueva): prendas nuevas que se lleva el cliente.
 --   3. RET_CORRELATIVO (nueva): correlativos que reinician por tienda y año
@@ -34,7 +35,9 @@ ALTER TABLE RET_SOLICITUD_CAMBIO_MOSTRADOR
     ADD COLUMN IF NOT EXISTS venta_nueva_id    UUID           NULL,  -- Boleta del MAYOR_VALOR; NULL en MISMO_VALOR
     ADD COLUMN IF NOT EXISTS estado_inventario VARCHAR(20)    NULL,
     ADD COLUMN IF NOT EXISTS pedido_pendiente  TEXT           NULL,  -- Pedido a reenviar si Ventas respondió 503
-    ADD COLUMN IF NOT EXISTS intentos_envio    INTEGER        NOT NULL DEFAULT 0;
+    ADD COLUMN IF NOT EXISTS intentos_envio    INTEGER        NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS huella            VARCHAR(64)    NULL,  -- Hash del cuerpo: un reintento con la misma clave y otro cuerpo es 409
+    ADD COLUMN IF NOT EXISTS respuesta         TEXT           NULL;  -- Respuesta guardada que se devuelve igual en un reintento
 
 DO $$
 BEGIN
