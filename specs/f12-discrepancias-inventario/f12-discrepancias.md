@@ -68,6 +68,7 @@ Asegurar que inmediatamente tras el registro de una incidencia (RF-32), la unida
 3. En el POS:
    * Si el stock disponible de la talla cae a 0, la talla se deshabilita visualmente (`🚫 No disponible (En revisión física)`).
    * Si se escanea el código de barras de un ítem en cuarentena, emite sonido de error y modal de advertencia impidiendo la adición al carrito.
+   * Respaldo en el backend: `POST /api/v1/retail/carritos/calcular` rechaza el SKU con `422 SKU_EN_CUARENTENA` aunque la SPA no lo haya bloqueado (contrato §5.4).
 
 #### Criterios de Aceptación (RF-33)
 - [ ] **CA-RF33-01:** Reportar una prenda con stock de 1 unidad inactiva la talla para la venta en el catálogo de inmediato.
