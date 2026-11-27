@@ -29,7 +29,8 @@ erDiagram
     RET_CAJA_SESION ||--o{ RET_MOVIMIENTO_CAJA : "1:N registra movimientos"
     RET_CARRITO_ESPERA ||--|{ RET_CARRITO_ESPERA_ITEM : "1:N contiene articulos"
     RET_CAJA_SESION ||--o{ RET_SOLICITUD_CAMBIO_MOSTRADOR : "1:N autoriza tramites"
-    RET_SOLICITUD_CAMBIO_MOSTRADOR ||--o| RET_VALE_COMPRA : "1:0..1 emite vale (S11)"
+    RET_SOLICITUD_CAMBIO_MOSTRADOR ||--o| RET_VALE_COMPRA : "1:0..1 emite vale (S11, en desuso)"
+    RET_SOLICITUD_CAMBIO_MOSTRADOR ||--|{ RET_SOLICITUD_CAMBIO_ITEM : "1:N prendas nuevas (S14)"
     RET_CAJA_SESION ||--o{ RET_COBRO_TURNO : "1:N registra cobros (S11)"
     RET_ACTA_DISCREPANCIA ||--|{ RET_INCIDENCIA_INVENTARIO : "1:N liquida incidencias (S14)"
 
@@ -99,6 +100,31 @@ erDiagram
         timestamp fecha_inspeccion "Momento en que el vendedor valida la prenda"
         string boleta_numero "Boleta de origen B001-00000045 (S11)"
         text tienda_id "Codigo de sucursal (S11)"
+        string tipo_cambio "MISMO_VALOR, MAYOR_VALOR (S14)"
+        string numero_constancia "CAMB-AAAA-NNNNNN, unico por tienda (S14)"
+        decimal monto_credito "Importe pagado por lo devuelto (S14)"
+        decimal total_nuevo "Total de las prendas nuevas (S14)"
+        decimal diferencia "Lo que paga el cliente en MAYOR_VALOR (S14)"
+        text pedido_id_nuevo "Pedido creado en Ventas G5 (S14)"
+        uuid venta_nueva_id FK "Boleta del MAYOR_VALOR en RET_VENTA (S14)"
+        string estado_inventario "PENDIENTE, CONFIRMADO (S14)"
+        text pedido_pendiente "Pedido a reenviar a Ventas tras un 503 (S14)"
+        int intentos_envio "Reintentos del envio a Ventas (S14)"
+    }
+
+    RET_SOLICITUD_CAMBIO_ITEM {
+        uuid id_item PK "Identificador de la linea (S14)"
+        uuid solicitud_id FK "Cambio al que pertenece"
+        text sku "SKU de la prenda nueva (Productos)"
+        int cantidad "Unidades nuevas"
+        decimal precio_unitario "Precio vigente al registrar el cambio"
+    }
+
+    RET_CORRELATIVO {
+        text tienda_id PK "Codigo de sucursal (S14)"
+        int anio PK "Anio del correlativo"
+        string tipo PK "Tipo de documento numerado"
+        int ultimo "Ultimo numero asignado"
     }
 
     RET_VALE_COMPRA {
@@ -311,10 +337,27 @@ Gobierna la recepción física e inspección de prendas para cambio en tienda pr
 | `boleta_numero` | `VARCHAR(20)` | Sí | `CHECK ~ '^[BF][0-9]{3}-[0-9]{8}$'` | Boleta de origen (agregada en S11, `schema-s11.sql`) |
 | `tienda_id` | `TEXT` | Sí | — | Sucursal del trámite (agregada en S11, `schema-s11.sql`) |
 
+**Cambio directo (S14, `schema-s14-cambio-directo.sql`, contrato §5.9).** Columnas nuevas, todas opcionales salvo `intentos_envio`, para no romper las filas del vale de la S11:
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `tipo_cambio` | `VARCHAR(20)` | Sí | `CHECK IN ('MISMO_VALOR', 'MAYOR_VALOR')` | Tipo de cambio según el valor de las prendas nuevas |
+| `numero_constancia` | `VARCHAR(20)` | Sí | `CHECK ~ '^CAMB-[0-9]{4}-[0-9]{6}$'`; único por `(tienda_id, numero_constancia)` | Constancia impresa, correlativa por año y tienda (`RET_CORRELATIVO`) |
+| `monto_credito` | `DECIMAL(12,2)` | Sí | `CHECK (>= 0)` | Importe efectivamente pagado por las unidades devueltas |
+| `total_nuevo` | `DECIMAL(12,2)` | Sí | `CHECK (>= 0)` | Total de las prendas nuevas al precio vigente |
+| `diferencia` | `DECIMAL(12,2)` | Sí | `CHECK (>= 0)` | Lo que paga el cliente en `MAYOR_VALOR`; `0` en `MISMO_VALOR` |
+| `pedido_id_nuevo` | `TEXT` | Sí | Ref. externa Ventas | Pedido creado en Ventas con `CREDITO_CAMBIO` |
+| `venta_nueva_id` | `UUID` | Sí | `FOREIGN KEY (RET_VENTA)` `ON DELETE RESTRICT` | Boleta emitida en `MAYOR_VALOR`; nula en `MISMO_VALOR` |
+| `estado_inventario` | `VARCHAR(20)` | Sí | `CHECK IN ('PENDIENTE', 'CONFIRMADO')` | `CONFIRMADO` cuando Ventas acepta el pedido |
+| `pedido_pendiente` | `TEXT` | Sí | — | Pedido que el job reenvía a Ventas cada 5 minutos si respondió `503` |
+| `intentos_envio` | `INTEGER` | No | `DEFAULT 0`, `CHECK (>= 0)` | Reintentos del envío a Ventas |
+
+No se exige `diferencia = total_nuevo − monto_credito`: un cambio del mismo modelo es `MISMO_VALOR` con diferencia `0` aunque el precio vigente haya cambiado desde la compra (§5.9).
+
 ---
 
 ### Tabla 5b: `RET_VALE_COMPRA` (S11)
-> **En desuso desde la Semana 14.** El PO reemplazó el vale por el cambio directo (RF-25). La tabla se conserva con sus registros, pero el POS ya no emite ni canjea vales. La migración del cambio directo la publica el DBA.
+> **En desuso desde la Semana 14.** El PO reemplazó el vale por el cambio directo (RF-25). La tabla se conserva con sus registros, pero el POS ya no emite ni canjea vales. El cambio directo usa las columnas nuevas de la Tabla 5 y las Tablas 5d y 5e (`diseño/schema-s14-cambio-directo.sql`).
 
 Vale de compra / nota de crédito térmica que Retail emitía tras un cambio aprobado (RF-25, Semana 11). Por el acuerdo R6 con Ventas (G5), los vales son responsabilidad exclusiva de Retail: G5 no los guarda. Se crea con `diseño/schema-s11.sql`.
 
@@ -351,6 +394,31 @@ Cobro de una venta asociado al turno de caja, para que el efectivo cuente en el 
 | `vuelto` | `DECIMAL(12,2)` | No | `CHECK (>= 0 AND = monto_recibido - monto_total)` | Vuelto entregado |
 | `estado` | `VARCHAR(30)` | No | `CHECK IN ('PENDIENTE_CONFIRMACION', 'CONFIRMADO', 'EN_REVISION_SUPERVISOR', 'ANULADO')`, `DEFAULT 'PENDIENTE_CONFIRMACION'` | Estado frente a Ventas: pendiente si G5 no respondió, en revisión si la rechazó |
 | `created_at` / `updated_at` | `TIMESTAMPTZ` | No | `DEFAULT CURRENT_TIMESTAMP` | Auditoría de la fila |
+
+---
+
+### Tabla 5d: `RET_SOLICITUD_CAMBIO_ITEM` (S14)
+Prendas nuevas que se lleva el cliente en un cambio directo (F9, contrato §5.9). Se crea con `diseño/schema-s14-cambio-directo.sql`.
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `id_item` | `UUID` | No | `PRIMARY KEY` | Identificador de la línea |
+| `solicitud_id` | `UUID` | No | `FOREIGN KEY (RET_SOLICITUD_CAMBIO_MOSTRADOR)` `ON DELETE RESTRICT` | Cambio al que pertenece |
+| `sku` | `TEXT` | No | Ref. externa Productos | SKU de la prenda nueva |
+| `cantidad` | `INTEGER` | No | `CHECK (cantidad > 0)` | Unidades nuevas |
+| `precio_unitario` | `DECIMAL(12,2)` | No | `CHECK (precio_unitario >= 0)` | Precio vigente con el que se calculó `total_nuevo` |
+
+---
+
+### Tabla 5e: `RET_CORRELATIVO` (S14)
+Correlativos que reinician por tienda y año, como la constancia de cambio `CAMB-AAAA-NNNNNN`. Una secuencia de PostgreSQL no sirve porque no reinicia por tienda ni por año. La API toma el siguiente número dentro de la misma transacción del cambio (`UPDATE … SET ultimo = ultimo + 1 … RETURNING ultimo`, o `INSERT … ON CONFLICT` para el primero del año). Se crea con `diseño/schema-s14-cambio-directo.sql`.
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `tienda_id` | `TEXT` | No | `PRIMARY KEY (tienda_id, anio, tipo)` | Código de sucursal |
+| `anio` | `INTEGER` | No | `CHECK (anio BETWEEN 2000 AND 9999)` | Año del correlativo |
+| `tipo` | `VARCHAR(20)` | No | — | Documento numerado (lo define la API de F9) |
+| `ultimo` | `INTEGER` | No | `DEFAULT 0`, `CHECK (ultimo >= 0)` | Último número asignado |
 
 ---
 
@@ -492,6 +560,14 @@ CREATE INDEX idx_incidencia_sku_activa       ON RET_INCIDENCIA_INVENTARIO(tienda
 CREATE INDEX idx_incidencia_pendiente_reporte ON RET_INCIDENCIA_INVENTARIO(fecha_reporte) WHERE estado_cuarentena = 'PENDIENTE_REPORTE';
 CREATE INDEX idx_incidencia_acta             ON RET_INCIDENCIA_INVENTARIO(acta_id) WHERE acta_id IS NOT NULL;
 CREATE INDEX idx_acta_tienda_fecha           ON RET_ACTA_DISCREPANCIA(tienda_id, fecha_emision DESC);
+
+-- S14 (schema-s14-cambio-directo.sql): F9 cambio directo
+CREATE UNIQUE INDEX ux_cambio_tienda_constancia ON RET_SOLICITUD_CAMBIO_MOSTRADOR(tienda_id, numero_constancia)
+    WHERE numero_constancia IS NOT NULL;
+CREATE INDEX idx_cambio_estado_inventario_pendiente ON RET_SOLICITUD_CAMBIO_MOSTRADOR(fecha_inspeccion)
+    WHERE estado_inventario = 'PENDIENTE';
+CREATE INDEX idx_cambio_venta_nueva   ON RET_SOLICITUD_CAMBIO_MOSTRADOR(venta_nueva_id) WHERE venta_nueva_id IS NOT NULL;
+CREATE INDEX idx_cambio_item_solicitud ON RET_SOLICITUD_CAMBIO_ITEM(solicitud_id);
 ```
 
 ---
@@ -505,7 +581,7 @@ CREATE INDEX idx_acta_tienda_fecha           ON RET_ACTA_DISCREPANCIA(tienda_id,
 3. **Auditoría inmutable** (`fn_auditoria_inmutable`):
    - `trg_ret_auditoria_inmutable` y `trg_ret_auditoria_no_truncate` bloquean `UPDATE`, `DELETE` y `TRUNCATE` sobre `RET_AUDITORIA_OPERACIONES` (solo inserción). La FK hacia `RET_CAJA_SESION` es `ON DELETE RESTRICT`, por lo que un turno con rastro de auditoría no se puede borrar.
 4. **Row Level Security (RLS)**:
-   - Todas las tablas (incluidas `RET_VALE_COMPRA`, `RET_COBRO_TURNO` y `RET_ACTA_DISCREPANCIA`) tienen RLS habilitado (`ENABLE ROW LEVEL SECURITY`); `RET_AUDITORIA_OPERACIONES` solo admite `SELECT` e `INSERT`.
+   - Todas las tablas (incluidas `RET_VALE_COMPRA`, `RET_COBRO_TURNO`, `RET_ACTA_DISCREPANCIA`, `RET_SOLICITUD_CAMBIO_ITEM` y `RET_CORRELATIVO`) tienen RLS habilitado (`ENABLE ROW LEVEL SECURITY`); `RET_AUDITORIA_OPERACIONES` solo admite `SELECT` e `INSERT`.
 
 ### F10: reserva durable de conciliación
 
