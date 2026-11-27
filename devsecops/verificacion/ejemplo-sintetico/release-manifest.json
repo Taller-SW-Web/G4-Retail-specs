@@ -1,0 +1,91 @@
+{
+  "version": "v1.2.3",
+  "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "repository": "grupo/backend",
+  "branch": "main",
+  "decision": "GO",
+  "run_id": 123,
+  "attempt": 1,
+  "deployment": {
+    "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "id": "deploy-1",
+    "status": "success",
+    "smoke": "success",
+    "identity": "provider-source"
+  },
+  "reports": [
+    {
+      "kind": "build",
+      "path": "build.json",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "repository": "grupo/backend",
+      "run_id": 123,
+      "attempt": 1,
+      "status": "success"
+    },
+    {
+      "kind": "sast",
+      "path": "sast.json",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "repository": "grupo/backend",
+      "run_id": 123,
+      "attempt": 1,
+      "status": "success"
+    },
+    {
+      "kind": "sca",
+      "path": "sca.json",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "repository": "grupo/backend",
+      "run_id": 123,
+      "attempt": 1,
+      "status": "success"
+    },
+    {
+      "kind": "secrets",
+      "path": "secrets.json",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "repository": "grupo/backend",
+      "run_id": 123,
+      "attempt": 1,
+      "status": "success"
+    },
+    {
+      "kind": "integration",
+      "path": "integration.json",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "repository": "grupo/backend",
+      "run_id": 123,
+      "attempt": 1,
+      "status": "success"
+    },
+    {
+      "kind": "performance",
+      "path": "performance.json",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "repository": "grupo/backend",
+      "run_id": 123,
+      "attempt": 1,
+      "status": "success"
+    },
+    {
+      "kind": "go-no-go",
+      "path": "go-no-go.json",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "repository": "grupo/backend",
+      "run_id": 123,
+      "attempt": 1,
+      "status": "success"
+    }
+  ],
+  "synthetic": true,
+  "hashes": {
+    "build.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sast.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sca.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "secrets.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "integration.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "performance.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "go-no-go.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  }
+}
