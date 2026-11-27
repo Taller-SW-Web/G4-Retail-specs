@@ -1,4 +1,4 @@
-# Contrato de API — Módulo Retail (G4) · v0.5.4
+# Contrato de API — Módulo Retail (G4) · v0.5.5
 
 | Campo | Valor |
 |---|---|
@@ -476,7 +476,8 @@ Vista previa de totales y promociones. **No crea nada.** El total oficial lo con
 ```
 - **Fórmula (RF-12):** `totalPagar = subtotalBruto − descuentoTotal`; `baseImponible = round(totalPagar / 1.18, 2)`; `montoIgv = totalPagar − baseImponible`.
 - Un cupón inválido **no bloquea**: se informa en `advertencias` (`CUPON_INVALIDO`) y no se aplica.
-- **Errores:** `400` (carrito vacío o `cantidad ≤ 0`); `404 SKU_NO_ENCONTRADO`.
+- **Cuarentena (F12, RF-33):** si algún SKU tiene una incidencia activa (`PENDIENTE_REPORTE` o `EN_CUARENTENA`) en la tienda del perfil, responde `422 SKU_EN_CUARENTENA` con el detalle *"PRODUCTO BLOQUEADO POR CUARENTENA"* y los SKU bloqueados. Es el respaldo del bloqueo que la SPA ya aplica con `enCuarentena` (§5.2).
+- **Errores:** `400` (carrito vacío o `cantidad ≤ 0`); `404 SKU_NO_ENCONTRADO`; `422 SKU_EN_CUARENTENA`.
 - **Integración:** `POST /promociones/evaluar` (Productos).
 
 #### Carritos en espera (RF-10)
@@ -963,6 +964,7 @@ X-Correlation-Id: <uuid>
 
 #### `GET /api/v1/retail/inventario/cuarentena`
 - **200 OK:** lista de `incidenciaId`, `sku`, `nombreProducto`, `tipoFalla`, `fechaReporte` y `estado` de la tienda del perfil.
+- La misma cuarentena activa marca `enCuarentena` en el catálogo y el lector (§5.2) y bloquea el SKU en `POST /carritos/calcular` (§5.4) y en el cambio (§5.9) con `422 SKU_EN_CUARENTENA`.
 
 #### `POST /api/v1/retail/inventario/actas-merma`
 - **Roles:** SUPERVISOR.
@@ -1112,6 +1114,10 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 ---
 
 ## 11. Cambios respecto de v0.4
+
+**v0.5.5 (26/11, bloqueo del carrito por cuarentena):**
+
+- **F4 (§5.4) y F12 (§5.12):** `POST /carritos/calcular` responde `422 SKU_EN_CUARENTENA` si algún SKU tiene una incidencia activa en la tienda del perfil (RF-33). Usa el mismo código que el cambio de §5.9.
 
 **v0.5.4 (26/11, acta de merma):**
 
