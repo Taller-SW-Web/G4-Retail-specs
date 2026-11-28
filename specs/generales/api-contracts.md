@@ -1,4 +1,4 @@
-# Contrato de API — Módulo Retail (G4) · v0.5.6
+# Contrato de API — Módulo Retail (G4) · v0.5.7
 
 | Campo | Valor |
 |---|---|
@@ -159,7 +159,7 @@ Retail aplica la capa de API Management en dos sentidos:
 | **Trazabilidad** | `ms-retail` → G5, G6 y G7 | Se acepta `X-Correlation-Id` **solo si es un UUID** (el gateway de G6 responde `400 VALIDACION` a cualquier otro valor, verificado el 26/11); si no llega o no es UUID, se genera uno. Se devuelve en la respuesta, se escribe en cada línea de log (MDC `correlationId`) y se propaga en cada llamada saliente a otro módulo |
 | **Catálogo de la API** | `ms-retail` | OpenAPI publicado en `/v3/api-docs` y Swagger UI en `/swagger-ui.html` |
 | **Consumo de Ventas** | API Gateway de G5 | `RETAIL_VENTAS_URL=https://g5-api-gateway.onrender.com`. Las rutas y el token de servicio de §4.3 no cambian. Límite del gateway (confirmado por G5 el 26/11): **300 por minuto por cliente** con el token de `modulo-retail`, sumando todas las cajas; 60 por minuto por IP sin token. Al pasarlo responde `429` con `Retry-After` |
-| **Consumo de Productos** | API Gateway de G6 (sin APIM) | `RETAIL_PRODUCTOS_URL=https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1` (entorno compartido entre módulos, confirmado por G6 el 26/11) |
+| **Consumo de Productos** | Azure API Management de G6 | `RETAIL_PRODUCTOS_URL=https://apim-g6-productos-chile.azure-api.net/api/v1` y `RETAIL_INVENTARIO_URL` igual (G6, 27/11). El gateway directo anterior responde `403 RBAC: access denied` a todo consumidor. APIM limita las llamadas por cliente: al pasarse responde `429 Rate limit is exceeded` |
 
 Un `429` que venga de otro módulo, por ejemplo el límite de búsquedas de G7, se responde también como `429 DEMASIADAS_SOLICITUDES` y conserva su `Retry-After`.
 
@@ -251,7 +251,7 @@ Notas:
 
 ### 4.2. Productos y Ofertas (G6)
 
-**URL base (v0.5.1):** `https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1`, a través del API Gateway de G6 (sin APIM). Cada llamada lleva `Authorization: Bearer <JWT de servicio de G7>` con identidad `modulo-retail`, audiencia `api-productos` y el scope de la operación.
+**URL base (v0.5.7):** `https://apim-g6-productos-chile.azure-api.net/api/v1`, a través del Azure API Management de G6 (desde el 27/11; antes `https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1`, que ya no acepta tráfico externo). No pide clave de suscripción. Cada llamada lleva `Authorization: Bearer <JWT de servicio de G7>` con identidad `modulo-retail`, audiencia `api-productos` y el scope de la operación.
 
 | Operación | Ruta oficial (Anexo C del reporte) | Estado |
 |---|---|---|
@@ -379,7 +379,9 @@ Heartbeat de la contingencia (F10). **Sin autenticación.**
 - ⚠️ `stockTienda` es **opcional y puede venir `null`**: Productos no expone cantidades a los canales (X-P0-03). En la Semana 8 lo entrega el mock. La SPA no debe depender de él fuera del mock.
 - **Integración:** `GET /productos` + disponibilidad comercial (Productos).
 - **Rendimiento (v0.5.6):** con G6 real cada detalle de producto tarda ~1,4 s y el POS pide el catálogo completo al entrar (`size=100`). Retail no hace esperar al vendedor:
-  - pide las variantes de la página y los tramos de disponibilidad **en paralelo** (máximo `RETAIL_PRODUCTOS_PARALELISMO`, 8 por defecto, llamadas simultáneas a G6);
+  - pide las variantes de la página y los tramos de disponibilidad **en paralelo** (máximo `RETAIL_PRODUCTOS_PARALELISMO`, 4 por defecto desde v0.5.7, llamadas simultáneas a G6);
+  - pide los **precios en lote** con `GET /precios?skus=a,b&canal=RETAIL` (hasta 100 SKU por llamada), no uno por SKU (v0.5.7): uno por SKU eran ~200 llamadas por catálogo y el APIM de G6 las corta con `429`;
+  - guarda las variantes 6 horas en caché (`RETAIL_PRODUCTOS_CACHE_VARIANTES_SEGUNDOS`), porque casi no cambian;
   - **precalienta** el catálogo con esa misma paginación al arrancar y cada 4 minutos;
   - sirve la lista, las variantes y la disponibilidad **desde caché aunque hayan vencido** (hasta 30 minutos) mientras las refresca en segundo plano. La `disponibilidad` del catálogo puede tener unos minutos de antigüedad; la venta la confirma Ventas (G5) al reservar el stock.
   - Objetivo: respuesta en milisegundos con caché caliente; en frío, el catálogo completo en ~10 s.
@@ -1119,6 +1121,11 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 ---
 
 ## 11. Cambios respecto de v0.4
+
+**v0.5.7 (27/11, G6 detrás de APIM):**
+
+- **Productos e Inventory (§2.8, §4.2):** URL base `https://apim-g6-productos-chile.azure-api.net/api/v1`. El gateway directo de G6 responde `403 RBAC` desde el 27/11.
+- **F2 (§5.2):** precios en lote con `GET /precios`, variantes 6 h en caché y paralelismo 4, para no superar el límite por cliente del APIM (`429`).
 
 **v0.5.6 (27/11, rendimiento del catálogo con G6 real):**
 
