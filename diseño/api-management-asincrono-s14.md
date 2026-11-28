@@ -46,7 +46,7 @@ Retail aplica la capa en los dos sentidos:
 | Trazabilidad | `X-Correlation-Id` recibido (solo si es UUID: G6 rechaza otros valores) o generado, devuelto en la respuesta y en el cuerpo de los errores, escrito en el MDC y propagado a G5, G6 y G7 (`TrazabilidadFilter`, `CorrelacionSaliente`) | — |
 | Catálogo de la API | OpenAPI en `/v3/api-docs` y Swagger UI en `/swagger-ui.html` | — |
 | Consumo de Ventas por gateway | `RETAIL_VENTAS_URL=https://g5-api-gateway.onrender.com`. El gateway de G5 aplica autenticación (`401 TOKEN_INVALIDO` sin token), límite (300 por minuto por cliente con token; 60 por IP sin token) y su propio `x-correlation-id` | `RETAIL_VENTAS_URL` |
-| Consumo de Productos por gateway | `RETAIL_PRODUCTOS_URL=https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1`. El gateway de G6 responde `401 TOKEN_INVALIDO` sin token y devuelve su `x-correlation-id` (verificado el 26/11) | `RETAIL_PRODUCTOS_URL` |
+| Consumo de Productos por APIM | `RETAIL_PRODUCTOS_URL=https://apim-g6-productos-chile.azure-api.net/api/v1` (Azure API Management de G6 desde el 27/11). Sin token responde `401`; al superar el límite por cliente, `429 Rate limit is exceeded` | `RETAIL_PRODUCTOS_URL`, `RETAIL_INVENTARIO_URL` |
 
 ### Evidencia (backend local, límite forzado a 5 por minuto)
 
@@ -137,7 +137,7 @@ Consultas de evidencia en Supabase: `G4-Retail-backend/diseño_bd/migracion-s14-
 | `RETAIL_LIMITE_PETICIONES_POR_MINUTO` | `120` | Límite por vendedor |
 | `RETAIL_OUTBOX_INTERVALO_MS` | `30000` | Frecuencia del job del outbox |
 | `RETAIL_INVENTARIO_MODO` / `RETAIL_INVENTARIO_URL` | `memoria` hasta verificar el token de `api-productos`; luego `g6` (la URL ya viene por defecto) | Destino del outbox |
-| `RETAIL_PRODUCTOS_URL` + quitar `mock` de `SPRING_PROFILES_ACTIVE` | `https://api-gateway.calmgrass-aec0b33c.chilecentral.azurecontainerapps.io/api/v1`, cuando G7 registre los scopes | Catálogo, precios, disponibilidad, promociones y campañas reales |
+| `RETAIL_PRODUCTOS_URL` y `RETAIL_INVENTARIO_URL` + quitar `mock` de `SPRING_PROFILES_ACTIVE` | `https://apim-g6-productos-chile.azure-api.net/api/v1` (APIM de G6, 27/11) | Catálogo, precios, disponibilidad, promociones y campañas reales |
 | `RETAIL_INVENTARIO_UBICACIONES` | `TIENDA-MIRAFLORES=aea2f0d8-e8c6-b09c-8e7a-b4a3630bc485` (valor por defecto, confirmado por G6) | `location_id` de G6 por tienda |
 | `RETAIL_PEDIDOS_BUSQUEDA_DOCUMENTO` | `registro` hasta que G7 asigne `ventas:pedidos:buscar-documento`; luego `g5` | Búsqueda de pedidos por DNI/RUC (RF-16-DOC) |
 | `RETAIL_CLIENTES_MODO` | `memoria` hasta que G7 confirme los permisos del `VENDEDOR`; luego `g7` | Clientes en `/usuarios/*` |
