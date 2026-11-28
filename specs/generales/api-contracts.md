@@ -1,4 +1,4 @@
-# Contrato de API — Módulo Retail (G4) · v0.5.8
+# Contrato de API — Módulo Retail (G4) · v0.5.9
 
 | Campo | Valor |
 |---|---|
@@ -866,6 +866,8 @@ Cierre con arqueo ciego (RF-22).
 
 Detalles de implementación F10 S11: el hash canónico, la reserva de comprobante B010 y los casos de revisión se especifican en [F10 §7](../f10-contingencia-offline/f10-contingencia-offline.md#7-criterios-de-integración-de-semana-11). Se conserva la firma del lote. `DUPLICADO` devuelve el pedido y comprobante originales incluso tras reiniciar Retail. Un UUID con cuerpo diferente devuelve `RECHAZADO` con motivo `IDEMPOTENCY_CONFLICT`; sin respuesta verificable de G5 devuelve `REQUIERE_REVISION`, nunca un pedido ficticio. La tienda procede del perfil; se verifica terminal y turno. Los errores de cada venta no abortan las restantes.
 
+**Cliente del pedido en Ventas (v0.5.9):** la venta offline no lleva identidad (`clienteId` no nulo o total ≥ S/ 700.00 pasan a `REQUIERE_REVISION`), así que Retail la envía a Ventas a nombre de "Clientes varios" con el `contacto.clienteId` genérico `00000000-0000-4000-8000-00000000f00a`, el mismo que usa F5 para la venta sin cliente identificado (§5.5). Ventas exige `contacto.clienteId`: si va nulo responde `400 DATOS_INVALIDOS` (`contacto.clienteId: must not be null`), comprobado contra el gateway de G5 el 28/11.
+
 ### 5.11. F11 — Torre de control (alertas)
 
 Todos los endpoints exigen el rol `VENDEDOR` o `SUPERVISOR`. Toman la tienda del perfil (§2.4) y responden `200`.
@@ -1123,6 +1125,10 @@ Estados: **PROPUESTO** (redactado, falta aprobación) · **APROBADO** (se puede 
 ---
 
 ## 11. Cambios respecto de v0.4
+
+**v0.5.9 (28/11, cliente genérico en la contingencia):**
+
+- **F10 (§5.10):** la venta offline viaja a Ventas con el `contacto.clienteId` genérico de "Clientes varios" (`00000000-0000-4000-8000-00000000f00a`). Con `clienteId` nulo G5 respondía `400 DATOS_INVALIDOS` y ninguna venta offline se sincronizaba.
 
 **v0.5.8 (27/11, pickup con Ventas real en la nube):**
 
