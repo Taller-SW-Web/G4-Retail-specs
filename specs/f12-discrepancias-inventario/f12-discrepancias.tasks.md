@@ -22,8 +22,8 @@
 ### [RF-34] Acta de Discrepancia y Notificación Externa
 - [ ] **Tarea B5 (RF-34):** Crear entidad `ActaDiscrepancia`, generador de correlativo numérico (`ACTA-MERMA-YYYY-XXXX`) y endpoint `POST /api/v1/retail/inventario/actas-merma`.  
   *Test:* `ActaDiscrepanciaServiceTest.java` (verifica generación de acta y transición de estado a `DERIVADO_ALMACEN`).
-- [ ] **Tarea B6 (RF-34):** Integrar cliente REST hacia módulo de Productos (`POST /api/v1/inventario/ajuste-discrepancia`) con manejo de fallos y reintentos.  
-  *Test:* `ProductosInventarioClientTest.java` (mock de endpoint externo y verificación de payload).
+- [ ] **Tarea B6 (RF-32/RF-34):** Cliente REST hacia Inventory (`POST /api/v1/inventario/incidencias`) con reintentos desde el outbox (estado `PENDIENTE_REPORTE`). El acta no llama a Productos: el ajuste de discrepancia está prohibido para Retail (G4-P0-05).  
+  *Test:* `ProductosInventarioClientTest.java` (mock de endpoint externo, verificación de payload y reintento).
 
 ---
 

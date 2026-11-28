@@ -29,8 +29,10 @@ erDiagram
     RET_CAJA_SESION ||--o{ RET_MOVIMIENTO_CAJA : "1:N registra movimientos"
     RET_CARRITO_ESPERA ||--|{ RET_CARRITO_ESPERA_ITEM : "1:N contiene articulos"
     RET_CAJA_SESION ||--o{ RET_SOLICITUD_CAMBIO_MOSTRADOR : "1:N autoriza tramites"
-    RET_SOLICITUD_CAMBIO_MOSTRADOR ||--o| RET_VALE_COMPRA : "1:0..1 emite vale (S11)"
+    RET_SOLICITUD_CAMBIO_MOSTRADOR ||--o| RET_VALE_COMPRA : "1:0..1 emite vale (S11, en desuso)"
+    RET_SOLICITUD_CAMBIO_MOSTRADOR ||--|{ RET_SOLICITUD_CAMBIO_ITEM : "1:N prendas nuevas (S14)"
     RET_CAJA_SESION ||--o{ RET_COBRO_TURNO : "1:N registra cobros (S11)"
+    RET_ACTA_DISCREPANCIA ||--|{ RET_INCIDENCIA_INVENTARIO : "1:N liquida incidencias (S14)"
 
     RET_CAJA_SESION {
         uuid id_sesion PK "Identificador unico de la sesion de caja"
@@ -98,6 +100,31 @@ erDiagram
         timestamp fecha_inspeccion "Momento en que el vendedor valida la prenda"
         string boleta_numero "Boleta de origen B001-00000045 (S11)"
         text tienda_id "Codigo de sucursal (S11)"
+        string tipo_cambio "MISMO_VALOR, MAYOR_VALOR (S14)"
+        string numero_constancia "CAMB-AAAA-NNNNNN, unico por tienda (S14)"
+        decimal monto_credito "Importe pagado por lo devuelto (S14)"
+        decimal total_nuevo "Total de las prendas nuevas (S14)"
+        decimal diferencia "Lo que paga el cliente en MAYOR_VALOR (S14)"
+        text pedido_id_nuevo "Pedido creado en Ventas G5 (S14)"
+        uuid venta_nueva_id FK "Boleta del MAYOR_VALOR en RET_VENTA (S14)"
+        string estado_inventario "PENDIENTE, CONFIRMADO (S14)"
+        text pedido_pendiente "Pedido a reenviar a Ventas tras un 503 (S14)"
+        int intentos_envio "Reintentos del envio a Ventas (S14)"
+    }
+
+    RET_SOLICITUD_CAMBIO_ITEM {
+        uuid id_item PK "Identificador de la linea (S14)"
+        uuid solicitud_id FK "Cambio al que pertenece"
+        text sku "SKU de la prenda nueva (Productos)"
+        int cantidad "Unidades nuevas"
+        decimal precio_unitario "Precio vigente al registrar el cambio"
+    }
+
+    RET_CORRELATIVO {
+        text tienda_id PK "Codigo de sucursal (S14)"
+        int anio PK "Anio del correlativo"
+        string tipo PK "Tipo de documento numerado"
+        int ultimo "Ultimo numero asignado"
     }
 
     RET_VALE_COMPRA {
@@ -132,13 +159,31 @@ erDiagram
         uuid id_incidencia PK "Identificador unico de la incidencia"
         text tienda_id "Codigo de sucursal (store_code)"
         uuid vendedor_reporta_id "ID logico del colaborador que detecta la merma"
-        uuid variante_sku_id "ID logico de la prenda afectada (Productos)"
+        text variante_sku_id "SKU opaco de la prenda afectada (Productos, S14)"
+        string nombre_producto "Nombre de la prenda al reportar (S14)"
         string codigo_barras "EAN-13 o SKU escaneado de la prenda"
-        string tipo_falla "MANCHADO_PROBADOR, COSTURA_ROTA, DESCOLORIDO, EXTRAVIO"
-        text detalle_observacion "Explicacion circunstancial del dano o quiebre"
+        string tipo_falla "MANCHADO_PROBADOR, COSTURA_ROTA, EXTRAVIO_NO_UBICADO, DEFECTO_FABRICA"
+        text detalle_observacion "Explicacion del dano o extravio (min. 5 caracteres)"
         string evidencia_foto_url "URL o path de fotografia de la prenda danada"
-        string estado_cuarentena "EN_CUARENTENA, DERIVADO_ALMACEN, DESCARTADO, RECHAZADO"
+        string estado_cuarentena "EN_CUARENTENA, PENDIENTE_REPORTE, DERIVADO_ALMACEN, BAJA_DEFINITIVA"
+        string idempotency_key "Idempotency-Key del reporte (S14)"
+        text incidencia_inventory_id "ID de la incidencia en Inventory G6 (S14)"
+        uuid acta_id FK "Acta de merma que la liquida (S14)"
+        int intentos_reporte "Reintentos de envio a Inventory (S14)"
+        text ultimo_error_reporte "Ultimo error al reportar a Inventory (S14)"
         timestamp fecha_reporte "Fecha y hora del aislamiento preventivo"
+        timestamp updated_at "Auditoria de actualizacion (S14)"
+    }
+
+    RET_ACTA_DISCREPANCIA {
+        uuid id_acta PK "Identificador unico del acta (S14)"
+        string numero_acta "ACTA-MERMA-AAAA-NNNN, unico"
+        text tienda_id "Codigo de sucursal (store_code)"
+        uuid supervisor_id "ID logico del SUPERVISOR que emite"
+        string tipo_destino "DEVOLUCION_CENTRAL, BAJA_DEFINITIVA, AJUSTE_PERDIDA"
+        int total_prendas "Cantidad de incidencias liquidadas"
+        text observaciones "Notas del traslado o la baja"
+        timestamp fecha_emision "Momento de emision del acta"
     }
 
     RET_CONTINGENCIA_OFFLINE_LOG {
@@ -292,10 +337,29 @@ Gobierna la recepción física e inspección de prendas para cambio en tienda pr
 | `boleta_numero` | `VARCHAR(20)` | Sí | `CHECK ~ '^[BF][0-9]{3}-[0-9]{8}$'` | Boleta de origen (agregada en S11, `schema-s11.sql`) |
 | `tienda_id` | `TEXT` | Sí | — | Sucursal del trámite (agregada en S11, `schema-s11.sql`) |
 
+**Cambio directo (S14, `schema-s14-cambio-directo.sql`, contrato §5.9).** Columnas nuevas, todas opcionales salvo `intentos_envio`, para no romper las filas del vale de la S11:
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `tipo_cambio` | `VARCHAR(20)` | Sí | `CHECK IN ('MISMO_VALOR', 'MAYOR_VALOR')` | Tipo de cambio según el valor de las prendas nuevas |
+| `numero_constancia` | `VARCHAR(20)` | Sí | `CHECK ~ '^CAMB-[0-9]{4}-[0-9]{6}$'`; único por `(tienda_id, numero_constancia)` | Constancia impresa, correlativa por año y tienda (`RET_CORRELATIVO`) |
+| `monto_credito` | `DECIMAL(12,2)` | Sí | `CHECK (>= 0)` | Importe efectivamente pagado por las unidades devueltas |
+| `total_nuevo` | `DECIMAL(12,2)` | Sí | `CHECK (>= 0)` | Total de las prendas nuevas al precio vigente |
+| `diferencia` | `DECIMAL(12,2)` | Sí | `CHECK (>= 0)` | Lo que paga el cliente en `MAYOR_VALOR`; `0` en `MISMO_VALOR` |
+| `pedido_id_nuevo` | `TEXT` | Sí | Ref. externa Ventas | Pedido creado en Ventas con `CREDITO_CAMBIO` |
+| `venta_nueva_id` | `UUID` | Sí | `FOREIGN KEY (RET_VENTA)` `ON DELETE RESTRICT` | Boleta emitida en `MAYOR_VALOR`; nula en `MISMO_VALOR` |
+| `estado_inventario` | `VARCHAR(20)` | Sí | `CHECK IN ('PENDIENTE', 'CONFIRMADO')` | `CONFIRMADO` cuando Ventas acepta el pedido |
+| `pedido_pendiente` | `TEXT` | Sí | — | Pedido que el job reenvía a Ventas cada 5 minutos si respondió `503` |
+| `intentos_envio` | `INTEGER` | No | `DEFAULT 0`, `CHECK (>= 0)` | Reintentos del envío a Ventas |
+
+No se exige `diferencia = total_nuevo − monto_credito`: un cambio del mismo modelo es `MISMO_VALOR` con diferencia `0` aunque el precio vigente haya cambiado desde la compra (§5.9).
+
 ---
 
 ### Tabla 5b: `RET_VALE_COMPRA` (S11)
-Vale de compra / nota de crédito térmica que Retail emite tras un cambio aprobado (RF-25). Por el acuerdo R6 con Ventas (G5), los vales son responsabilidad exclusiva de Retail: G5 no los guarda. Alineada con la especificación y migración de F9. Se crea con `diseño/schema-s11.sql`.
+> **En desuso desde la Semana 14.** El PO reemplazó el vale por el cambio directo (RF-25). La tabla se conserva con sus registros, pero el POS ya no emite ni canjea vales. El cambio directo usa las columnas nuevas de la Tabla 5 y las Tablas 5d y 5e (`diseño/schema-s14-cambio-directo.sql`).
+
+Vale de compra / nota de crédito térmica que Retail emitía tras un cambio aprobado (RF-25, Semana 11). Por el acuerdo R6 con Ventas (G5), los vales son responsabilidad exclusiva de Retail: G5 no los guarda. Se crea con `diseño/schema-s11.sql`.
 
 | Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
 | :--- | :--- | :---: | :--- | :--- |
@@ -333,21 +397,73 @@ Cobro de una venta asociado al turno de caja, para que el efectivo cuente en el 
 
 ---
 
-### Tabla 6: `RET_INCIDENCIA_INVENTARIO`
-Control y registro de mermas físicas, prendas dañadas en probadores o extravíos para su aislamiento en cuarentena.
+### Tabla 5d: `RET_SOLICITUD_CAMBIO_ITEM` (S14)
+Prendas nuevas que se lleva el cliente en un cambio directo (F9, contrato §5.9). Se crea con `diseño/schema-s14-cambio-directo.sql`.
 
 | Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
 | :--- | :--- | :---: | :--- | :--- |
-| `id_incidencia` | `UUID` | No | `PRIMARY KEY` | Identificador de la incidencia |
+| `id_item` | `UUID` | No | `PRIMARY KEY` | Identificador de la línea |
+| `solicitud_id` | `UUID` | No | `FOREIGN KEY (RET_SOLICITUD_CAMBIO_MOSTRADOR)` `ON DELETE RESTRICT` | Cambio al que pertenece |
+| `sku` | `TEXT` | No | Ref. externa Productos | SKU de la prenda nueva |
+| `cantidad` | `INTEGER` | No | `CHECK (cantidad > 0)` | Unidades nuevas |
+| `precio_unitario` | `DECIMAL(12,2)` | No | `CHECK (precio_unitario >= 0)` | Precio vigente con el que se calculó `total_nuevo` |
+
+---
+
+### Tabla 5e: `RET_CORRELATIVO` (S14)
+Correlativos que reinician por tienda y año, como la constancia de cambio `CAMB-AAAA-NNNNNN`. Una secuencia de PostgreSQL no sirve porque no reinicia por tienda ni por año. La API toma el siguiente número dentro de la misma transacción del cambio (`UPDATE … SET ultimo = ultimo + 1 … RETURNING ultimo`, o `INSERT … ON CONFLICT` para el primero del año). Se crea con `diseño/schema-s14-cambio-directo.sql`.
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `tienda_id` | `TEXT` | No | `PRIMARY KEY (tienda_id, anio, tipo)` | Código de sucursal |
+| `anio` | `INTEGER` | No | `CHECK (anio BETWEEN 2000 AND 9999)` | Año del correlativo |
+| `tipo` | `VARCHAR(20)` | No | — | Documento numerado (lo define la API de F9) |
+| `ultimo` | `INTEGER` | No | `DEFAULT 0`, `CHECK (ultimo >= 0)` | Último número asignado |
+
+---
+
+### Tabla 6: `RET_INCIDENCIA_INVENTARIO`
+Proyección local de las incidencias de inventario (prendas dañadas en probadores o extraviadas) que Retail reporta a Inventory (G6). Sirve para la bandeja de cuarentena y para bloquear la venta en el POS (RF-32, RF-33). El saldo central lo lleva Inventory (G4-P0-05). La crea `diseño/schema.sql` y la alinea con el contrato §5.12 `diseño/schema-s14-f12.sql` (S14).
+
+**Ciclo de vida:** `EN_CUARENTENA` (Inventory aceptó el reporte) o `PENDIENTE_REPORTE` (Inventory aún no lo aceptó; se reintenta desde el outbox) → `DERIVADO_ALMACEN` o `BAJA_DEFINITIVA` al emitir el acta (RF-34). La **cuarentena activa**, la que bloquea la venta, son los estados `EN_CUARENTENA` y `PENDIENTE_REPORTE`.
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `id_incidencia` | `UUID` | No | `PRIMARY KEY` | Identificador de la incidencia (`incidenciaId`) |
 | `tienda_id` | `TEXT` | No | — | Sucursal donde ocurrió el suceso |
-| `vendedor_reporta_id`| `UUID` | No | Ref. externa Seguridad | Vendedor que reporta la prenda |
-| `variante_sku_id` | `UUID` | No | Ref. externa Productos | SKU de la prenda en mal estado |
+| `vendedor_reporta_id`| `UUID` | No | Ref. externa Seguridad | Vendedor que reporta la prenda (CA-RF32-03) |
+| `variante_sku_id` | `TEXT` | No | Ref. externa Productos | SKU opaco de la prenda (`sku`). Era `UUID` hasta S14 |
+| `nombre_producto` | `VARCHAR(150)` | Sí | — | Nombre de la prenda al reportar, para la bandeja (S14) |
 | `codigo_barras` | `VARCHAR(50)` | No | — | Código EAN-13 leído por pistola láser |
 | `tipo_falla` | `VARCHAR(50)` | No | `CHECK IN ('MANCHADO_PROBADOR', 'COSTURA_ROTA', 'EXTRAVIO_NO_UBICADO', 'DEFECTO_FABRICA')` | Tipo de incidencia física según RF-32 |
-| `detalle_observacion` | `TEXT` | No | — | Explicación detallada del estado físico |
+| `detalle_observacion` | `TEXT` | No | `CHECK (char_length(btrim(...)) >= 5)` | Explicación detallada del estado físico |
 | `evidencia_foto_url` | `VARCHAR(255)` | Sí | — | URL fotográfica adjunta como evidencia |
-| `estado_cuarentena` | `VARCHAR(30)` | No | `CHECK IN ('EN_CUARENTENA', 'DERIVADO_ALMACEN', 'DESCARTADO', 'RECHAZADO')` | Estado del lote/prenda |
-| `fecha_reporte` | `TIMESTAMP` | No | `DEFAULT CURRENT_TIMESTAMP` | Fecha de emisión del acta |
+| `estado_cuarentena` | `VARCHAR(30)` | No | `CHECK IN ('EN_CUARENTENA', 'DERIVADO_ALMACEN', 'BAJA_DEFINITIVA', 'PENDIENTE_REPORTE')`, `DEFAULT 'EN_CUARENTENA'` | Estado según §5.12 |
+| `idempotency_key` | `VARCHAR(64)` | Sí | Índice único parcial | `Idempotency-Key` del `POST /incidencias` (S14) |
+| `incidencia_inventory_id` | `TEXT` | Sí | Ref. externa Productos | ID que devuelve Inventory al aceptar el reporte (`incidenciaInventoryId`); nulo mientras está en `PENDIENTE_REPORTE` (S14) |
+| `acta_id` | `UUID` | Sí | `FOREIGN KEY (RET_ACTA_DISCREPANCIA)` `ON DELETE RESTRICT`; solo con estado `DERIVADO_ALMACEN` o `BAJA_DEFINITIVA` | Acta de merma que liquida la incidencia (S14) |
+| `intentos_reporte` | `INTEGER` | No | `DEFAULT 0`, `CHECK (>= 0)` | Reintentos de envío a Inventory (S14) |
+| `ultimo_error_reporte` | `TEXT` | Sí | — | Último error al reportar a Inventory (S14) |
+| `fecha_reporte` | `TIMESTAMPTZ` | No | `DEFAULT CURRENT_TIMESTAMP` | Momento del reporte y de la puesta en cuarentena |
+| `updated_at` | `TIMESTAMPTZ` | No | `DEFAULT CURRENT_TIMESTAMP`, trigger | Auditoría de actualización (S14) |
+
+---
+
+### Tabla 6b: `RET_ACTA_DISCREPANCIA` (S14)
+Acta digital de discrepancia o merma de tienda (RF-34). La emite el `SUPERVISOR` para liquidar prendas en cuarentena. El acta **documenta la salida, pero no cierra el caso**: Inventory resuelve cada incidencia (§5.12). Por eso no guarda un estado de notificación a Productos: el reporte a Inventory viaja por incidencia (`PENDIENTE_REPORTE`) y se eliminó el antiguo `/ajuste-discrepancia` (G4-P0-05). Se crea con `diseño/schema-s14-f12.sql`.
+
+| Campo | Tipo SQL | Nulo | Restricciones / Valores | Descripción |
+| :--- | :--- | :---: | :--- | :--- |
+| `id_acta` | `UUID` | No | `PRIMARY KEY` | Identificador del acta |
+| `numero_acta` | `VARCHAR(30)` | No | `UNIQUE`, `CHECK ~ '^ACTA-MERMA-[0-9]{4}-[0-9]{4}$'` | Correlativo `ACTA-MERMA-2026-0012`. Lo arma la API con la secuencia `ret_acta_merma_seq` |
+| `tienda_id` | `TEXT` | No | — | Sucursal que emite el acta |
+| `supervisor_id` | `UUID` | No | Ref. externa Seguridad | Supervisor que emite y firma |
+| `tipo_destino` | `VARCHAR(30)` | No | `CHECK IN ('DEVOLUCION_CENTRAL', 'BAJA_DEFINITIVA', 'AJUSTE_PERDIDA')` | Destino de las prendas |
+| `total_prendas` | `INTEGER` | No | `CHECK (total_prendas > 0)` | Cantidad de incidencias liquidadas (lista vacía → `400 LISTA_VACIA`) |
+| `observaciones` | `TEXT` | Sí | — | Notas del traslado o la baja |
+| `fecha_emision` | `TIMESTAMPTZ` | No | `DEFAULT CURRENT_TIMESTAMP` | Momento de emisión, impreso en el acta (inmutable) |
+
+Una incidencia entra como máximo en un acta, por eso la relación es la columna `acta_id` de `RET_INCIDENCIA_INVENTARIO` y no una tabla intermedia.
 
 ---
 
@@ -436,20 +552,36 @@ CREATE INDEX idx_vale_cliente_estado  ON RET_VALE_COMPRA(cliente_id, estado);
 CREATE INDEX idx_vale_tienda_estado   ON RET_VALE_COMPRA(tienda_id, estado);
 CREATE INDEX idx_cobro_turno_estado   ON RET_COBRO_TURNO(caja_sesion_id, estado);
 CREATE INDEX idx_cobro_pedido         ON RET_COBRO_TURNO(pedido_id) WHERE pedido_id IS NOT NULL;
+
+-- S14 (schema-s14-f12.sql): F12 cuarentena, reenvío a Inventory y actas
+CREATE UNIQUE INDEX ux_ret_incidencia_clave ON RET_INCIDENCIA_INVENTARIO(idempotency_key) WHERE idempotency_key IS NOT NULL;
+CREATE INDEX idx_incidencia_sku_activa       ON RET_INCIDENCIA_INVENTARIO(tienda_id, variante_sku_id)
+    WHERE estado_cuarentena IN ('EN_CUARENTENA', 'PENDIENTE_REPORTE');
+CREATE INDEX idx_incidencia_pendiente_reporte ON RET_INCIDENCIA_INVENTARIO(fecha_reporte) WHERE estado_cuarentena = 'PENDIENTE_REPORTE';
+CREATE INDEX idx_incidencia_acta             ON RET_INCIDENCIA_INVENTARIO(acta_id) WHERE acta_id IS NOT NULL;
+CREATE INDEX idx_acta_tienda_fecha           ON RET_ACTA_DISCREPANCIA(tienda_id, fecha_emision DESC);
+
+-- S14 (schema-s14-cambio-directo.sql): F9 cambio directo
+CREATE UNIQUE INDEX ux_cambio_tienda_constancia ON RET_SOLICITUD_CAMBIO_MOSTRADOR(tienda_id, numero_constancia)
+    WHERE numero_constancia IS NOT NULL;
+CREATE INDEX idx_cambio_estado_inventario_pendiente ON RET_SOLICITUD_CAMBIO_MOSTRADOR(fecha_inspeccion)
+    WHERE estado_inventario = 'PENDIENTE';
+CREATE INDEX idx_cambio_venta_nueva   ON RET_SOLICITUD_CAMBIO_MOSTRADOR(venta_nueva_id) WHERE venta_nueva_id IS NOT NULL;
+CREATE INDEX idx_cambio_item_solicitud ON RET_SOLICITUD_CAMBIO_ITEM(solicitud_id);
 ```
 
 ---
 
 ## 5. Triggers de Auditoría y Políticas de Seguridad (RLS)
 
-1. **Triggers de actualización automática (`updated_at`)** en `RET_CAJA_SESION` y `RET_PERSONAL_TIENDA`.
+1. **Triggers de actualización automática (`updated_at`)** en `RET_CAJA_SESION`, `RET_PERSONAL_TIENDA` y, desde S14, `RET_INCIDENCIA_INVENTARIO`.
 2. **Auditoría automática** (`fn_auditar_caja_sesion`):
    - `trg_ret_caja_sesion_audit_ins`: al abrir un turno (`INSERT` en `RET_CAJA_SESION`) registra una `APERTURA` en `RET_AUDITORIA_OPERACIONES`.
    - `trg_ret_caja_sesion_audit_upd`: al cerrar un turno (`ABIERTA` → `CERRADA`/`OBSERVADA`) registra un `CIERRE` (`EXITOSO` u `OBSERVADO`).
 3. **Auditoría inmutable** (`fn_auditoria_inmutable`):
    - `trg_ret_auditoria_inmutable` y `trg_ret_auditoria_no_truncate` bloquean `UPDATE`, `DELETE` y `TRUNCATE` sobre `RET_AUDITORIA_OPERACIONES` (solo inserción). La FK hacia `RET_CAJA_SESION` es `ON DELETE RESTRICT`, por lo que un turno con rastro de auditoría no se puede borrar.
 4. **Row Level Security (RLS)**:
-   - Todas las tablas (incluidas `RET_VALE_COMPRA` y `RET_COBRO_TURNO`) tienen RLS habilitado (`ENABLE ROW LEVEL SECURITY`); `RET_AUDITORIA_OPERACIONES` solo admite `SELECT` e `INSERT`.
+   - Todas las tablas (incluidas `RET_VALE_COMPRA`, `RET_COBRO_TURNO`, `RET_ACTA_DISCREPANCIA`, `RET_SOLICITUD_CAMBIO_ITEM` y `RET_CORRELATIVO`) tienen RLS habilitado (`ENABLE ROW LEVEL SECURITY`); `RET_AUDITORIA_OPERACIONES` solo admite `SELECT` e `INSERT`.
 
 ### F10: reserva durable de conciliación
 
